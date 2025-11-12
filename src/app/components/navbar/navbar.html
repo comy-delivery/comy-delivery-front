@@ -3,7 +3,7 @@
 </style>
 
 <nav class="navbar navbar-expand-lg bg-primary p-3">
-  <div class="container">
+  <div class="container align-items-center">
     <a
       class=".shrikhand-regular navbar-brand text-warning"
       style="font-family: 'Shrikhand', serif; font-weight: 500; font-size: xx-large"
@@ -22,25 +22,37 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-          <a class="nav-link active text-white" aria-current="page" href="#">Home</a>
+      <ul class="navbar-nav ms-auto me-auto mb-2 align-items-center gap-2">
+        <li class="nav-item text-white">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="30"
+            height="30"
+            fill="currentColor"
+            class="bi bi-geo-alt"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A32 32 0 0 1 8 14.58a32 32 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10"
+            />
+            <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
+          </svg>
         </li>
-        <li class="nav-item">
-          <a class="nav-link disabled text-white" aria-disabled="true">Emtregas em:</a>
+        <li class="nav-item text-white">
+          Entregas aqui:
+          <p class="m-0">aqu</p>
         </li>
       </ul>
-      <form class="d-flex" role="search">
+      <form class="d-flex w-50" role="search">
         <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
-        <button class="btn btn-outline-success" type="submit">Search</button>
       </form>
-      <ul class="navbar-nav ms-3">
+      <ul class="navbar-nav ms-3 gap-2">
         <li class="nav-item">
           <button class="btn btn-primary">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
+              width="22"
+              height="22"
               fill="currentColor"
               class="bi bi-circle-half"
               viewBox="0 0 16 16"
@@ -53,15 +65,36 @@
           <button class="btn btn-primary">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
+              width="22"
+              height="22"
               fill="currentColor"
-              class="bi bi-person-fill"
+              class="bi bi-person"
               viewBox="0 0 16 16"
             >
-              <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
+              <path
+                d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"
+              />
             </svg>
           </button>
+        </li>
+        <li class="nav-item">
+          <button class="btn btn-primary">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="22"
+              height="22"
+              fill="currentColor"
+              class="bi bi-cart2"
+              viewBox="0 0 16 16"
+            >
+              <path
+                d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5M3.14 5l1.25 5h8.22l1.25-5zM5 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0m9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2m-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0"
+              />
+            </svg>
+          </button>
+        </li>
+        <li class="nav-item ms-3">
+          <button class="btn btn-warning p-2">Entrar</button>
         </li>
       </ul>
     </div>
