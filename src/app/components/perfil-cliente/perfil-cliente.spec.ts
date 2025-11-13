@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { Grid } from './grid';
+import { PerfilCliente } from './perfil-cliente';
 
-describe('Grid', () => {
-  let component: Grid;
-  let fixture: ComponentFixture<Grid>;
+describe('PerfilCliente', () => {
+  let component: PerfilCliente;
+  let fixture: ComponentFixture<PerfilCliente>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [Grid]
+      imports: [PerfilCliente]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(Grid);
+    fixture = TestBed.createComponent(PerfilCliente);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
