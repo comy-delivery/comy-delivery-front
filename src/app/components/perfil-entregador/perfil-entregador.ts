@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
+import { PainelEntregador } from '../painel-entregador/painel-entregador';
 
 @Component({
   selector: 'app-perfil-entregador',
-  imports: [],
+  imports: [PainelEntregador],
   templateUrl: './perfil-entregador.html',
   styleUrl: './perfil-entregador.scss',
 })
-export class PerfilEntregador {
-
-}
+export class PerfilEntregador {}
