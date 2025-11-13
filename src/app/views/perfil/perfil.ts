@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
-import { PerfilEntregador } from '../../components/perfil-entregador/perfil-entregador';
+import { PerfilRestaurante } from '../../components/perfil-restaurante/perfil-restaurante';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-perfil',
-  imports: [PerfilEntregador],
+  imports: [PerfilRestaurante, CommonModule],
+
   templateUrl: './perfil.html',
   styleUrl: './perfil.scss',
 })
