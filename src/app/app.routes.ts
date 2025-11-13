@@ -13,6 +13,6 @@ export const routes: Routes = [
   { path: 'perfil', component: Perfil },
   { path: 'carrinho', component: Carrinho },
   { path: 'login', component: Login },
-  {path: 'cadastro', component: Cadastro},
+  { path: 'cadastro', component: Cadastro },
   { path: '**', component: NotFound },
 ];
