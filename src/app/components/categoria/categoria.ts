@@ -53,11 +53,7 @@ export class Categoria {
       { name: 'Doces', svg: this.sanitizer.bypassSecurityTrustHtml(svgs['doce']) },
       { name: 'Asiática', svg: this.sanitizer.bypassSecurityTrustHtml(svgs['asiatica']) },
       { name: 'Saudável', svg: this.sanitizer.bypassSecurityTrustHtml(svgs['saudavel']) },
-      {
-        name: 'Brasileira',
-        svg: this.sanitizer.bypassSecurityTrustHtml(svgs['brasileira']),
-        iconUrl: 'assets/icons/brasileira.svg',
-      },
+      {name: 'Brasileira',svg: this.sanitizer.bypassSecurityTrustHtml(svgs['brasileira']),iconUrl: 'assets/icons/brasileira.svg'},
     ];
   }
 }
