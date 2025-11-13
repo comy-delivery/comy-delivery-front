@@ -6,6 +6,4 @@ import { Component } from '@angular/core';
   templateUrl: './painel-entregador.html',
   styleUrl: './painel-entregador.scss',
 })
-export class PainelEntregador {
-
-}
+export class PainelEntregador {}

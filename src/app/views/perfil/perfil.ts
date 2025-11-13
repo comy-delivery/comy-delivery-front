@@ -4,11 +4,9 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-perfil',
-  imports: [PerfilRestaurante,CommonModule],
+  imports: [PerfilRestaurante, CommonModule],
+
   templateUrl: './perfil.html',
   styleUrl: './perfil.scss',
-  
 })
-export class Perfil {
-
-}
+export class Perfil {}

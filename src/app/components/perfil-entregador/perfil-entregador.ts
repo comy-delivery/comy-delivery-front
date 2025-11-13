@@ -6,6 +6,4 @@ import { Component } from '@angular/core';
   templateUrl: './perfil-entregador.html',
   styleUrl: './perfil-entregador.scss',
 })
-export class PerfilEntregador {
-
-}
+export class PerfilEntregador {}
