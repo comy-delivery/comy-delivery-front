@@ -1,24 +1,26 @@
 <app-painel-entregador />
-<div class="container mt-5">
-  <div class="card position-relative rounded-5 border-3 border-primary shadow">
+<div class="container">
+  <div
+    class="card position-relative rounded-5 border-3 border-top-0 border-primary shadow mt-5 mb-5"
+  >
     <div class="card-header bg-primary rounded-top-5">
       <div class="d-flex justify-content-between mt-2 mb-4">
         <p class="m-0 text-white">Entrega Atual</p>
         <span class="badge text-bg-light text-primary">#123</span>
       </div>
       <div
-        class="progress mb-2 opacity-75"
+        class="progress mb-2"
         role="progressbar"
         aria-label="Info "
         aria-valuenow="25"
         aria-valuemin="25"
         aria-valuemax="100"
       >
-        <div class="progress-bar text-bg-info text-primary" style="width: 25%">25%</div>
+        <div class="progress-bar text-bg-success" style="width: 25%">25%</div>
       </div>
     </div>
 
-    <div class="row gap-3 m-3 mt-5">
+    <div class="row gap-3 m-3 mt-5 mb-4">
       <div class="col-sm-12 col-md-6 col-12 alert alert-warning rounded-4 border-3" role="alert">
         <div class="d-flex gap-2 align-items-center text-danger text-opacity-75 mb-2 fw-bold">
           <svg
@@ -65,7 +67,7 @@
         </div>
       </div>
 
-      <div class="alert alert-light rounded-4" role="alert">
+      <div class="col-12 alert alert-light rounded-4" role="alert">
         <div class="row">
           <div class="col">
             <div class="d-flex align-items-center gap-2">
@@ -137,27 +139,26 @@
           </div>
         </div>
       </div>
-      <div class="row w-100">
-        <div class="col-sm-12 col-md-12 col-lg-10 col-12 p-0">
-          <button class="btn btn-warning w-100">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              fill="currentColor"
-              class="bi bi-caret-up me-2"
-              viewBox="0 0 16 16"
-            >
-              <path
-                d="M3.204 11h9.592L8 5.519zm-.753-.659 4.796-5.48a1 1 0 0 1 1.506 0l4.796 5.48c.566.647.106 1.659-.753 1.659H3.204a1 1 0 0 1-.753-1.659"
-              />
-            </svg>
-            Cheguei ao restaurante
-          </button>
-        </div>
-        <div class="col">
-          <button class="btn btn-outline-dark w-100">Cancelar</button>
-        </div>
+
+      <div class="col-sm-12 col-md-12 col-lg-10 col-12 p-0">
+        <button class="btn btn-warning w-100">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            fill="currentColor"
+            class="bi bi-caret-up me-2"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="M3.204 11h9.592L8 5.519zm-.753-.659 4.796-5.48a1 1 0 0 1 1.506 0l4.796 5.48c.566.647.106 1.659-.753 1.659H3.204a1 1 0 0 1-.753-1.659"
+            />
+          </svg>
+          Cheguei ao restaurante
+        </button>
+      </div>
+      <div class="col p-0">
+        <button class="btn btn-outline-dark w-100">Cancelar</button>
       </div>
     </div>
   </div>
