@@ -1,11 +1,15 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-pedido-restaurante',
-  imports: [],
+  selector: 'pedido-restaurante',
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './pedido-restaurante.html',
-  styleUrl: './pedido-restaurante.scss',
+  styleUrl: './pedido-restaurante.scss'
 })
-export class PedidoRestaurante {
+export class PedidoRestauranteComponent {
+
+  @Input() pedido: any;   
 
 }

@@ -1,1 +1,45 @@
-<p>pedido-restaurante works!</p>
+
+
+<div class="pedido-card">
+
+
+  <div class="pedido-header">
+    <div class="pedido-info">
+      <h3>Pedido #{{ pedido?.id }}</h3>
+      <span class="status">{{ pedido?.status }}</span>
+    </div>
+    <div class="pedido-horario">
+      <span>{{ pedido?.hora }}</span>
+    </div>
+  </div>
+
+ 
+  <div class="cliente-info">
+    <p><strong>Cliente:</strong> {{ pedido?.cliente }}</p>
+    <p><strong>Endereço:</strong> {{ pedido?.endereco }}</p>
+    <p><strong>Pagamento:</strong> {{ pedido?.pagamento }}</p>
+  </div>
+
+
+  <div class="itens">
+    <h4>Itens:</h4>
+    <ul>
+      <li *ngFor="let item of pedido?.itens">
+        <span>{{ item.nome }} (x{{ item.quantidade }})</span>
+        <span class="preco">R$ {{ item.preco }}</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="total">
+    <span>Total:</span>
+    <strong>R$ {{ pedido?.total }}</strong>
+  </div>
+
+ 
+  <div class="acoes">
+    <button class="aceitar">Aceitar</button>
+    <button class="recusar">Recusar</button>
+  </div>
+
+</div>

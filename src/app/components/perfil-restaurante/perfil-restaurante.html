@@ -66,9 +66,11 @@
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </div>
+
 
 <div class="bg-white" style="border-bottom: 1px solid #dee2e6;">
   <div class="container">
@@ -98,16 +100,24 @@
 </div>
 
 
+
 <div class="container mt-4">
 
   <div *ngIf="tabAtiva === 'pedidos'">
-    <h3>Lista de Pedidos</h3>
+  <h3>Novos Pedidos</h3>
+
+  <div class="mt-4">
+    <pedido-restaurante
+      *ngFor="let p of pedidos"
+      [pedido]="p">
+    </pedido-restaurante>
   </div>
+
+</div>
+
 
   <div *ngIf="tabAtiva === 'produtos'">
     <h3>Lista de Produtos</h3>
   </div>
 
 </div>
-
-
