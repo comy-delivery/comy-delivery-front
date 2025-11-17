@@ -1,0 +1,17 @@
+.btn-tab {
+  background-color: #f8f9fa;
+  border-color: #dee2e6 !important;
+  color: #6c757d;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-tab:hover {
+  background-color: #e9ecef;
+}
+
+.btn-tab.active {
+  background-color: white;
+  border-color: #dee2e6 !important;
+  color: #212529;
+}
