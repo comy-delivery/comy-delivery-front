@@ -73,31 +73,41 @@
 <div class="bg-white" style="border-bottom: 1px solid #dee2e6;">
   <div class="container">
     <div class="d-flex gap-3 py-3 justify-content-center">
-      <button 
-        class="btn-tab active d-flex align-items-center gap-2 px-4 py-2 border rounded-pill fw-semibold"
-        onclick="switchTab(this, 'pedidos')">
-        Pedidos
-        <span class="badge bg-warning text-dark rounded-circle fw-semibold" style="width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem;">2</span>
-      </button>
-      
-      <button 
+
+      <button
         class="btn-tab d-flex align-items-center gap-2 px-4 py-2 border rounded-pill fw-semibold"
-        onclick="switchTab(this, 'produtos')">
+        [class.active]="tabAtiva === 'pedidos'"
+        (click)="switchTab('pedidos')">
+        Pedidos
+        <span class="badge bg-warning text-dark rounded-circle fw-semibold"
+              style="width: 22px; height: 22px; display: flex;
+                     align-items: center; justify-content: center; font-size: 0.7rem;">
+          2
+        </span>
+      </button>
+
+      <button
+        class="btn-tab d-flex align-items-center gap-2 px-4 py-2 border rounded-pill fw-semibold"
+        [class.active]="tabAtiva === 'produtos'"
+        (click)="switchTab('produtos')">
         Produtos
       </button>
+
     </div>
   </div>
 </div>
 
-<script>
-  function switchTab(button, tabName) {
 
-    document.querySelectorAll('.btn-tab').forEach(btn => {
-      btn.classList.remove('active');
-    });
-    
-    button.classList.add('active');
-    
-    console.log('Tab selecionada:', tabName);
-  }
-</script>
+<div class="container mt-4">
+
+  <div *ngIf="tabAtiva === 'pedidos'">
+    <h3>Lista de Pedidos</h3>
+  </div>
+
+  <div *ngIf="tabAtiva === 'produtos'">
+    <h3>Lista de Produtos</h3>
+  </div>
+
+</div>
+
+
