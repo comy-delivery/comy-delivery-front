@@ -1,4 +1,7 @@
+@if (!isLoginRoute() && !isCadastroRoute() && !isEsqueceuRoute()) {
 <app-navbar />
+}
+
 <router-outlet />
 
 <app-footer />

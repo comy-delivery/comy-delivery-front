@@ -1,1 +1,109 @@
-<p>cadastro works!</p>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Shrikhand&display=swap');
+</style>
+
+<div class="container">
+  <div class="d-flex flex-column align-items-center m-5">
+    <div class="card shadow w-75">
+      <div class="card-header bg-primary text-center text-warning">
+        <h3
+          class="mb-0"
+          style="font-family: 'Shrikhand', serif; font-weight: 500; font-size: xx-large"
+        >
+          Comy! - Cadastro
+        </h3>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col">
+            <label for="" class="mb-2">Nome completo</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Nome Completo"
+              aria-label="Nome Completo"
+            />
+          </div>
+          <div class="col">
+            <label for="" class="mb-2">Telefone</label>
+            <input
+              type="tel"
+              class="form-control"
+              placeholder="(11) 9XXXX-XXXX"
+              aria-label="Telefone"
+            />
+          </div>
+        </div>
+        <label for="" class="mb-2">E-mail</label>
+        <input
+          type="email"
+          class="form-control mb-3"
+          placeholder="seuemail@exemplo.com"
+          aria-label="Email"
+        />
+        <div class="row mb-3">
+          <div class="col">
+            <label for="" class="mb-2">Senha</label>
+            <input
+              type="password"
+              class="form-control"
+              placeholder="Min. 8 carac. Maiuscula, Minuscula e Número"
+              aria-label="Senha"
+            />
+          </div>
+          <div class="col">
+            <label for="" class="mb-2">Confirme a senha</label>
+            <input
+              type="password"
+              class="form-control"
+              placeholder="Confirme sua senha"
+              aria-label="Confirme sua senha"
+            />
+          </div>
+        </div>
+        <p class="text-secondary">Endereço de entrega</p>
+        <div class="row mb-3">
+          <div class="col-9">
+            <label for="" class="mb-2">Rua</label>
+            <input type="text" class="form-control" placeholder="Sua rua" aria-label="Sua rua" />
+          </div>
+          <div class="col">
+            <label for="" class="mb-2">Número</label>
+            <input
+              type="number"
+              class="form-control"
+              placeholder="Número da residência"
+              aria-label="Número da residência"
+            />
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col">
+            <label for="" class="mb-2">Bairro</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Seu bairro"
+              aria-label="Seu bairro"
+            />
+          </div>
+          <div class="col">
+            <label for="" class="mb-2">Cidade</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Sua cidade"
+              aria-label="Sua cidade"
+            />
+          </div>
+          <div class="col">
+            <label for="" class="mb-2">CEP</label>
+            <input type="number" class="form-control" placeholder="Seu CEP" aria-label="Seu CE" />
+          </div>
+        </div>
+        <button class="btn btn-primary w-100 mt-3">Criar Conta</button>
+        <p class="text-center mt-3">Já tem uma conta? <a routerLink="/login">Fazer Login</a></p>
+      </div>
+    </div>
+  </div>
+</div>
