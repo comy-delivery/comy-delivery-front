@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { Navbar } from './components/navbar/navbar';
 import { Footer } from './components/footer/footer';
 
@@ -12,5 +12,16 @@ import { Footer } from './components/footer/footer';
 })
 export class App {
   protected readonly title = signal('comy-delivery-front');
+
+  constructor(private router: Router) {}
+
+  isLoginRoute(): boolean {
+    return this.router.url === '/login';
+  }
+  isCadastroRoute(): boolean {
+    return this.router.url === '/cadastro';
+  }
+  isEsqueceuRoute(): boolean {
+    return this.router.url === '/esqueceu';
+  }
 }
-//Emilio da muito o bumbum guloso dele
