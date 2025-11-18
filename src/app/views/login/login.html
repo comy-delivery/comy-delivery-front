@@ -1,0 +1,80 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Shrikhand&display=swap');
+</style>
+
+<div class="container mt-3 align-items-center d-flex flex-column">
+  <div class="card shadow m-5 rounded-5" style="width: 30rem">
+    <div class="card-header bg-primary rounded-top-5">
+      <h3
+        class="text-warning text-center mb-0"
+        style="font-family: 'Shrikhand', serif; font-weight: 500; font-size: xx-large"
+      >
+        Comy! - Login
+      </h3>
+    </div>
+    <form class="p-3">
+      <div class="mb-3">
+        <label class="form-label" required >Email:</label>
+        <input
+          type="email"
+          class="form-control"
+          id="exampleInputEmail1"
+          aria-describedby="emailHelp"
+          placeholder="usuario@gmail.com"
+        />
+      </div>
+      <div class="mb-3">
+        <label for="exampleInputPassword1" class="form-label" >Senha:</label>
+        <input
+          type="password"
+          class="form-control"
+          id="exampleInputPassword1"
+          placeholder="••••••••"
+        />
+      </div>
+      <div class="text-center">
+        <button type="submit" routerLink="/" class="btn btn-primary w-100">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            fill="currentColor"
+            class="bi bi-people"
+            viewBox="0 0 16 16"
+          >
+            <path
+              d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1L7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002-.014.002zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a6 6 0 0 0-1.23-.247A7 7 0 0 0 5 9c-4 0-5 3-5 4q0 1 1 1h4.216A2.24 2.24 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.92 10A5.5 5.5 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0m3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4"
+            />
+          </svg>
+          entrar
+        </button>
+        <div class="mt-3"><a routerLink="/esqueceu" class="text-primary">Esqueceu sua senha? </a></div>
+      </div>
+    </form>
+
+    <div class="card-footer">
+      <div class="rol">
+        <div class="col p-4">
+          <button class="btn btn-outline-secondary w-100">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              fill="currentColor"
+              class="bi bi-google"
+              viewBox="0 0 16 16"
+            >
+              <path
+                d="M15.545 6.558a9.4 9.4 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.7 7.7 0 0 1 5.352 2.082l-2.284 2.284A4.35 4.35 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.8 4.8 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.7 3.7 0 0 0 1.599-2.431H8v-3.08z"
+              />
+            </svg>
+            Google
+          </button>
+        </div>
+        <div class="mt-2 text-center">
+          <p>Não tem uma conta? <a routerLink="/cadastro">Criar Conta</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
