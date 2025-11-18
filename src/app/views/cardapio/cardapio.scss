@@ -1,0 +1,32 @@
+/* Styles for cardápio banner moved from inline HTML.
+	 Aumentei altura para não ficar só uma faixa — ajuste se quiser. */
+
+.cardapio-banner {
+  width: 100%;
+  height: 300px; /* desktop: um pouco maior para dar presença */
+  object-fit: cover;
+  display: block;
+}
+
+@media (max-width: 992px) {
+  .cardapio-banner {
+    height: 220px;
+  }
+}
+
+@media (max-width: 768px) {
+  .cardapio-banner {
+    height: 180px;
+  }
+}
+
+@media (max-width: 420px) {
+  .cardapio-banner {
+    height: 140px;
+  }
+}
+
+/* Optional: ensure overlay content has readable contrast */
+.card .card-img-overlay {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.45));
+}
