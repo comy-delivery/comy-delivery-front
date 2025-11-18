@@ -9,5 +9,5 @@ import { ItemCarrinho } from '../../components/item-carrinho/item-carrinho';
   styleUrl: './carrinho.scss',
 })
 export class Carrinho {
-  vazio: boolean = true;
+  vazio: boolean = false;
 }
