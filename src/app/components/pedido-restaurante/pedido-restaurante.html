@@ -1,4 +1,5 @@
-<div class="pedido-card" *ngIf="pedidoVisivel">
+
+<div class="pedido-card" *ngIf="pedidoVisivel && !mostrarDetalhes">
 
   <div class="pedido-header">
     <div class="pedido-info">
@@ -35,8 +36,62 @@
 
  
   <div class="acoes">
-    <button class="aceitar">Aceitar</button>
+    <button class="aceitar" (click)="aceitarPedido()">Aceitar</button>
     <button class="recusar" (click)="recusarPedido()">Recusar</button>
   </div>
+
+</div>
+
+<!-- Tela de detalhes expandida -->
+<div class="pedido-detalhes" *ngIf="mostrarDetalhes">
+  
+  <div class="pedido-header">
+    <div class="pedido-info">
+      <h3>Pedido #{{ pedido?.id }}</h3>
+      <span class="status preparando">Preparando</span>
+    </div>
+    <div class="pedido-horario">
+      <span>{{ pedido?.hora }}</span>
+    </div>
+  </div>
+
+  <div class="cliente-info">
+    <p><strong>Cliente:</strong> {{ pedido?.cliente }}</p>
+    <p><strong>Endereço:</strong> {{ pedido?.endereco }}</p>
+    <p><strong>Pagamento:</strong> {{ pedido?.pagamento }}</p>
+  </div>
+
+  <div class="itens">
+    <h4>Itens:</h4>
+    <ul>
+      <li *ngFor="let item of pedido?.itens">
+        <img [src]="item.imagem" [alt]="item.nome" class="item-imagem">
+        <div class="item-info">
+          <span>{{ item.quantidade }}x {{ item.nome }}</span>
+        </div>
+        <span class="preco">R$ {{ item.preco }}</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="resumo-valores">
+    <div class="linha-valor">
+      <span>Subtotal</span>
+      <span>R$ {{ pedido?.subtotal }}</span>
+    </div>
+    <div class="linha-valor">
+      <span>Taxa de Entrega</span>
+      <span>R$ {{ pedido?.taxaEntrega }}</span>
+    </div>
+    <div class="linha-valor total">
+      <span>Total</span>
+      <strong>R$ {{ pedido?.total }}</strong>
+    </div>
+    <div class="linha-valor">
+      <span>Pagamento: {{ pedido?.pagamento }}</span>
+    </div>
+  </div>
+
+  <button class="marcar-pronto">Marcar como Pronto</button>
 
 </div>
