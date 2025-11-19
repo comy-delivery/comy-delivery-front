@@ -11,5 +11,6 @@ import { PerfilEntregador } from '../../components/perfil-entregador/perfil-entr
   styleUrl: './perfil.scss',
 })
 export class Perfil {
-  public logado: string = 'Restaurante';
+  public logado: string = 'Entregador'; 
+
 }

@@ -7,6 +7,7 @@ import { Carrinho } from './views/carrinho/carrinho';
 import { Login } from './views/login/login';
 import { Cadastro } from './views/cadastro/cadastro';
 import { Entrega } from './views/entrega/entrega';
+import { RecuperarSenha } from './views/recuperar-senha/recuperar-senha';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -16,5 +17,7 @@ export const routes: Routes = [
   { path: 'carrinho', component: Carrinho },
   { path: 'login', component: Login },
   { path: 'cadastro', component: Cadastro },
+  {path:'esqueceu', component: RecuperarSenha},
+  {path: 'cardapio', component: Cardapio},
   { path: '**', component: NotFound },
 ];
