@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { PerfilRestaurante } from '../../components/perfil-restaurante/perfil-restaurante';
 import { CommonModule } from '@angular/common';
 import { PerfilEntregador } from '../../components/perfil-entregador/perfil-entregador';
-import { PerfilCliente } from '../../components/perfil-cliente/perfil-cliente';
+import { PerfilCliente } from "../../components/perfil-cliente/perfil-cliente";
 
 @Component({
   selector: 'app-perfil',
@@ -12,5 +12,6 @@ import { PerfilCliente } from '../../components/perfil-cliente/perfil-cliente';
   styleUrl: './perfil.scss',
 })
 export class Perfil {
-  public logado: string = 'Cliente';
+  public logado: string = 'Restaurante'; 
+
 }
