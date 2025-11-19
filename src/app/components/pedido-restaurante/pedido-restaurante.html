@@ -1,5 +1,5 @@
-
-<div class="pedido-card" *ngIf="pedidoVisivel && !mostrarDetalhes">
+<!-- Card resumido do pedido -->
+<div class="pedido-card" *ngIf="pedidoVisivel && !mostrarDetalhes && !pedidoPronto">
 
   <div class="pedido-header">
     <div class="pedido-info">
@@ -43,7 +43,7 @@
 </div>
 
 <!-- Tela de detalhes expandida -->
-<div class="pedido-detalhes" *ngIf="mostrarDetalhes">
+<div class="pedido-detalhes" *ngIf="mostrarDetalhes && !pedidoPronto">
   
   <div class="pedido-header">
     <div class="pedido-info">
@@ -92,6 +92,50 @@
     </div>
   </div>
 
-  <button class="marcar-pronto">Marcar como Pronto</button>
+  <button class="marcar-pronto" (click)="marcarComoPronto()">Marcar como Pronto</button>
+
+</div>
+
+<!-- Pedido pronto para entrega -->
+<div class="pedido-pronto" *ngIf="pedidoPronto">
+  
+  <div class="pedido-header">
+    <div class="pedido-info">
+      <h3>Pedido #{{ pedido?.id }}</h3>
+      <span class="status pronto">Pronto</span>
+    </div>
+    <div class="pedido-horario">
+      <span>{{ pedido?.hora }}</span>
+    </div>
+  </div>
+
+  <div class="cliente-info">
+    <p><strong>{{ pedido?.cliente }}</strong></p>
+    <p>{{ pedido?.telefone }}</p>
+    <p>{{ pedido?.endereco }}</p>
+  </div>
+
+  <div class="itens-resumo">
+    <img [src]="pedido?.itens[0]?.imagem" [alt]="pedido?.itens[0]?.nome" class="item-thumb">
+    <span class="quantidade-itens">{{ pedido?.itens?.length }}x {{ pedido?.itens[0]?.nome }}</span>
+  </div>
+
+  <div class="valores-resumo">
+    <div class="linha">
+      <span>Subtotal</span>
+      <span>R$ {{ pedido?.subtotal }}</span>
+    </div>
+    <div class="linha">
+      <span>Taxa de Entrega</span>
+      <span>R$ {{ pedido?.taxaEntrega }}</span>
+    </div>
+    <div class="linha total">
+      <span>Total</span>
+      <strong>R$ {{ pedido?.total }}</strong>
+    </div>
+    <div class="linha pagamento">
+      <span>Pagamento: {{ pedido?.pagamento }}</span>
+    </div>
+  </div>
 
 </div>
