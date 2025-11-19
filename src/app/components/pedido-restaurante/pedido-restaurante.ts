@@ -10,6 +10,11 @@ import { CommonModule } from '@angular/common';
 })
 export class PedidoRestauranteComponent {
 
-  @Input() pedido: any;   
+  @Input() pedido: any;
+  pedidoVisivel = true;
+
+  recusarPedido() {
+    this.pedidoVisivel = false;
+  }
 
 }

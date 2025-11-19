@@ -1,7 +1,4 @@
-
-
-<div class="pedido-card">
-
+<div class="pedido-card" *ngIf="pedidoVisivel">
 
   <div class="pedido-header">
     <div class="pedido-info">
@@ -39,7 +36,7 @@
  
   <div class="acoes">
     <button class="aceitar">Aceitar</button>
-    <button class="recusar">Recusar</button>
+    <button class="recusar" (click)="recusarPedido()">Recusar</button>
   </div>
 
 </div>
