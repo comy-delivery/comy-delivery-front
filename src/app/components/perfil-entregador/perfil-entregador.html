@@ -1,4 +1,325 @@
-<app-painel-entregador />
-<div class="container">
-  <app-entrega-disponivel />
+<div class="min-vh-100 pb-5">
+  <div class="bg-primary text-white">
+    <div class="container py-4">
+      <div class="d-flex align-items-center gap-3">
+        <div
+          class="rounded-circle bg-white bg-opacity-25 d-flex align-items-center justify-content-center"
+          style="width: 80px; height: 80px"
+        >
+          <i class="bi bi-bicycle" style="font-size: 28px"></i>
+        </div>
+
+        <div>
+          <h1 class="h5 mb-0">João da Silva</h1>
+          <p class="mb-1 text-white-50">Entregador Comy</p>
+
+          <div class="mt-2 d-flex gap-2 align-items-center">
+            <span class="badge bg-warning text-dark d-flex gap-1 align-items-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="10"
+                height="10"
+                fill="currentColor"
+                class="bi bi-star-fill"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"
+                />
+              </svg>
+              4.8
+            </span>
+            <span class="badge bg-white bg-opacity-25">234 entregas </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container d-flex align-items-center justify-content-between py-3">
+    Minhas informaçoes
+    <button class="btn btn-outline-primary d-flex align-items-center gap-2">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="lucide lucide-pencil"
+      >
+        <path d="M18 2a2.828 2.828 0 0 1 4 4L7 21l-4 1 1-4Z" />
+        <path d="m16 4 4 4" />
+      </svg>
+      Editar Perfil
+    </button>
+  </div>
+
+  <div class="container pb-4">
+    <div class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div class="card p-3 h-100 rounded-4">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <small class="text-muted">Total de Entregas</small>
+              <div class="h4 mb-0">234</div>
+            </div>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="36"
+              height="36"
+              fill="currentColor"
+              class="bi bi-box-seam text-primary"
+              viewBox="0 0 16 16"
+            >
+              <path
+                d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2zm3.564 1.426L5.596 5 8 5.961 14.154 3.5zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464z"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card p-3 h-100 rounded-4">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <small class="text-muted">Avaliação</small>
+              <div class="h4 mb-0">4.8</div>
+            </div>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="36"
+              height="36"
+              fill="currentColor"
+              class="bi bi-star-fill text-warning"
+              viewBox="0 0 16 16"
+            >
+              <path
+                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card p-3 h-100 rounded-4">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <small class="text-muted">Ganhos Totais</small>
+              <div class="h4 mb-0">R$ 4.280,50</div>
+            </div>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="36"
+              height="36"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-trending-up-icon lucide-trending-up text-success"
+            >
+              <path d="M16 7h6v6" />
+              <path d="m22 7-8.5 8.5-5-5L2 17" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card p-4 mb-4 rounded-4">
+      <h5 class="d-flex gap-1 align-items-center mb-3">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-user-icon lucide-user text-primary"
+        >
+          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+        Dados Pessoais
+      </h5>
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Nome Completo</label>
+          <input class="form-control" value="João da Silva" readonly />
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">CPF</label>
+          <input class="form-control" value="123.456.789-00" readonly />
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Telefone</label>
+          <input class="form-control" value="(11) 98765-4321" readonly />
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">E-mail</label>
+          <input class="form-control" value="joao@email.com" readonly />
+        </div>
+      </div>
+    </div>
+
+    <div class="card p-4 mb-4 rounded-4">
+      <h5 class="d-flex align-items-center gap-1 mb-3">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-bike-icon lucide-bike text-primary"
+        >
+          <circle cx="18.5" cy="17.5" r="3.5" />
+          <circle cx="5.5" cy="17.5" r="3.5" />
+          <circle cx="15" cy="5" r="1" />
+          <path d="M12 17.5V14l-3-3 4-3 2 3h2" />
+        </svg>
+        Informações do Veículo
+      </h5>
+
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Tipo de Veículo</label>
+          <input class="form-control" value="Moto" readonly />
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Placa</label>
+          <input class="form-control" value="ABC-1234" readonly />
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Modelo</label>
+          <input class="form-control" value="Honda CG 160" readonly />
+        </div>
+      </div>
+    </div>
+
+    <div class="card p-4 mb-4 rounded-4">
+      <h5 class="d-flex align-items-center gap-1 mb-3">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="lucide lucide-credit-card-icon lucide-credit-card text-primary"
+        >
+          <rect width="20" height="14" x="2" y="5" rx="2" />
+          <line x1="2" x2="22" y1="10" y2="10" />
+        </svg>
+        Dados Bancários
+      </h5>
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Banco</label>
+          <input class="form-control" value="Banco do Brasil" readonly />
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Tipo de Conta</label>
+          <input class="form-control" value="Conta Corrente" readonly />
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Agência</label>
+          <input class="form-control" value="1234-5" readonly />
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Conta</label>
+          <input class="form-control" value="12345-6" readonly />
+        </div>
+      </div>
+    </div>
+
+    <div class="card p-4 bg-primary bg-opacity-10 mb-4 rounded-4">
+      <h5>Resumo das Informações</h5>
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <small class="text-muted">Contato</small>
+          <div>(11) 98765-4321</div>
+          <div>joao@email.com</div>
+        </div>
+
+        <div class="col-md-6">
+          <small class="text-muted">Veículo</small>
+          <div>
+            Moto - ABC-1234
+            <!-- tipo + placa -->
+          </div>
+          <div>
+            Honda CG 160
+            <!-- modelo -->
+          </div>
+        </div>
+      </div>
+
+      <hr />
+
+      <small class="text-muted">Dados Bancários</small>
+      <div>Banco do Brasil - Conta Corrente</div>
+      <div>
+        Ag: 1234-5 | Conta: 12345-6
+        <!-- agência e conta -->
+      </div>
+    </div>
+
+    <div class="card p-4 bg-danger bg-opacity-10 rounded-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="">
+          <h5 class="mb-1">Sair da Conta</h5>
+          <small class="text-muted">Encerrar a sessão atual</small>
+        </div>
+        <div class="">
+          <button class="btn btn-danger d-flex align-items-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-log-out-icon lucide-log-out"
+            >
+              <path d="m16 17 5-5-5-5" />
+              <path d="M21 12H9" />
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            </svg>
+            Sair
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
