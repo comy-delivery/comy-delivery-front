@@ -7,6 +7,7 @@ interface Produto {
   descricao: string;
   preco: number;
   imagem: string;
+  categoria: string;  
 }
 
 @Component({
@@ -27,5 +28,14 @@ export class ProdutoRestaurante {
 
   remover() {
     this.onRemover.emit(this.produto.id);
+  }
+
+ 
+  editarProduto() {
+    this.editar();
+  }
+
+  removerProduto() {
+    this.remover();
   }
 }

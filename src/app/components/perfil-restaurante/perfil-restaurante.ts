@@ -10,6 +10,7 @@ interface Produto {
   descricao: string;
   preco: number;
   imagem: string;
+  categoria: string;  // ← ADICIONEI AQUI
 }
 
 @Component({
@@ -78,21 +79,24 @@ export class PerfilRestaurante {
       nome: 'Pizza Margherita',
       descricao: 'Molho de tomate, mussarela, manjericão',
       preco: 45.90,
-      imagem: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400'
+      imagem: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400',
+      categoria: 'Pizzas'  
     },
     {
       id: 2,
       nome: 'Pizza Calabresa',
       descricao: 'Molho, mussarela, calabresa, cebola',
       preco: 48.90,
-      imagem: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=400'
+      imagem: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=400',
+      categoria: 'Pizzas'  
     },
     {
       id: 3,
       nome: 'Refrigerante 2L',
       descricao: 'Coca-Cola, Guaraná ou Fanta',
       preco: 8.90,
-      imagem: 'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400'
+      imagem: 'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400',
+      categoria: 'Bebidas'  
     }
   ];
 
@@ -101,7 +105,8 @@ export class PerfilRestaurante {
     nome: '',
     descricao: '',
     preco: 0,
-    imagem: ''
+    imagem: '',
+    categoria: ''  
   };
 
   cardData: any[] = [
@@ -123,7 +128,8 @@ export class PerfilRestaurante {
       nome: '',
       descricao: '',
       preco: 0,
-      imagem: ''
+      imagem: '',
+      categoria: ''  
     };
     this.mostrarModal = true;
   }
