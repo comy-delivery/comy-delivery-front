@@ -7,5 +7,13 @@ import { Component } from '@angular/core';
   styleUrl: './endereco-cliente.scss',
 })
 export class EnderecoCliente {
+  protected botaoEditar: boolean = true;
 
+  clickEditar() {
+    this.botaoEditar = !this.botaoEditar;
+  }
+
+  clickSalvar() {
+    this.botaoEditar = !this.botaoEditar;
+  }
 }
