@@ -106,14 +106,18 @@
     </svg>
         Configurações</label>
   </div>
+  <div class="mt-3">
+
   @if(opcao === 'pedido') {
     <app-pedidos-cliente/>
-}@else if (opcao ==='endereco') {
-    <h2>funfo dnv</h2>
+  }@else if (opcao ==='endereco') {
+    <app-endereco-cliente/>
   }@else if (opcao==='pagamento') {
     <h2>funfo pag</h2>
   }@else if (opcao==='configuracao') {
-    <h2>funfo config</h2>
+    <app-configuracoes/>
   }
+  </div>
+ 
    
 </div>

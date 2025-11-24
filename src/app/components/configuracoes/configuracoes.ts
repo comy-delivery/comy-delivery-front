@@ -7,5 +7,14 @@ import { Component } from '@angular/core';
   styleUrl: './configuracoes.scss',
 })
 export class Configuracoes {
+  protected botaoEditar: boolean = true;
 
+
+  clickEditar() {
+    this.botaoEditar = !this.botaoEditar;
+  }
+
+  clickSalvar() {
+    this.botaoEditar = !this.botaoEditar;
+  }
 }
