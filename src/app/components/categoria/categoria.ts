@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from "@angular/forms";
 
 @Component({
   selector: 'app-categoria',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './categoria.html',
   styleUrl: './categoria.scss',
 })
@@ -61,5 +62,11 @@ export class Categoria {
         iconUrl: 'assets/icons/brasileira.svg',
       },
     ];
+  }
+
+  protected categoriaSelecionada: string = 'Todos';
+
+  selecionarCategoria(categoria: string): void {
+    this.categoriaSelecionada = categoria;
   }
 }
