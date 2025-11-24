@@ -13,6 +13,7 @@ export class PedidoRestauranteComponent {
   @Input() pedido: any;
   pedidoVisivel = true;
   mostrarDetalhes = false;
+  pedidoPronto = false;
 
   recusarPedido() {
     this.pedidoVisivel = false;
@@ -20,6 +21,11 @@ export class PedidoRestauranteComponent {
 
   aceitarPedido() {
     this.mostrarDetalhes = true;
+  }
+
+  marcarComoPronto() {
+    this.pedidoPronto = true;
+    this.mostrarDetalhes = false;
   }
 
 }

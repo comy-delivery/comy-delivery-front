@@ -1,1 +1,25 @@
-<p>produto-restaurante works!</p>
+<div class="product-card">
+  <div class="product-image-container">
+    <img [src]="produto?.imagem" [alt]="produto?.nome" class="product-image">
+  </div>
+
+  <div class="product-content">
+    <h4 class="product-name">{{ produto?.nome }}</h4>
+    <p class="product-description">{{ produto?.descricao }}</p>
+
+    <div class="product-details">
+      <span class="product-category">{{ produto?.categoria }}</span>
+      <span class="product-price">R$ {{ produto?.preco | number: '1.2-2' }}</span>
+    </div>
+  </div>
+
+  <div class="product-actions">
+    <button class="action-button edit-button" (click)="editarProduto()">
+      <i class="bi bi-pencil-square"></i> Editar
+    </button>
+    
+    <button class="action-button remove-button" (click)="removerProduto()">
+      <i class="bi bi-trash"></i> Remover
+    </button>
+  </div>
+</div>

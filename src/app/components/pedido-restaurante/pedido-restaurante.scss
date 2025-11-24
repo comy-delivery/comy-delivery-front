@@ -35,6 +35,11 @@
           background: #d4edda;
           color: #155724;
         }
+
+        &.pronto {
+          background: #28a745;
+          color: #ffffff;
+        }
       }
     }
 
@@ -277,6 +282,116 @@
 
     &:hover {
       background: #218838;
+    }
+  }
+}
+
+.pedido-pronto {
+  width: 100%;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .pedido-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .pedido-info {
+      h3 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+      }
+
+      .status {
+        display: inline-block;
+        margin-top: 4px;
+        padding: 4px 10px;
+        font-size: 13px;
+        border-radius: 20px;
+        font-weight: 500;
+
+        &.pronto {
+          background: #28a745;
+          color: #ffffff;
+        }
+      }
+    }
+
+    .pedido-horario {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+  }
+
+  .cliente-info {
+    font-size: 14px;
+    line-height: 1.6;
+
+    p {
+      margin: 2px 0;
+
+      strong {
+        font-weight: 600;
+      }
+    }
+  }
+
+  .itens-resumo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+
+    .item-thumb {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    .quantidade-itens {
+      font-size: 14px;
+      font-weight: 500;
+    }
+  }
+
+  .valores-resumo {
+    border-top: 1px solid #e0e0e0;
+    padding-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    .linha {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+
+      &.total {
+        margin-top: 6px;
+        padding-top: 6px;
+        border-top: 1px solid #e0e0e0;
+        font-size: 16px;
+
+        strong {
+          font-size: 18px;
+          font-weight: 700;
+          color: #28a745;
+        }
+      }
+
+      &.pagamento {
+        margin-top: 6px;
+        font-size: 13px;
+        opacity: 0.8;
+      }
     }
   }
 }
