@@ -1,7 +1,7 @@
 @if (!isLoginRoute() && !isCadastroRoute() && !isEsqueceuRoute()) {
 <app-navbar />
 }
-
-<router-outlet />
-
+<div class="min-vh-100">
+  <router-outlet />
+</div>
 <app-footer />
