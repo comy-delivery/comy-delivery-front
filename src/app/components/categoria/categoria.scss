@@ -1,0 +1,62 @@
+/* Minimal styles: only visual expansion/animation without overriding Bootstrap colors */
+.categoria-label {
+  transition: transform 160ms ease, box-shadow 160ms ease, padding 160ms ease;
+  will-change: transform, box-shadow, padding;
+  display: block;
+  z-index: 1;
+  backface-visibility: hidden;
+}
+
+/* Visual expand when radio is checked - do NOT change colors/borders so Bootstrap stays default */
+.btn-check:checked + .categoria-label {
+  transform: scale(1.06);
+  box-shadow: 0 8px 20px rgba(13, 110, 253, 0.12);
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+/* Keep the svg/icon scaling but don't touch colors */
+.btn-check + .categoria-label .d-flex span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-check:checked + .categoria-label svg {
+  transform-origin: center center;
+  transform: scale(1.08);
+  transition: transform 160ms ease;
+  display: block;
+}
+
+.btn-check:checked + .categoria-label .d-flex p {
+  font-weight: 600;
+}
+
+/* Reduce expansion effect on very small screens to avoid wrapping/breaks */
+@media (max-width: 575.98px) {
+  .btn-check:checked + .categoria-label {
+    transform: scale(1.03);
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    box-shadow: 0 6px 12px rgba(13, 110, 253, 0.06);
+  }
+
+  .btn-check:checked + .categoria-label svg {
+    transform: scale(1.04);
+  }
+}
+
+/* Slightly larger but still modest on small devices (sm breakpoint) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .btn-check:checked + .categoria-label {
+    transform: scale(1.04);
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+    box-shadow: 0 7px 14px rgba(13, 110, 253, 0.08);
+  }
+
+  .btn-check:checked + .categoria-label svg {
+    transform: scale(1.06);
+  }
+}
