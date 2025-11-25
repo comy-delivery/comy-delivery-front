@@ -12,6 +12,6 @@ import { PerfilCliente } from "../../components/perfil-cliente/perfil-cliente";
   styleUrl: './perfil.scss',
 })
 export class Perfil {
-  public logado: string = 'Cliente'; 
+  public logado: string = 'Restaurante'; 
 
 }

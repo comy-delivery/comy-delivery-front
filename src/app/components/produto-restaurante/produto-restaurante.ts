@@ -1,13 +1,21 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
+interface Adicional {
+  id: number;
+  nome: string;
+  preco: number;
+  descricao?: string;
+}
+
 interface Produto {
   id: number;
   nome: string;
   descricao: string;
   preco: number;
   imagem: string;
-  categoria: string;  
+  categoria: string;
+  adicionais?: Adicional[];
 }
 
 @Component({
@@ -22,20 +30,19 @@ export class ProdutoRestaurante {
   @Output() onEditar = new EventEmitter<Produto>();
   @Output() onRemover = new EventEmitter<number>();
 
-  editar() {
+  editarProduto() {
     this.onEditar.emit(this.produto);
   }
 
-  remover() {
+  removerProduto() {
     this.onRemover.emit(this.produto.id);
   }
 
- 
-  editarProduto() {
-    this.editar();
+  contarAdicionais(): number {
+    return this.produto.adicionais?.length || 0;
   }
 
-  removerProduto() {
-    this.remover();
+  temAdicionais(): boolean {
+    return this.contarAdicionais() > 0;
   }
 }
