@@ -12,6 +12,10 @@ export class RestauranteService {
     return this.http.get<Restaurante[]>('http://localhost:8084/api/restaurante/abertos');
   }
 
+  buscarRestaurantePorId(id: number) {
+    return this.http.get<Restaurante>(`http://localhost:8084/api/restaurante/${id}`);
+  }
+
   restauranteLogo(id: number) {
     return this.http.get(`http://localhost:8084/api/restaurante/${id}/logo`, {
       responseType: 'blob' as 'blob',
