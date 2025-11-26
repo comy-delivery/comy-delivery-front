@@ -1,28 +1,33 @@
 <p class="mt-3 text-secondary">Filtros</p>
-<div class="row mt-3 gap-1 justify-content-between">
-  <div
-    *ngFor="let cat of categories; let i = index"
-    [ngClass]="
-      categoriaSelecionada === cat.name
-        ? 'col-lg-2 col-md-4 col-sm-3 col-3 p-0'
-        : 'col-lg-1 col-md-2 col-sm-3 col-3 p-0'
-    "
-  >
-    <input
-      value="{{ cat.name }}"
-      [(ngModel)]="categoriaSelecionada"
-      (change)="selecionarCategoria(cat.name)"
-      type="radio"
-      class="btn-check"
-      name="categoria"
-      [id]="'categoria-' + i"
-      autocomplete="off"
-    />
-    <label class="btn btn-outline-primary w-100 p-2 categoria-label" [attr.for]="'categoria-' + i">
-      <div class="d-flex flex-column align-items-center">
-        <span [innerHTML]="cat.svg"></span>
-        <p class="m-0">{{ cat.name }}</p>
-      </div>
-    </label>
+<div class="card border-primary p-2">
+  <div class="row gap-1 justify-content-evenly border-end-2 border-start-2">
+    <div
+      *ngFor="let cat of categories; let i = index"
+      [ngClass]="
+        categoriaSelecionada === cat.name
+          ? 'col-lg-2 col-md-4 col-sm-3 col-3 p-0'
+          : 'col-lg-1 col-md-2 col-sm-3 col-3 p-0'
+      "
+    >
+      <input
+        value="{{ cat.name }}"
+        [(ngModel)]="categoriaSelecionada"
+        (change)="selecionarCategoria(cat.name)"
+        type="radio"
+        class="btn-check"
+        name="categoria"
+        [id]="'categoria-' + i"
+        autocomplete="off"
+      />
+      <label
+        class="btn btn-outline-primary w-100 p-2 categoria-label"
+        [attr.for]="'categoria-' + i"
+      >
+        <div class="d-flex flex-column align-items-center">
+          <span [innerHTML]="cat.svg"></span>
+          <p class="m-0">{{ cat.name }}</p>
+        </div>
+      </label>
+    </div>
   </div>
 </div>
