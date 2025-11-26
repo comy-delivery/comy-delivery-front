@@ -3,5 +3,12 @@
   <app-categoria />
   <app-filtros />
 </div>
-
-<app-card-restaurante />
+<div class="container">
+  @for (restaurante of restaurantes; track restaurante.nmRestaurante) {
+  <div class="row">
+    <div class="col-12 col-lg-4 col-md-6 col-sm-12">
+      <app-card-restaurante [Restaurante]="restaurante" />
+    </div>
+  </div>
+  }
+</div>
