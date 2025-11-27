@@ -6,6 +6,11 @@ import { Restaurante } from '../../Shared/models/Restaurante';
 import { RestauranteService } from '../../services/restaurante-service';
 import { ActivatedRoute } from '@angular/router';
 
+interface CategoriaAgrupada {
+  nome: string;
+  items: Produto[];
+}
+
 @Component({
   selector: 'app-cardapio',
   imports: [ItemCardapio],
@@ -17,6 +22,10 @@ export class Cardapio implements OnInit {
   private restauranteService = inject(RestauranteService);
   private route = inject(ActivatedRoute);
   idRestaurante!: number;
+  protected cardapioAgrupado: CategoriaAgrupada[] = [];
+  protected produtos: Produto[] = [];
+
+  @Input({ required: true }) Restaurante = {} as Restaurante;
 
   @Input() id!: string;
 
@@ -25,12 +34,17 @@ export class Cardapio implements OnInit {
 
     if (idUrl) {
       this.idRestaurante = Number(idUrl);
+
+      // Carregar produtos do restaurante
       this.produtoService.buscarProdutos(this.idRestaurante).subscribe({
         next: (response) => {
           this.produtos = response;
+          this.organizarCardapio();
         },
         error: (erro) => console.error(erro),
       });
+
+      // Carregar dados do restaurante
       this.restauranteService.buscarRestaurantePorId(this.idRestaurante).subscribe({
         next: (restaurante) => {
           this.Restaurante = restaurante;
@@ -63,7 +77,21 @@ export class Cardapio implements OnInit {
     });
   }
 
-  protected produtos: Produto[] = [];
+  private organizarCardapio() {
+    const grupos: { [key: string]: Produto[] } = {};
 
-  @Input({ required: true }) Restaurante = {} as Restaurante;
+    this.produtos.forEach((produto) => {
+      const categoria = produto.categoriaProduto || 'Outros';
+
+      if (!grupos[categoria]) {
+        grupos[categoria] = [];
+      }
+      grupos[categoria].push(produto);
+    });
+
+    this.cardapioAgrupado = Object.keys(grupos).map((nome) => ({
+      nome,
+      items: grupos[nome],
+    }));
+  }
 }

@@ -88,13 +88,30 @@
 </div>
 <div class="container">
   <div class="row">
-    <p class="text-secondary mt-3">Produtos</p>
-    @for (produto of produtos; track produto.idProduto) {
+    @for (grupo of cardapioAgrupado; track grupo.nome) {
 
-    <div class="col-12 col-lg-6 col-md-6 col-sm-12">
-      <app-item-cardapio [Produto]="produto" />
+    <div class="row mt-4">
+      <div class="col-12">
+        <p class="text-secondary pb-2 m-0">
+          {{ grupo.nome }}
+        </p>
+      </div>
     </div>
 
+    <div class="row">
+      @for (produto of grupo.items; track produto.idProduto) {
+      <div class="col-12 col-lg-6 col-md-6 col-sm-12 mt-3">
+        <app-item-cardapio [Produto]="produto" />
+      </div>
+      }
+    </div>
+
+    } @empty {
+    <div class="row mt-5">
+      <div class="col-12 text-center text-muted">
+        <h5>Nenhum item disponível no cardápio no momento.</h5>
+      </div>
+    </div>
     }
   </div>
 </div>

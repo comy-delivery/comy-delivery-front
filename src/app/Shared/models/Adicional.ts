@@ -1,6 +1,11 @@
+import { Produto } from './Produto';
+
 export interface Adicional {
-  id: number;
-  nome: string;
-  preco: number;
-  descricao?: string;
+  idAdicional: number;
+  nmAdicional: string;
+  dsAdicional?: string;
+  vlPrecoAdicional: number;
+  isDisponivel: boolean;
+
+  produto?: Produto;
 }
