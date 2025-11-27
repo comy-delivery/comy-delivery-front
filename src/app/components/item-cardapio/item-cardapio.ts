@@ -6,6 +6,8 @@ import { Produto } from '../../Shared/models/Produto';
 import { Adicional } from '../../Shared/models/Adicional'; // <--- COMENTADO
 import { ProdutoService } from '../../services/produto-service';
 import { AdicionalService } from '../../services/adicional-service'; // <--- COMENTADO
+import { ItemPedido } from '../../Shared/models/ItemPedido';
+import { CarrinhoService } from '../../services/carrinho-service';
 
 @Component({
   selector: 'app-item-cardapio',
@@ -16,6 +18,7 @@ import { AdicionalService } from '../../services/adicional-service'; // <--- COM
 export class ItemCardapio implements OnInit {
   private produtoService = inject(ProdutoService);
   private adicionalService = inject(AdicionalService); // <--- COMENTADO
+  private carrinhoService = inject(CarrinhoService);
 
   @Input({ required: true }) Produto = {} as Produto;
 
@@ -121,19 +124,17 @@ export class ItemCardapio implements OnInit {
   }
 
   adicionarAoCarrinho() {
-    const itemCarrinho = {
+    const novoItem: ItemPedido = {
       produto: this.Produto,
-      adicionais: this.adicionaisSelecionados, // <--- COMENTADO PARA NÃO DAR ERRO
-      observacao: this.observacao,
-      quantidade: this.quantidade,
-      precoTotal: this.calcularTotal(),
+      qtQuantidade: this.quantidade,
+      vlPrecoUnitario: this.Produto.vlPreco,
+      vlSubtotal: this.calcularTotal(),
+      dsObservacao: this.observacao,
+      adicionais: this.adicionaisSelecionados,
     };
 
-    let carrinho = JSON.parse(localStorage.getItem('carrinho') || '[]');
-    carrinho.push(itemCarrinho);
-    localStorage.setItem('carrinho', JSON.stringify(carrinho));
+    this.carrinhoService.adicionar(novoItem);
 
-    alert('Produto adicionado ao carrinho!');
     this.fecharModal();
   }
 }
