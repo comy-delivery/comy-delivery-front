@@ -1,4 +1,4 @@
-<div class="card border-primary p-2 mt-3">
+<div class="card bg-primary bg-opacity-10 border-0 p-2 mt-3">
   <div class="row gap-1 justify-content-evenly border-end-2 border-start-2">
     <div
       *ngFor="let cat of categories; let i = index"
@@ -19,7 +19,7 @@
         autocomplete="off"
       />
       <label
-        class="btn btn-outline-primary w-100 p-2 categoria-label"
+        class="btn btn-outline-primary w-100 p-2 categoria-label border-0"
         [attr.for]="'categoria-' + i"
       >
         <div class="d-flex flex-column align-items-center">

@@ -1,37 +1,47 @@
-<div class="card rounded-4 mt-3 p-3">
-  <div class="row">
-    <div class="col-2">
+<div class="card rounded-4 mt-3 p-3 shadow-sm">
+  <div class="row align-items-center">
+    <div class="col-3 col-sm-2">
       <img
-        src="../banners/banner-massa-nostra.png"
-        class="w-100 rounded-4"
-        alt=""
-        style="height: 100px; width: auto"
+        [src]="imagemUrl || 'assets/img/loading.png'"
+        class="w-100 rounded-4 object-fit-cover"
+        alt="{{ item.produto.nmProduto }}"
+        style="height: auto; width: 60px"
       />
     </div>
+
     <div class="col">
       <div>
-        <p class="mb-1">{{ item?.produto?.nmProduto || 'Pizza Margherita' }}</p>
-        
-        <div *ngIf="item?.adicionais && item.adicionais.length > 0" class="mt-2">
-          <p class="text-success mb-1" style="font-size: 12px;">
-            <strong>➕ Adicionais:</strong>
+        <p class="mb-1 fw-bold">{{ item.produto.nmProduto }}</p>
+
+        <div *ngIf="item.adicionais && item.adicionais.length > 0" class="mt-2">
+          <p class="text-success mb-1" style="font-size: 12px">
+            <strong>Adicionais:</strong>
           </p>
-          <ul class="list-unstyled ms-3" style="font-size: 13px;">
+          <ul class="list-unstyled mb-1" style="font-size: 13px">
             <li *ngFor="let adicional of item.adicionais" class="text-secondary">
-              • {{ adicional.nome }} (+R$ {{ adicional.preco.toFixed(2) }})
+              • {{ adicional.nmAdicional }} (+R$ {{ adicional.vlPrecoAdicional.toFixed(2) }})
             </li>
           </ul>
         </div>
 
-        <div *ngIf="item?.observacao" class="alert alert-warning py-1 px-2 mt-2" style="font-size: 12px;">
-          <strong>💬 Obs:</strong> {{ item.observacao }}
+        <div
+          *ngIf="item.dsObservacao"
+          class="alert alert-warning py-1 px-2 mt-2 d-inline-block"
+          style="font-size: 12px"
+        >
+          <strong>💬 Obs:</strong> {{ item.dsObservacao }}
         </div>
       </div>
-      
-      <div class="d-flex justify-content-between align-items-center mt-3">
-        <p>R$ {{ item?.precoTotal?.toFixed(2) || '25,90' }}</p>
-        <div class="d-flex align-items-center gap-3">
-          <button class="btn btn-outline-secondary btn-sm">
+
+      <div class="d-flex justify-content-between align-items-end mt-3">
+        <p class="fw-bold mb-0 fs-5">R$ {{ item.vlSubtotal.toFixed(2) }}</p>
+
+        <div class="d-flex align-items-center gap-2">
+          <button
+            class="btn btn-outline-secondary btn-sm"
+            (click)="diminuirQuantidade()"
+            [disabled]="item.qtQuantidade <= 1"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -43,8 +53,10 @@
               <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8" />
             </svg>
           </button>
-          <p class="text-secondary m-0">{{ item?.quantidade || 12 }}</p>
-          <button class="btn btn-outline-secondary btn-sm">
+
+          <span class="text-secondary fw-bold px-1">{{ item.qtQuantidade }}</span>
+
+          <button class="btn btn-outline-secondary btn-sm" (click)="aumentarQuantidade()">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -60,7 +72,7 @@
             </svg>
           </button>
 
-          <button class="btn btn-outline-danger btn-sm">
+          <button class="btn btn-outline-danger btn-sm ms-2" (click)="removerItem()">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"

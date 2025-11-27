@@ -13,7 +13,7 @@ export class ProdutoService {
   }
 
   itemImagem(id: number) {
-    return this.http.get(`http://localhost:8084//api/produto/${id}/imagem`, {
+    return this.http.get(`http://localhost:8084/api/produto/${id}/imagem`, {
       responseType: 'blob' as 'blob',
     });
   }

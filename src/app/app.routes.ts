@@ -17,7 +17,7 @@ export const routes: Routes = [
   { path: 'carrinho', component: Carrinho },
   { path: 'login', component: Login },
   { path: 'cadastro', component: Cadastro },
-  {path:'esqueceu', component: RecuperarSenha},
-  {path: 'cardapio', component: Cardapio},
+  { path: 'esqueceu', component: RecuperarSenha },
+  { path: 'cardapio', component: Cardapio },
   { path: '**', component: NotFound },
 ];
