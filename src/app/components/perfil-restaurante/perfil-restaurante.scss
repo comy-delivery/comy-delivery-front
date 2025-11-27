@@ -1,20 +1,10 @@
+/* rely on Bootstrap CSS variables (e.g. set on `:root` or via `data-bs-theme`) */
+
 .btn-tab {
-  background-color: #f8f9fa;
-  border-color: #dee2e6 !important;
-  color: #6c757d;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
-.btn-tab:hover {
-  background-color: #e9ecef;
-}
-
-.btn-tab.active {
-  background-color: white;
-  border-color: #dee2e6 !important;
-  color: #212529;
-}
 
 .produtos-grid {
   display: grid;
@@ -38,11 +28,12 @@
 }
 
 .modal-dialog {
-  background: white;
+  background: var(--bs-body-bg, #ffffff);
   border-radius: 12px;
   width: 100%;
   max-width: 500px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--bs-border-color, #dee2e6);
 }
 
 .modal-produto-grande {
@@ -57,7 +48,7 @@
 
 .modal-header {
   padding: 20px;
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid var(--bs-border-color, #dee2e6);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -96,9 +87,9 @@
 .adicionais-section {
   margin-top: 25px;
   padding: 20px;
-  background: #f8f9fa;
+  background: var(--bs-body-bg, #ffffff);
   border-radius: 8px;
-  border: 2px dashed #dee2e6;
+  border: 2px dashed var(--bs-border-color, #dee2e6);
 }
 
 .adicionais-header {
@@ -110,20 +101,20 @@
   h3 {
     margin: 0;
     font-size: 18px;
-    color: #333;
+    color: var(--bs-body-color, #212529);
     font-weight: 600;
   }
 
   p {
     margin: 5px 0 0 0;
     font-size: 13px;
-    color: #6c757d;
+    color: var(--bs-body-color, #212529);
   }
 }
 
 .btn-add-adicional {
-  background: #28a745;
-  color: white;
+  background: var(--bs-success, #28a745);
+  color: var(--bs-body-bg, #ffffff);
   border: none;
   padding: 8px 16px;
   border-radius: 6px;
@@ -133,7 +124,7 @@
   transition: all 0.2s;
 
   &:hover {
-    background: #218838;
+    filter: brightness(0.95);
     transform: translateY(-1px);
   }
 
@@ -150,11 +141,11 @@
 }
 
 .adicional-item {
-  background: white;
+  background: var(--bs-body-bg, #ffffff);
   padding: 15px;
   border-radius: 8px;
-  border: 1px solid #dee2e6;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--bs-border-color, #dee2e6);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   transition: all 0.2s;
 
   &:hover {
@@ -181,7 +172,7 @@
 
   label {
     font-size: 13px;
-    color: #495057;
+    color: var(--bs-body-color, #212529);
     margin-bottom: 5px;
     font-weight: 500;
   }
@@ -189,14 +180,14 @@
   input {
     padding: 8px 12px;
     font-size: 14px;
-    border: 1px solid #ced4da;
+    border: 1px solid var(--bs-border-color, #ced4da);
     border-radius: 4px;
     transition: border-color 0.2s;
 
     &:focus {
       outline: none;
-      border-color: #80bdff;
-      box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+      border-color: var(--bs-primary, #0d6efd);
+      box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb, 13, 110, 253), 0.25);
     }
   }
 }
@@ -210,8 +201,8 @@
 }
 
 .btn-remover-adicional {
-  background: #dc3545;
-  color: white;
+  background: var(--bs-danger, #dc3545);
+  color: var(--bs-body-bg, #ffffff);
   border: none;
   padding: 8px 10px;
   border-radius: 6px;
@@ -221,7 +212,7 @@
   height: 38px;
 
   &:hover {
-    background: #c82333;
+    filter: brightness(0.95);
     transform: scale(1.05);
   }
 
@@ -233,7 +224,7 @@
 .adicionais-empty {
   text-align: center;
   padding: 30px;
-  color: #6c757d;
+  color: var(--bs-body-color, #212529);
 
   p {
     margin: 5px 0;
@@ -242,21 +233,15 @@
 
   .hint {
     font-size: 13px;
-    color: #adb5bd;
+    color: var(--bs-body-color, #212529);
+    opacity: 0.7;
     margin-top: 8px;
   }
 }
 
 .adicionais-resumo {
   margin-top: 15px;
-  padding: 12px;
-  background: #d4edda;
-  color: #155724;
-  border-radius: 6px;
-  text-align: center;
-  font-weight: 500;
-  font-size: 14px;
-  border: 1px solid #c3e6cb;
+  /* prefer using Bootstrap alert utilities in template */
 }
 
 @media (max-width: 768px) {

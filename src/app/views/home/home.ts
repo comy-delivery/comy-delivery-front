@@ -6,14 +6,18 @@ import { Banner } from '../../components/banner/banner';
 import { Filtros } from '../../components/filtros/filtros';
 import { Restaurante } from '../../Shared/models/Restaurante';
 import { RestauranteService } from '../../services/restaurante-service';
+import { PerfilRestaurante } from "../../components/perfil-restaurante/perfil-restaurante";
 
 @Component({
   selector: 'app-home',
-  imports: [Categoria, CardRestaurante, Banner, Filtros],
+  imports: [Categoria, CardRestaurante, Banner, Filtros, PerfilRestaurante],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
 export class Home implements OnInit {
+
+  protected tipo= 'Cliente';
+  
   private restauranteService = inject(RestauranteService);
 
   ngOnInit(): void {

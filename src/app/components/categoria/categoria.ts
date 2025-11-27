@@ -69,4 +69,8 @@ export class Categoria {
   selecionarCategoria(categoria: string): void {
     this.categoriaSelecionada = categoria;
   }
+
+  protected filtroCategoria: string = '';
+
+
 }
