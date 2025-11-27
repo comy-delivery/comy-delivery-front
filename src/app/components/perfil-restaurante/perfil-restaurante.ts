@@ -1,228 +1,194 @@
-import { Component } from '@angular/core';
+import { Component, inject, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PedidoRestauranteComponent } from '../pedido-restaurante/pedido-restaurante';
 import { ProdutoRestaurante } from '../produto-restaurante/produto-restaurante';
-
-interface Adicional {
-  id: number;
-  nome: string;
-  preco: number;
-  descricao?: string;
-}
-
-interface Produto {
-  id: number;
-  nome: string;
-  descricao: string;
-  preco: number;
-  imagem: string;
-  categoria: string;
-  adicionais?: Adicional[]; 
-}
+import { Restaurante } from '../../Shared/models/Restaurante';
+import { RestauranteService } from '../../services/restaurante-service';
+import { Pedido } from '../../Shared/models/Pedido';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-perfil-restaurante',
   standalone: true,
   imports: [CommonModule, FormsModule, PedidoRestauranteComponent, ProdutoRestaurante],
   templateUrl: './perfil-restaurante.html',
-  styleUrl: './perfil-restaurante.scss',
+  styleUrls: ['./perfil-restaurante.scss'],
 })
-export class PerfilRestaurante {
-  
-  tabAtiva: string = 'pedidos';
-  mostrarModal: boolean = false;
-  modoEdicao: boolean = false;
+export class PerfilRestaurante implements OnInit {
+  private restauranteService = inject(RestauranteService);
+  private route = inject(ActivatedRoute);
 
-  adicionaisTemporarios: Adicional[] = [];
+  logoUrl: string | null = null;
+  bannerUrl: string | null = null;
 
-  pedidos = [
-    {
-      id: 1,
-      cliente: 'João Silva',
-      endereco: 'Rua 1, Centro',
-      hora: '12:30',
-      pagamento: 'Cartão de Crédito',
-      subtotal: 54.90,
-      taxaEntrega: 5.00,
-      total: 59.90,
-      status: 'novo',
-      itens: [
-        { 
-          nome: 'Pizza Margherita', 
-          quantidade: 1, 
-          preco: 45.90,
-          imagem: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400'
-        },
-        { 
-          nome: 'Refrigerante 2L', 
-          quantidade: 1, 
-          preco: 9.00,
-          imagem: 'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400'
-        }
-      ]
-    },
-    {
-      id: 2,
-      cliente: 'Maria Oliveira',
-      endereco: 'Av. Brasil, 200',
-      hora: '12:45',
-      pagamento: 'Dinheiro',
-      subtotal: 37.50,
-      taxaEntrega: 5.00,
-      total: 42.50,
-      status: 'novo',
-      itens: [
-        { 
-          nome: 'Pizza Calabresa', 
-          quantidade: 1, 
-          preco: 37.50,
-          imagem: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=400'
-        }
-      ]
+  produtos: any[] = [];
+  pedidos: Pedido[] = [];
+  tabAtiva: 'pedidos' | 'produtos' = 'pedidos';
+  mostrarModal = false;
+  modoEdicao = false;
+  produtoAtual: any = {};
+  adicionaisTemporarios: any[] = [];
+
+  ngOnInit(): void {
+    const idParam = this.route.snapshot.paramMap.get('id');
+    const id = idParam ? Number(idParam) : null;
+
+    if (id) {
+      this.loadAllForRestaurante(id);
+    } else if (this.Restaurante && this.Restaurante.id) {
+      this.loadAllForRestaurante(this.Restaurante.id);
     }
-  ];
+  }
 
-  produtos: Produto[] = [
-    {
-      id: 1,
-      nome: 'Pizza Margherita',
-      descricao: 'Molho de tomate, mussarela, manjericão',
-      preco: 45.90,
-      imagem: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400',
-      categoria: 'Pizzas',
-      adicionais: [
-        { id: 1, nome: 'Queijo Extra', preco: 3.00, descricao: 'Fatia adicional de queijo' },
-        { id: 2, nome: 'Bacon', preco: 4.50, descricao: 'Bacon crocante' }
-      ]
-    },
-    {
-      id: 2,
-      nome: 'Pizza Calabresa',
-      descricao: 'Molho, mussarela, calabresa, cebola',
-      preco: 48.90,
-      imagem: 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=400',
-      categoria: 'Pizzas',
-      adicionais: [
-        { id: 3, nome: 'Cebola Caramelizada', preco: 2.00, descricao: 'Cebola roxa caramelizada' }
-      ]
-    },
-    {
-      id: 3,
-      nome: 'Refrigerante 2L',
-      descricao: 'Coca-Cola, Guaraná ou Fanta',
-      preco: 8.90,
-      imagem: 'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400',
-      categoria: 'Bebidas',
-      adicionais: []
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['Restaurante'] && this.Restaurante && this.Restaurante.id) {
+      this.loadAllForRestaurante(this.Restaurante.id);
     }
-  ];
+  }
 
-  produtoAtual: Produto = {
-    id: 0,
-    nome: '',
-    descricao: '',
-    preco: 0,
-    imagem: '',
-    categoria: '',
-    adicionais: []
-  };
+  private loadAllForRestaurante(id: number) {
+    this.restauranteService.buscarRestaurantePorId(id).subscribe({
+      next: (rest) => {
+        this.Restaurante = rest;
+      },
+      error: (err) => console.error('Erro ao buscar restaurante:', err),
+    });
 
-  cardData: any[] = [
-    { title: 'Novos Pedidos', value: 2, icon: '©', iconColor: '#ffc107' },
-    { title: 'Em Preparo', value: 0, icon: '⏲️', iconColor: '#28a745' },
-    { title: 'Produtos', value: 3, icon: '🍕', iconColor: '#dc3545' },
-    { title: 'Receita Hoje', value: 'R$ 159,40', icon: '$', iconColor: 'greenyellow' }
-  ];
+    this.restauranteService.listarProdutos(id).subscribe({
+      next: (prods) => (this.produtos = prods),
+      error: (err) => console.error('Erro ao listar produtos:', err),
+    });
 
-  switchTab(tab: string) {
+    this.restauranteService.listarPedidos(id).subscribe({
+      next: (peds) => (this.pedidos = peds),
+      error: (err) => console.error('Erro ao listar pedidos:', err),
+    });
+
+    this.carregarLogo(id);
+    this.carregarBanner(id);
+  }
+
+  carregarLogo(id: number) {
+    this.restauranteService.restauranteLogo(id).subscribe({
+      next: (blob) => {
+        this.logoUrl = URL.createObjectURL(blob);
+      },
+      error: (erro) => console.error(erro),
+    });
+  }
+
+  carregarBanner(id: number) {
+    this.restauranteService.restauranteBanner(id).subscribe({
+      next: (blob) => {
+        this.bannerUrl = URL.createObjectURL(blob);
+      },
+      error: (erro) => console.error(erro),
+    });
+  }
+
+  @Input() Restaurante: Restaurante = {} as Restaurante;
+  @Input() pedidosInput: Pedido[] = [];
+
+  // UI helpers
+  ativarTab(tab: 'pedidos' | 'produtos') {
     this.tabAtiva = tab;
-    console.log("Tab selecionada:", tab);
   }
 
   abrirModalAdicionar() {
     this.modoEdicao = false;
-    this.produtoAtual = {
-      id: 0,
-      nome: '',
-      descricao: '',
-      preco: 0,
-      imagem: '',
-      categoria: '',
-      adicionais: []
-    };
-    this.adicionaisTemporarios = []; 
+    this.produtoAtual = {};
+    this.adicionaisTemporarios = [];
     this.mostrarModal = true;
   }
 
-  editarProduto(produto: Produto) {
-    this.modoEdicao = true;
-    this.produtoAtual = { ...produto };
-    this.adicionaisTemporarios = produto.adicionais ? [...produto.adicionais] : [];
-    this.mostrarModal = true;
+  getCountByStatus(status: string): number {
+    return this.pedidos ? this.pedidos.filter((p) => p.status === status).length : 0;
   }
 
-  removerProduto(id: number) {
-    if (confirm('Deseja realmente remover este produto?')) {
-      this.produtos = this.produtos.filter(p => p.id !== id);
-      this.atualizarContadores();
+  getCountByStatuses(statuses: string[]): number {
+    return this.pedidos ? this.pedidos.filter((p) => statuses.includes(p.status)).length : 0;
+  }
+
+  getReceitaHoje(): string {
+    if (!this.pedidos || this.pedidos.length === 0) return '0.00';
+    const hoje = new Date().toISOString().slice(0, 10);
+    const soma = this.pedidos
+      .filter((p) => p.dtCriacao?.startsWith(hoje) && p.status === 'ENTREGUE')
+      .reduce((acc, p) => acc + (Number((p as any).vlTotal) || 0), 0);
+    return soma.toFixed(2);
+  }
+
+  confirmRemover(prodId: number) {
+    if (confirm('Confirma remoção do produto?')) {
+      this.removerProduto(prodId);
     }
   }
 
   fecharModal() {
     this.mostrarModal = false;
-    this.adicionaisTemporarios = []; // Limpa ao fechar
+  }
+
+  salvarProduto() {
+    const restauranteId = this.Restaurante?.id ?? Number(this.route.snapshot.paramMap.get('id'));
+    if (!restauranteId) {
+      console.error('Restaurante não definido para salvar produto');
+      return;
+    }
+
+    if (this.modoEdicao && this.produtoAtual?.id) {
+      this.restauranteService
+        .atualizarProduto(restauranteId, this.produtoAtual.id, this.produtoAtual)
+        .subscribe({
+          next: (updated) => {
+            const idx = this.produtos.findIndex((p) => p.id === updated.id);
+            if (idx >= 0) this.produtos[idx] = updated;
+            this.fecharModal();
+          },
+          error: (err) => console.error('Erro ao atualizar produto:', err),
+        });
+    } else {
+      this.restauranteService.criarProduto(restauranteId, this.produtoAtual).subscribe({
+        next: (created) => {
+          this.produtos.push(created);
+          this.fecharModal();
+        },
+        error: (err) => console.error('Erro ao criar produto:', err),
+      });
+    }
   }
 
   adicionarNovoAdicionalAoProduto() {
-    const novoId = this.adicionaisTemporarios.length > 0 
-      ? Math.max(...this.adicionaisTemporarios.map(a => a.id)) + 1 
-      : 1;
-    
-    this.adicionaisTemporarios.push({
-      id: novoId,
-      nome: '',
-      preco: 0,
-      descricao: ''
-    });
+    this.adicionaisTemporarios.push({ nome: '', preco: 0, descricao: '' });
   }
 
   removerAdicionalTemporario(index: number) {
     this.adicionaisTemporarios.splice(index, 1);
   }
 
-  salvarProduto() {
-    if (!this.produtoAtual.nome || !this.produtoAtual.descricao || this.produtoAtual.preco <= 0) {
-      alert('Preencha todos os campos obrigatórios do produto');
-      return;
-    }
-
-    const adicionaisInvalidos = this.adicionaisTemporarios.filter(
-      a => !a.nome || a.preco < 0
-    );
-
-    if (adicionaisInvalidos.length > 0) {
-      alert('Preencha o nome e preço de todos os adicionais ou remova-os');
-      return;
-    }
-
-    this.produtoAtual.adicionais = [...this.adicionaisTemporarios];
-
-    if (this.modoEdicao) {
-      const index = this.produtos.findIndex(p => p.id === this.produtoAtual.id);
-      if (index !== -1) {
-        this.produtos[index] = { ...this.produtoAtual };
-      }
-    } else {
-      this.produtoAtual.id = Math.max(...this.produtos.map(p => p.id), 0) + 1;
-      this.produtos.push({ ...this.produtoAtual });
-    }
-
-    this.atualizarContadores();
-    this.fecharModal();
+  editarProduto(prod: any) {
+    this.modoEdicao = true;
+    this.produtoAtual = { ...prod };
+    this.mostrarModal = true;
   }
 
-  atualizarContadores() {
-    this.cardData[2].value = this.produtos.length;
+  removerProduto(prodOrId: any) {
+    const id = typeof prodOrId === 'number' ? prodOrId : prodOrId?.id;
+    const restauranteId = this.Restaurante?.id ?? Number(this.route.snapshot.paramMap.get('id'));
+    if (!restauranteId) {
+      console.error('Restaurante não definido para remover produto');
+      return;
+    }
+    if (!id) {
+      console.error('Produto inválido para remoção', prodOrId);
+      return;
+    }
+
+    this.restauranteService.removerProduto(restauranteId, id).subscribe({
+      next: () => {
+        this.produtos = this.produtos.filter((p) => p.id !== id);
+      },
+      error: (err) => console.error('Erro ao remover produto:', err),
+    });
   }
 }

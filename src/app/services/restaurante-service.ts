@@ -27,4 +27,34 @@ export class RestauranteService {
       responseType: 'blob' as 'blob',
     });
   }
+
+  // produtos do restaurante
+  listarProdutos(restauranteId: number) {
+    return this.http.get<any[]>(`http://localhost:8084/api/restaurante/${restauranteId}/produtos`);
+  }
+
+  criarProduto(restauranteId: number, produto: any) {
+    return this.http.post<any>(
+      `http://localhost:8084/api/restaurante/${restauranteId}/produtos`,
+      produto
+    );
+  }
+
+  atualizarProduto(restauranteId: number, produtoId: number, produto: any) {
+    return this.http.put<any>(
+      `http://localhost:8084/api/restaurante/${restauranteId}/produtos/${produtoId}`,
+      produto
+    );
+  }
+
+  removerProduto(restauranteId: number, produtoId: number) {
+    return this.http.delete<any>(
+      `http://localhost:8084/api/restaurante/${restauranteId}/produtos/${produtoId}`
+    );
+  }
+
+  // pedidos do restaurante
+  listarPedidos(restauranteId: number) {
+    return this.http.get<any[]>(`http://localhost:8084/api/restaurante/${restauranteId}/pedidos`);
+  }
 }

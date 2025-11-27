@@ -1,6 +1,6 @@
 <div class="product-card" *ngIf="produto">
   <div class="product-image-container">
-    <img [src]="produto.imagem" [alt]="produto.nome" class="product-image">
+    <img [src]="imagemUrl" [alt]="produto.nmProduto" class="product-image">
     
     <div class="adicionais-badge" *ngIf="temAdicionais()">
       <span>➕ {{ contarAdicionais() }}</span>
@@ -8,21 +8,21 @@
   </div>
 
   <div class="product-content">
-    <h4 class="product-name">{{ produto.nome }}</h4>
-    <p class="product-description">{{ produto.descricao }}</p>
+    <h4 class="product-name">{{ produto.nmProduto }}</h4>
+    <p class="product-description">{{ produto.dsProduto }}</p>
 
     <div class="adicionais-info" *ngIf="temAdicionais()">
       <p class="adicionais-label">Adicionais disponíveis:</p>
       <div class="adicionais-tags">
         <span class="adicional-tag" *ngFor="let adicional of produto.adicionais">
-          {{ adicional.nome }}
+          {{ adicional.nmAdicional }}
         </span>
       </div>
     </div>
 
     <div class="product-details">
-      <span class="product-category">{{ produto.categoria }}</span>
-      <span class="product-price">R$ {{ produto.preco | number: '1.2-2' }}</span>
+      <span class="product-category">{{ produto.categoriaProduto }}</span>
+      <span class="product-price">R$ {{ produto.vlPreco | number: '1.2-2' }}</span>
     </div>
   </div>
 
