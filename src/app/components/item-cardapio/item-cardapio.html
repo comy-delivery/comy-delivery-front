@@ -1,4 +1,4 @@
-<div class="card rounded-4 mt-3 p-3">
+<div class="card rounded-4 p-3">
   <div class="row">
     <div class="col-3">
       <img [src]="imagemUrl" class="w-100 rounded-4" alt="" style="height: 100px; width: auto" />
@@ -31,7 +31,12 @@
   </div>
 </div>
 
-<div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'" tabindex="-1">
+<div
+  class="modal fade"
+  [class.show]="showModal"
+  [style.display]="showModal ? 'block' : 'none'"
+  tabindex="-1"
+>
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
@@ -40,31 +45,50 @@
       </div>
       <div class="modal-body">
         <p class="text-secondary mb-3">{{ Produto.dsProduto }}</p>
-        
-        <div *ngIf="Produto.adicionais && Produto.adicionais.length > 0">
+
+        <div *ngIf="isLoadingAdicionais" class="text-center py-2">
+          <div class="spinner-border text-primary" role="status"></div>
+        </div>
+
+        <div *ngIf="!isLoadingAdicionais && adicionaisDisponiveis.length > 0">
           <p class="fw-bold mb-2">Adicionais disponíveis:</p>
           <div class="list-group mb-3">
-            <label class="list-group-item d-flex justify-content-between align-items-center" 
-                   *ngFor="let adicional of Produto.adicionais">
+            <label
+              class="list-group-item d-flex justify-content-between align-items-center"
+              *ngFor="let adicional of adicionaisDisponiveis"
+            >
               <div class="d-flex align-items-center gap-2">
-                <input type="checkbox" 
-                       [checked]="isAdicionalSelecionado(adicional.id)"
-                       (change)="toggleAdicional(adicional)">
-                <div>
-                  <div>{{ adicional.nome }}</div>
-                  <small class="text-secondary">{{ adicional.descricao }}</small>
+                <input
+                  type="checkbox"
+                  [checked]="isAdicionalSelecionado(adicional.idAdicional)"
+                  (change)="toggleAdicional(adicional)"
+                  [disabled]="!adicional.isDisponivel"
+                />
+                <div [class.text-muted]="!adicional.isDisponivel">
+                  <div>{{ adicional.nmAdicional }}</div>
+                  <small class="text-secondary">{{ adicional.dsAdicional }}</small>
                 </div>
               </div>
-              <span class="badge bg-success">+ R$ {{ adicional.preco.toFixed(2) }}</span>
+              <span class="badge bg-success">+ R$ {{ adicional.vlPrecoAdicional.toFixed(2) }}</span>
             </label>
           </div>
         </div>
 
-        <!-- Observações -->
+        <div
+          *ngIf="!isLoadingAdicionais && adicionaisDisponiveis.length === 0"
+          class="text-center text-muted mb-3"
+        >
+          <small>Este item não possui adicionais.</small>
+        </div>
+
         <div class="mb-3">
           <label class="form-label">Observações (opcional)</label>
-          <textarea class="form-control" rows="2" [(ngModel)]="observacao" 
-                    placeholder="Ex: Sem cebola"></textarea>
+          <textarea
+            class="form-control"
+            rows="2"
+            [(ngModel)]="observacao"
+            placeholder="Ex: Sem cebola"
+          ></textarea>
         </div>
 
         <div class="d-flex align-items-center gap-3 mb-3">
