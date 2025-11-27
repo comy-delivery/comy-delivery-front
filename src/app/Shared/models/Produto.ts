@@ -1,4 +1,5 @@
 import { Restaurante } from './Restaurante';
+import { Adicional } from './Adicional'; 
 
 export interface Produto {
   idProduto: number;
@@ -15,4 +16,5 @@ export interface Produto {
   vlPrecoPromocional?: number;
   isAtivo: boolean;
   dataCadastroProduto?: string;
+   adicionais?: Adicional[];
 }
