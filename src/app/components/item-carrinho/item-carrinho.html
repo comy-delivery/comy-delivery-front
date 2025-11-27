@@ -10,10 +10,26 @@
     </div>
     <div class="col">
       <div>
-        <p class="mb-1">Pizza Margherita</p>
+        <p class="mb-1">{{ item?.produto?.nmProduto || 'Pizza Margherita' }}</p>
+        
+        <div *ngIf="item?.adicionais && item.adicionais.length > 0" class="mt-2">
+          <p class="text-success mb-1" style="font-size: 12px;">
+            <strong>➕ Adicionais:</strong>
+          </p>
+          <ul class="list-unstyled ms-3" style="font-size: 13px;">
+            <li *ngFor="let adicional of item.adicionais" class="text-secondary">
+              • {{ adicional.nome }} (+R$ {{ adicional.preco.toFixed(2) }})
+            </li>
+          </ul>
+        </div>
+
+        <div *ngIf="item?.observacao" class="alert alert-warning py-1 px-2 mt-2" style="font-size: 12px;">
+          <strong>💬 Obs:</strong> {{ item.observacao }}
+        </div>
       </div>
+      
       <div class="d-flex justify-content-between align-items-center mt-3">
-        <p>R$ 25,90</p>
+        <p>R$ {{ item?.precoTotal?.toFixed(2) || '25,90' }}</p>
         <div class="d-flex align-items-center gap-3">
           <button class="btn btn-outline-secondary btn-sm">
             <svg
@@ -27,7 +43,7 @@
               <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8" />
             </svg>
           </button>
-          <p class="text-secondary m-0">12</p>
+          <p class="text-secondary m-0">{{ item?.quantidade || 12 }}</p>
           <button class="btn btn-outline-secondary btn-sm">
             <svg
               xmlns="http://www.w3.org/2000/svg"

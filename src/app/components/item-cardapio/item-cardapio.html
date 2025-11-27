@@ -10,7 +10,7 @@
       </div>
       <div class="d-flex justify-content-between align-items-center mt-3">
         <p>R$ {{ Produto.vlPreco }}</p>
-        <button class="btn btn-outline-primary btn-sm">
+        <button class="btn btn-outline-primary btn-sm" (click)="abrirModalAdicionais()">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
@@ -30,3 +30,62 @@
     </div>
   </div>
 </div>
+
+<div class="modal fade" [class.show]="showModal" [style.display]="showModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ Produto.nmProduto }}</h5>
+        <button type="button" class="btn-close" (click)="fecharModal()"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-secondary mb-3">{{ Produto.dsProduto }}</p>
+        
+        <div *ngIf="Produto.adicionais && Produto.adicionais.length > 0">
+          <p class="fw-bold mb-2">Adicionais disponíveis:</p>
+          <div class="list-group mb-3">
+            <label class="list-group-item d-flex justify-content-between align-items-center" 
+                   *ngFor="let adicional of Produto.adicionais">
+              <div class="d-flex align-items-center gap-2">
+                <input type="checkbox" 
+                       [checked]="isAdicionalSelecionado(adicional.id)"
+                       (change)="toggleAdicional(adicional)">
+                <div>
+                  <div>{{ adicional.nome }}</div>
+                  <small class="text-secondary">{{ adicional.descricao }}</small>
+                </div>
+              </div>
+              <span class="badge bg-success">+ R$ {{ adicional.preco.toFixed(2) }}</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Observações -->
+        <div class="mb-3">
+          <label class="form-label">Observações (opcional)</label>
+          <textarea class="form-control" rows="2" [(ngModel)]="observacao" 
+                    placeholder="Ex: Sem cebola"></textarea>
+        </div>
+
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <label class="form-label mb-0">Quantidade:</label>
+          <button class="btn btn-outline-secondary btn-sm" (click)="diminuirQuantidade()">-</button>
+          <span class="fw-bold">{{ quantidade }}</span>
+          <button class="btn btn-outline-secondary btn-sm" (click)="aumentarQuantidade()">+</button>
+        </div>
+
+        <div class="alert alert-light d-flex justify-content-between">
+          <span class="fw-bold">Total:</span>
+          <span class="fw-bold text-success">R$ {{ calcularTotal().toFixed(2) }}</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="fecharModal()">Cancelar</button>
+        <button type="button" class="btn btn-primary" (click)="adicionarAoCarrinho()">
+          Adicionar ao Carrinho
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="showModal" *ngIf="showModal"></div>
