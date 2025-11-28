@@ -102,9 +102,26 @@ export class Home implements OnInit {
     }
 
     // 3. Filtro por Avaliação (Radio Buttons)
+    // 3. Filtro por Avaliação (Lógica Ajustada)
     if (this.estadoFiltros.avaliacao !== 'todos') {
-      const notaMinima = Number(this.estadoFiltros.avaliacao);
-      lista = lista.filter(item => (item.restaurante.avaliacaoMediaRestaurante || 0) >= notaMinima);
+      const filtroNota = Number(this.estadoFiltros.avaliacao);
+      
+      lista = lista.filter(item => {
+        const nota = item.restaurante.avaliacaoMediaRestaurante || 0;
+
+        if (filtroNota === 5) {
+          // Traga os de 5
+          return nota >= 5; 
+        } else if (filtroNota === 4.5) {
+          // Traga entre 4.9 e 4.5
+          return nota >= 4.5 && nota < 5;
+        } else if (filtroNota === 4) {
+          // Traga 4.4 a 4.0
+          return nota >= 4.0 && nota < 4.5;
+        }
+        
+        return false;
+      });
     }
 
     if (this.estadoFiltros.preco === 'maior') {
