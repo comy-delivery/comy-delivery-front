@@ -27,6 +27,9 @@ export class Cadastro {
   protected confirmacaoSenha: string = '';
   protected carregandoCep: boolean = false;
   
+  // Username temporário compartilhado
+  protected username: string = '';
+  
   // Estados do formulário
   isLoading = false;
   errorMessage = '';
@@ -112,6 +115,12 @@ export class Cadastro {
     // Limpar mensagem de erro
     this.errorMessage = '';
 
+    // Validação de username
+    if (!this.username || this.username.trim() === '') {
+      this.errorMessage = 'Por favor, escolha um nome de usuário.';
+      return;
+    }
+
     // Validação de senha
     const senhaAtual = this.opcao === 'cliente' 
       ? this.clienteData.password 
@@ -131,113 +140,166 @@ export class Cadastro {
     this.isLoading = true;
 
     if (this.opcao === 'cliente') {
+      // Atribuir username antes de enviar
+      this.clienteData.username = this.username;
       this.cadastrarCliente();
     } else {
+      // Atribuir username antes de enviar
+      this.entregadorData.username = this.username;
       this.cadastrarEntregador();
     }
   }
 
-  //cadastrar cliente
-  private cadastrarCliente() {
-    // Validação de campos obrigatórios
-    if (!this.clienteData.nmCliente || !this.clienteData.emailCliente || 
-        !this.clienteData.cpfCliente || !this.clienteData.telefoneCliente) {
-      this.errorMessage = 'Por favor, preencha todos os campos obrigatórios.';
-      this.isLoading = false;
-      return;
-    }
-
-    // Validação de endereço
-    if (!this.enderecoTemp.logradouro || !this.enderecoTemp.numero || 
-        !this.enderecoTemp.cidade || !this.enderecoTemp.cep) {
-      this.errorMessage = 'Por favor, preencha todos os campos do endereço.';
-      this.isLoading = false;
-      return;
-    }
-
-    // Username = email
-    this.clienteData.username = this.clienteData.emailCliente;
-
-    // Adicionar endereço ao array
-    this.clienteData.enderecos = [this.enderecoTemp];
-
-    console.log('📤 Enviando cadastro de cliente:', this.clienteData);
-
-    this.authService.registerCliente(this.clienteData).subscribe({
-      next: (response) => {
-        console.log('✅ Cliente cadastrado com sucesso!', response);
-        alert('Cadastro realizado com sucesso! Faça login para continuar.');
-        this.router.navigate(['/login']);
-      },
-      error: (error) => {
-        console.error('❌ Erro ao cadastrar cliente:', error);
-        this.isLoading = false;
-
-        // Tratar erros específicos
-        if (error.status === 409) {
-          this.errorMessage = 'CPF ou Email já cadastrado.';
-        } else if (error.status === 400) {
-          this.errorMessage = 'Dados inválidos. Verifique os campos.';
-        } else if (error.status === 0) {
-          this.errorMessage = 'Não foi possível conectar ao servidor.';
-        } else {
-          this.errorMessage = error.error?.message || 'Erro ao realizar cadastro.';
-        }
-      }
-    });
+// cadastrar cliente
+private cadastrarCliente() {
+  // Validação de campos obrigatórios
+  if (!this.clienteData.nmCliente || !this.clienteData.emailCliente || 
+      !this.clienteData.cpfCliente || !this.clienteData.telefoneCliente) {
+    this.errorMessage = 'Por favor, preencha todos os campos obrigatórios.';
+    this.isLoading = false;
+    return;
   }
 
-  // cadastrar entregador
-  private cadastrarEntregador() {
-    // Validação de campos obrigatórios
-    if (!this.entregadorData.nmEntregador || !this.entregadorData.emailEntregador || 
-        !this.entregadorData.cpfEntregador || !this.tipoVeiculo) {
-      this.errorMessage = 'Por favor, preencha todos os campos obrigatórios.';
-      this.isLoading = false;
-      return;
-    }
-
-    // Validação de placa (se for moto ou carro)
-    if ((this.tipoVeiculo === 'moto' || this.tipoVeiculo === 'carro') && !this.entregadorData.placa) {
-      this.errorMessage = 'Por favor, informe a placa do veículo.';
-      this.isLoading = false;
-      return;
-    }
-
-    // Username = email
-    this.entregadorData.username = this.entregadorData.emailEntregador;
-    
-    // Mapear tipo de veículo
-    this.entregadorData.veiculo = this.tipoVeiculo.toUpperCase();
-
-    console.log('📤 Enviando cadastro de entregador:', this.entregadorData);
-
-    this.authService.registerEntregador(this.entregadorData).subscribe({
-      next: (response) => {
-        console.log('✅ Entregador cadastrado com sucesso!', response);
-        alert('Cadastro realizado com sucesso! Faça login para continuar.');
-        this.router.navigate(['/login']);
-      },
-      error: (error) => {
-        console.error('❌ Erro ao cadastrar entregador:', error);
-        this.isLoading = false;
-
-        // Tratar erros específicos
-        if (error.status === 409) {
-          this.errorMessage = 'CPF ou Email já cadastrado.';
-        } else if (error.status === 400) {
-          this.errorMessage = 'Dados inválidos. Verifique os campos.';
-        } else if (error.status === 0) {
-          this.errorMessage = 'Não foi possível conectar ao servidor.';
-        } else {
-          this.errorMessage = error.error?.message || 'Erro ao realizar cadastro.';
-        }
-      }
-    });
+  // Validação de endereço
+  if (!this.enderecoTemp.logradouro || !this.enderecoTemp.numero || 
+      !this.enderecoTemp.cidade || !this.enderecoTemp.cep) {
+    this.errorMessage = 'Por favor, preencha todos os campos do endereço.';
+    this.isLoading = false;
+    return;
   }
 
+  // Adicionar endereço ao array
+  this.clienteData.enderecos = [this.enderecoTemp];
+
+  console.log('📤 Enviando cadastro de cliente:', this.clienteData);
+
+  this.authService.registerCliente(this.clienteData).subscribe({
+    next: (response) => {
+      console.log('✅ Cliente cadastrado com sucesso!', response);
+      alert('Cadastro realizado com sucesso! Faça login para continuar.');
+      this.router.navigate(['/login']);
+    },
+    error: (error) => {
+      console.error('❌ Erro ao cadastrar cliente:', error);
+      console.error('❌ error.error:', error.error);
+      
+      this.isLoading = false;
+
+      // Tratar erros específicos
+      if (error.status === 409) {
+        // Pegar a mensagem de erro (pode vir como string ou objeto)
+        let errorMsg = '';
+        
+        if (typeof error.error === 'string') {
+          errorMsg = error.error;
+        } else if (error.error?.message) {
+          errorMsg = error.error.message;
+        } else {
+          errorMsg = JSON.stringify(error.error);
+        }
+        
+        console.log('📝 Mensagem de erro:', errorMsg);
+        
+        // Verificar qual campo está duplicado
+        const msgLower = errorMsg.toLowerCase();
+        
+        if (msgLower.includes('username') || msgLower.includes('usuário') || msgLower.includes('usuario')) {
+          this.errorMessage = 'Nome de usuário já está em uso. Escolha outro.';
+        } else if (msgLower.includes('email') || msgLower.includes('e-mail')) {
+          this.errorMessage = 'E-mail já cadastrado.';
+        } else if (msgLower.includes('cpf')) {
+          this.errorMessage = 'CPF já cadastrado.';
+        } else {
+          // Se não conseguir identificar, mostra a mensagem genérica
+          this.errorMessage = 'Dados já cadastrados. Verifique username, e-mail ou CPF.';
+        }
+      } else if (error.status === 400) {
+        this.errorMessage = 'Dados inválidos. Verifique os campos.';
+      } else if (error.status === 0) {
+        this.errorMessage = 'Não foi possível conectar ao servidor.';
+      } else {
+        this.errorMessage = 'Erro ao realizar cadastro.';
+      }
+    }
+  });
+}
+
+// cadastrar entregador
+private cadastrarEntregador() {
+  // Validação de campos obrigatórios
+  if (!this.entregadorData.nmEntregador || !this.entregadorData.emailEntregador || 
+      !this.entregadorData.cpfEntregador || !this.tipoVeiculo) {
+    this.errorMessage = 'Por favor, preencha todos os campos obrigatórios.';
+    this.isLoading = false;
+    return;
+  }
+
+  // Validação de placa (se for moto ou carro)
+  if ((this.tipoVeiculo === 'moto' || this.tipoVeiculo === 'carro') && !this.entregadorData.placa) {
+    this.errorMessage = 'Por favor, informe a placa do veículo.';
+    this.isLoading = false;
+    return;
+  }
+  
+  // Mapear tipo de veículo
+  this.entregadorData.veiculo = this.tipoVeiculo.toUpperCase();
+
+  console.log('📤 Enviando cadastro de entregador:', this.entregadorData);
+
+  this.authService.registerEntregador(this.entregadorData).subscribe({
+    next: (response) => {
+      console.log('✅ Entregador cadastrado com sucesso!', response);
+      alert('Cadastro realizado com sucesso! Faça login para continuar.');
+      this.router.navigate(['/login']);
+    },
+    error: (error) => {
+      console.error('❌ Erro ao cadastrar entregador:', error);
+      console.error('❌ error.error:', error.error);
+      
+      this.isLoading = false;
+
+      // Tratar erros específicos
+      if (error.status === 409) {
+        // Pegar a mensagem de erro (pode vir como string ou objeto)
+        let errorMsg = '';
+        
+        if (typeof error.error === 'string') {
+          errorMsg = error.error;
+        } else if (error.error?.message) {
+          errorMsg = error.error.message;
+        } else {
+          errorMsg = JSON.stringify(error.error);
+        }
+        
+        console.log('📝 Mensagem de erro:', errorMsg);
+        
+        // Verificar qual campo está duplicado
+        const msgLower = errorMsg.toLowerCase();
+        
+        if (msgLower.includes('username') || msgLower.includes('usuário') || msgLower.includes('usuario')) {
+          this.errorMessage = 'Nome de usuário já está em uso. Escolha outro.';
+        } else if (msgLower.includes('email') || msgLower.includes('e-mail')) {
+          this.errorMessage = 'E-mail já cadastrado.';
+        } else if (msgLower.includes('cpf')) {
+          this.errorMessage = 'CPF já cadastrado.';
+        } else {
+          // Se não conseguir identificar, mostra a mensagem genérica
+          this.errorMessage = 'Dados já cadastrados. Verifique username, e-mail ou CPF.';
+        }
+      } else if (error.status === 400) {
+        this.errorMessage = 'Dados inválidos. Verifique os campos.';
+      } else if (error.status === 0) {
+        this.errorMessage = 'Não foi possível conectar ao servidor.';
+      } else {
+        this.errorMessage = 'Erro ao realizar cadastro.';
+      }
+    }
+  });
+}
   // limpar form ao trocar tipo
   limparFormulario() {
+    this.username = '';
+    
     this.clienteData = {
       username: '',
       password: '',

@@ -24,10 +24,10 @@
     }
 
     <form class="p-3" (ngSubmit)="onLogin()">
-      <!-- Campo Username/Email -->
+      <!-- Campo Username -->
       <div class="mb-3">
         <label class="form-label" for="username">
-          Usuário ou Email: <span class="text-danger">*</span>
+          Usuário: <span class="text-danger">*</span>
         </label>
         <input
           type="text"
@@ -35,7 +35,7 @@
           id="username"
           name="username"
           [(ngModel)]="loginData.username"
-          placeholder="seu_usuario ou email@exemplo.com"
+          placeholder="seu_usuario"
           required
           [disabled]="isLoading"
         />
