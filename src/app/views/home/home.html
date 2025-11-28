@@ -3,18 +3,23 @@
 }@if(tipo=="Cliente") {
 <app-banner />
 <div class="container">
-  <app-categoria />
-  <app-filtros />
+<app-categoria (categoriaSelecionadaChange)="aoMudarCategoria($event)" />
+  
+  <app-filtros (filtrosAlterados)="aoMudarFiltros($event)" />
 </div>
 <div class="container">
   <p class="text-secondary mb-0 mt-4">Restaurantes</p>
   <div class="row">
-    @for (restaurante of restaurantes; track restaurante.nmRestaurante) {
+   @for (restaurante of restaurantesFiltrados; track restaurante.nmRestaurante) {
 
     <div class="col-12 col-lg-4 col-md-6 col-sm-12">
       <app-card-restaurante [Restaurante]="restaurante" />
     </div>
 
+    } @empty {
+      <div class="col-12 mt-4 text-center text-muted">
+        <p>Nenhum restaurante encontrado com este nome ou categoria.</p>
+      </div>
     }
   </div>
 </div>

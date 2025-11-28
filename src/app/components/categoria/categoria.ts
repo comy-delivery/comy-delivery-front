@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from "@angular/forms";
@@ -10,7 +10,11 @@ import { FormsModule } from "@angular/forms";
   styleUrl: './categoria.scss',
 })
 export class Categoria {
+  @Output() categoriaSelecionadaChange = new EventEmitter<string>();
+
   categories: { name: string; svg?: SafeHtml; iconUrl?: string }[];
+
+  protected categoriaSelecionada: string = 'Todos';
 
   constructor(private sanitizer: DomSanitizer) {
     const svgs: { [k: string]: string } = {
@@ -64,13 +68,11 @@ export class Categoria {
     ];
   }
 
-  protected categoriaSelecionada: string = 'Todos';
 
   selecionarCategoria(categoria: string): void {
     this.categoriaSelecionada = categoria;
+    this.categoriaSelecionadaChange.emit(categoria); // Emitir o evento
   }
-
-  protected filtroCategoria: string = '';
 
 
 }
