@@ -1,60 +1,161 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 import { Restaurante } from '../Shared/models/Restaurante';
+import { RestauranteRequest } from '../Shared/models/auth/restaurante-request';
+import { EnderecoRequest } from '../Shared/models/auth/endereco-request';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RestauranteService {
   private http = inject(HttpClient);
+  private apiUrl = `${environment.apiUrl}/restaurante`;
 
-  buscarRestaurantes() {
-    return this.http.get<Restaurante[]>('http://localhost:8084/api/restaurante/abertos');
+  // ========== RESTAURANTE - CRUD ==========
+
+  cadastrarRestaurante(restaurante: RestauranteRequest, imagemLogo?: File, imagemBanner?: File): Observable<any> {
+    const formData = new FormData();
+    
+    // Adicionar dados do restaurante como JSON
+    formData.append('restaurante', new Blob([JSON.stringify(restaurante)], { type: 'application/json' }));
+    
+    // Adicionar imagens se existirem
+    if (imagemLogo) {
+      formData.append('imagemLogo', imagemLogo);
+    }
+    if (imagemBanner) {
+      formData.append('imagemBanner', imagemBanner);
+    }
+    
+    return this.http.post<any>(this.apiUrl, formData);
   }
 
-  buscarRestaurantePorId(id: number) {
-    return this.http.get<Restaurante>(`http://localhost:8084/api/restaurante/${id}`);
+  buscarRestaurantePorId(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
 
-  restauranteLogo(id: number) {
-    return this.http.get(`http://localhost:8084/api/restaurante/${id}/logo`, {
-      responseType: 'blob' as 'blob',
-    });
+  buscarRestaurantePorCnpj(cnpj: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/cnpj/${cnpj}`);
   }
 
-  restauranteBanner(id: number) {
-    return this.http.get(`http://localhost:8084/api/restaurante/${id}/banner`, {
-      responseType: 'blob' as 'blob',
-    });
+  atualizarRestaurante(id: number, restaurante: any, imagemLogo?: File, imagemBanner?: File): Observable<any> {
+    const formData = new FormData();
+    
+    formData.append('restaurante', new Blob([JSON.stringify(restaurante)], { type: 'application/json' }));
+    
+    if (imagemLogo) {
+      formData.append('imagemLogo', imagemLogo);
+    }
+    if (imagemBanner) {
+      formData.append('imagemBanner', imagemBanner);
+    }
+    
+    return this.http.put<any>(`${this.apiUrl}/${id}`, formData);
   }
 
-  // produtos do restaurante
-  listarProdutos(restauranteId: number) {
-    return this.http.get<any[]>(`http://localhost:8084/api/restaurante/${restauranteId}/produtos`);
+  deletarRestaurante(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  criarProduto(restauranteId: number, produto: any) {
-    return this.http.post<any>(
-      `http://localhost:8084/api/restaurante/${restauranteId}/produtos`,
-      produto
-    );
+  // ========== LISTAGENS ==========
+
+  listarRestaurantesAbertos(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/abertos`);
   }
 
-  atualizarProduto(restauranteId: number, produtoId: number, produto: any) {
-    return this.http.put<any>(
-      `http://localhost:8084/api/restaurante/${restauranteId}/produtos/${produtoId}`,
-      produto
-    );
+  // ========== ENDEREÇOS ==========
+
+  listarEnderecosRestaurante(idRestaurante: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/${idRestaurante}/enderecos`);
   }
 
-  removerProduto(restauranteId: number, produtoId: number) {
-    return this.http.delete<any>(
-      `http://localhost:8084/api/restaurante/${restauranteId}/produtos/${produtoId}`
-    );
+  adicionarEnderecoRestaurante(id: number, endereco: EnderecoRequest): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${id}/enderecos`, endereco);
   }
 
-  // pedidos do restaurante
-  listarPedidos(restauranteId: number) {
-    return this.http.get<any[]>(`http://localhost:8084/api/restaurante/${restauranteId}/pedidos`);
+  alterarEnderecoRestaurante(idRestaurante: number, idEndereco: number, endereco: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${idRestaurante}/enderecos/${idEndereco}`, endereco);
+  }
+
+  // ========== PRODUTOS ==========
+
+  listarProdutosRestaurante(restauranteId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/${restauranteId}/produtos`);
+  }
+
+  // ========== STATUS DO RESTAURANTE ==========
+
+  abrirRestaurante(id: number): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/${id}/status/abrir`, {});
+  }
+
+  fecharRestaurante(id: number): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/${id}/status/fechar`, {});
+  }
+
+  disponibilizarRestaurante(id: number): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/${id}/status/disponibilizar`, {});
+  }
+
+  indisponibilizarRestaurante(id: number): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/${id}/status/indisponibilizar`, {});
+  }
+
+  // ========== RECUPERAÇÃO DE SENHA ==========
+
+  iniciarRecuperacaoSenha(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/recuperacao/iniciar`, { email });
+  }
+
+  redefinirSenha(token: string, novaSenha: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/recuperacao/redefinir`, { token, novaSenha });
+  }
+
+  // ========== IMAGENS ==========
+
+  atualizarLogo(id: number, imagem: File): Observable<void> {
+    const formData = new FormData();
+    formData.append('imagem', imagem);
+    return this.http.put<void>(`${this.apiUrl}/${id}/logo`, formData);
+  }
+
+  buscarLogo(id: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/${id}/logo`, { responseType: 'blob' });
+  }
+
+  atualizarBanner(id: number, imagem: File): Observable<void> {
+    const formData = new FormData();
+    formData.append('imagem', imagem);
+    return this.http.put<void>(`${this.apiUrl}/${id}/banner`, formData);
+  }
+
+  buscarBanner(id: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/${id}/banner`, { responseType: 'blob' });
+  }
+
+  // ========== TEMPO MÉDIO DE ENTREGA ==========
+
+  recalcularTempoMedio(id: number): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/${id}/calcular-tempo-medio`, {});
+  }
+
+  // ========== MÉTODOS LEGADOS (manter compatibilidade) ==========
+
+  buscarRestaurantes(): Observable<any[]> {
+    return this.listarRestaurantesAbertos();
+  }
+
+  restauranteLogo(id: number): Observable<Blob> {
+    return this.buscarLogo(id);
+  }
+
+  restauranteBanner(id: number): Observable<Blob> {
+    return this.buscarBanner(id);
+  }
+
+  listarProdutos(restauranteId: number): Observable<any[]> {
+    return this.listarProdutosRestaurante(restauranteId);
   }
 }

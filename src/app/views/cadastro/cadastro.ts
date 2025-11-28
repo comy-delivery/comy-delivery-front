@@ -2,12 +2,12 @@ import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../../services/auth-service';
+import { ClienteRequest } from '../../Shared/models/auth/cliente-request';
+import { EntregadorRequest } from '../../Shared/models/auth/entregador-request';
+import { EnderecoRequest } from '../../Shared/models/auth/endereco-request';
 
-import { ClienteService } from '../../services/cliente-service';
-import { EnderecoService } from '../../services/endereco-service'; // <--- IMPORTAR
-import { Cliente } from '../../Shared/models/Cliente';
-import { Endereco } from '../../Shared/models/Endereco';
-import { RoleUsuario } from '../../Shared/models/RoleUsuario';
 
 @Component({
   selector: 'app-cadastro',
@@ -17,103 +17,265 @@ import { RoleUsuario } from '../../Shared/models/RoleUsuario';
   styleUrl: './cadastro.scss',
 })
 export class Cadastro {
-  private clienteService = inject(ClienteService);
-  private enderecoService = inject(EnderecoService); // <--- INJETAR
+  private authService = inject(AuthService);
   private router = inject(Router);
+  private http = inject(HttpClient);
 
-  protected opcao: string = 'cliente';
+  // Tipo de cadastro
+  protected opcao: 'cliente' | 'entregador' = 'cliente';
   protected tipoVeiculo: string = '';
   protected confirmacaoSenha: string = '';
-  protected carregandoCep: boolean = false; // Para dar feedback visual
+  protected carregandoCep: boolean = false;
+  
+  // Estados do formulário
+  isLoading = false;
+  errorMessage = '';
 
-  // Inicialização do Cliente
-  cliente: Cliente = {
+  // Dados do Cliente
+  clienteData: ClienteRequest = {
     username: '',
     password: '',
-    roleUsuario: RoleUsuario.CLIENTE,
-    recuperar: false,
-    isAtivo: true,
     nmCliente: '',
     emailCliente: '',
     cpfCliente: '',
     telefoneCliente: '',
-    enderecos: [],
-    pedidos: [],
-  } as Cliente;
+    enderecos: []
+  };
 
-  // Inicialização do Endereço
-  enderecoTemp: Endereco = {
+  // Dados do Entregador
+  entregadorData: EntregadorRequest = {
+    username: '',
+    password: '',
+    nmEntregador: '',
+    emailEntregador: '',
+    cpfEntregador: '',
+    telefoneEntregador: '',
+    veiculo: '',
+    placa: ''
+  };
+
+  // Endereço temporário (para cliente)
+  enderecoTemp: EnderecoRequest = {
     logradouro: '',
     numero: '',
+    complemento: '',
     bairro: '',
     cidade: '',
     cep: '',
     estado: '',
+    tipoEndereco: 'RESIDENCIAL',
+    pontoDeReferencia: '',
     isPadrao: true,
-  } as Endereco;
+    latitude: 0,
+    longitude: 0
+  };
 
-  // --- NOVA FUNÇÃO PARA BUSCAR O CEP ---
+  //buscar cep (via cep)
   buscarCep() {
-    // 1. Remove caracteres não numéricos (traços, pontos)
     const cepLimpo = this.enderecoTemp.cep.replace(/\D/g, '');
 
-    // 2. Verifica se tem 8 dígitos
     if (cepLimpo.length !== 8) {
-      return; // CEP inválido, não faz nada
-    }
-
-    this.carregandoCep = true;
-
-    this.enderecoService.buscarPorCep(cepLimpo).subscribe({
-      next: (dadosEndereco) => {
-        // Preenche os campos automaticamente
-        // Verificar se o backend retorna exatamente esses nomes de campos
-        if (dadosEndereco) {
-          this.enderecoTemp.logradouro = dadosEndereco.logradouro;
-          this.enderecoTemp.bairro = dadosEndereco.bairro;
-          this.enderecoTemp.cidade = dadosEndereco.cidade;
-          this.enderecoTemp.estado = dadosEndereco.estado;
-
-          // Se o backend retornar complemento ou outros campos, mapeie aqui
-        }
-        this.carregandoCep = false;
-      },
-      error: (err) => {
-        console.error('Erro ao buscar CEP', err);
-        this.carregandoCep = false;
-        alert('CEP não encontrado');
-      },
-    });
-  }
-
-  cadastrar() {
-    // Validação de Senha
-    if (this.cliente.password !== this.confirmacaoSenha) {
-      alert('As senhas não coincidem!');
       return;
     }
 
-    if (this.opcao === 'cliente') {
-      // REGRA DE NEGÓCIO: O Username será o Email
-      this.cliente.username = this.cliente.emailCliente;
+    this.carregandoCep = true;
+    this.errorMessage = '';
 
-      // Adiciona o endereço preenchido ao array do cliente
-      this.cliente.enderecos = [this.enderecoTemp];
+    // Usar API pública do ViaCEP
+    this.http.get<any>(`https://viacep.com.br/ws/${cepLimpo}/json/`).subscribe({
+      next: (dados) => {
+        if (dados.erro) {
+          this.errorMessage = 'CEP não encontrado.';
+          this.carregandoCep = false;
+          return;
+        }
 
-      console.log('Enviando Payload:', this.cliente);
+        // Preencher campos automaticamente
+        this.enderecoTemp.logradouro = dados.logradouro || '';
+        this.enderecoTemp.bairro = dados.bairro || '';
+        this.enderecoTemp.cidade = dados.localidade || '';
+        this.enderecoTemp.estado = dados.uf || '';
+        this.enderecoTemp.complemento = dados.complemento || '';
 
-      this.clienteService.cadastrarCliente(this.cliente).subscribe({
-        next: (res) => {
-          alert('Cadastro realizado com sucesso!');
-          this.router.navigate(['/login']);
-        },
-        error: (err) => {
-          console.error('Erro ao cadastrar:', err);
-          alert('Erro ao realizar cadastro. Verifique os dados.');
-        },
-      });
-    } else {
-      alert('Cadastro de entregador em breve.');
+        this.carregandoCep = false;
+      },
+      error: (err) => {
+        console.error('Erro ao buscar CEP:', err);
+        this.errorMessage = 'Erro ao buscar CEP. Tente novamente.';
+        this.carregandoCep = false;
+      }
+    });
+  }
+
+  // ========== CADASTRAR ==========
+  cadastrar() {
+    // Limpar mensagem de erro
+    this.errorMessage = '';
+
+    // Validação de senha
+    const senhaAtual = this.opcao === 'cliente' 
+      ? this.clienteData.password 
+      : this.entregadorData.password;
+
+    if (senhaAtual !== this.confirmacaoSenha) {
+      this.errorMessage = 'As senhas não coincidem!';
+      return;
     }
+
+    // Validação de senha mínima
+    if (senhaAtual.length < 8) {
+      this.errorMessage = 'A senha deve ter no mínimo 8 caracteres.';
+      return;
+    }
+
+    this.isLoading = true;
+
+    if (this.opcao === 'cliente') {
+      this.cadastrarCliente();
+    } else {
+      this.cadastrarEntregador();
+    }
+  }
+
+  //cadastrar cliente
+  private cadastrarCliente() {
+    // Validação de campos obrigatórios
+    if (!this.clienteData.nmCliente || !this.clienteData.emailCliente || 
+        !this.clienteData.cpfCliente || !this.clienteData.telefoneCliente) {
+      this.errorMessage = 'Por favor, preencha todos os campos obrigatórios.';
+      this.isLoading = false;
+      return;
+    }
+
+    // Validação de endereço
+    if (!this.enderecoTemp.logradouro || !this.enderecoTemp.numero || 
+        !this.enderecoTemp.cidade || !this.enderecoTemp.cep) {
+      this.errorMessage = 'Por favor, preencha todos os campos do endereço.';
+      this.isLoading = false;
+      return;
+    }
+
+    // Username = email
+    this.clienteData.username = this.clienteData.emailCliente;
+
+    // Adicionar endereço ao array
+    this.clienteData.enderecos = [this.enderecoTemp];
+
+    console.log('📤 Enviando cadastro de cliente:', this.clienteData);
+
+    this.authService.registerCliente(this.clienteData).subscribe({
+      next: (response) => {
+        console.log('✅ Cliente cadastrado com sucesso!', response);
+        alert('Cadastro realizado com sucesso! Faça login para continuar.');
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        console.error('❌ Erro ao cadastrar cliente:', error);
+        this.isLoading = false;
+
+        // Tratar erros específicos
+        if (error.status === 409) {
+          this.errorMessage = 'CPF ou Email já cadastrado.';
+        } else if (error.status === 400) {
+          this.errorMessage = 'Dados inválidos. Verifique os campos.';
+        } else if (error.status === 0) {
+          this.errorMessage = 'Não foi possível conectar ao servidor.';
+        } else {
+          this.errorMessage = error.error?.message || 'Erro ao realizar cadastro.';
+        }
+      }
+    });
+  }
+
+  // cadastrar entregador
+  private cadastrarEntregador() {
+    // Validação de campos obrigatórios
+    if (!this.entregadorData.nmEntregador || !this.entregadorData.emailEntregador || 
+        !this.entregadorData.cpfEntregador || !this.tipoVeiculo) {
+      this.errorMessage = 'Por favor, preencha todos os campos obrigatórios.';
+      this.isLoading = false;
+      return;
+    }
+
+    // Validação de placa (se for moto ou carro)
+    if ((this.tipoVeiculo === 'moto' || this.tipoVeiculo === 'carro') && !this.entregadorData.placa) {
+      this.errorMessage = 'Por favor, informe a placa do veículo.';
+      this.isLoading = false;
+      return;
+    }
+
+    // Username = email
+    this.entregadorData.username = this.entregadorData.emailEntregador;
+    
+    // Mapear tipo de veículo
+    this.entregadorData.veiculo = this.tipoVeiculo.toUpperCase();
+
+    console.log('📤 Enviando cadastro de entregador:', this.entregadorData);
+
+    this.authService.registerEntregador(this.entregadorData).subscribe({
+      next: (response) => {
+        console.log('✅ Entregador cadastrado com sucesso!', response);
+        alert('Cadastro realizado com sucesso! Faça login para continuar.');
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        console.error('❌ Erro ao cadastrar entregador:', error);
+        this.isLoading = false;
+
+        // Tratar erros específicos
+        if (error.status === 409) {
+          this.errorMessage = 'CPF ou Email já cadastrado.';
+        } else if (error.status === 400) {
+          this.errorMessage = 'Dados inválidos. Verifique os campos.';
+        } else if (error.status === 0) {
+          this.errorMessage = 'Não foi possível conectar ao servidor.';
+        } else {
+          this.errorMessage = error.error?.message || 'Erro ao realizar cadastro.';
+        }
+      }
+    });
+  }
+
+  // limpar form ao trocar tipo
+  limparFormulario() {
+    this.clienteData = {
+      username: '',
+      password: '',
+      nmCliente: '',
+      emailCliente: '',
+      cpfCliente: '',
+      telefoneCliente: '',
+      enderecos: []
+    };
+
+    this.entregadorData = {
+      username: '',
+      password: '',
+      nmEntregador: '',
+      emailEntregador: '',
+      cpfEntregador: '',
+      telefoneEntregador: '',
+      veiculo: '',
+      placa: ''
+    };
+
+    this.enderecoTemp = {
+      logradouro: '',
+      numero: '',
+      complemento: '',
+      bairro: '',
+      cidade: '',
+      cep: '',
+      estado: '',
+      tipoEndereco: 'RESIDENCIAL',
+      pontoDeReferencia: '',
+      isPadrao: true,
+      latitude: 0,
+      longitude: 0
+    };
+
+    this.confirmacaoSenha = '';
+    this.tipoVeiculo = '';
+    this.errorMessage = '';
   }
 }
