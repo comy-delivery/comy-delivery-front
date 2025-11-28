@@ -37,7 +37,16 @@ export class AuthService {
     // Carregar dados do usuário ao inicializar (se tiver token)
     if (this.tokenService.hasAccessToken()) {
       this.loadUserFromToken();
+    } else {
+      // Tenta recuperar do localStorage se existir
+      const savedUser = localStorage.getItem('comy_user');
+      if (savedUser) {
+        this.currentUserSubject.next(JSON.parse(savedUser));
+        this.isAuthenticatedSubject.next(true);
+      }
+
     }
+
   }
 
   // ========== LOGIN ==========
@@ -46,18 +55,18 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
       tap(response => {
         // Salvar tokens
-        this.tokenService.setTokens(response.accessToken, response.refreshToken);
+        this.tokenService.setTokens(response.jwt, response.refreshToken);
         
         // Atualizar estado de autenticação
         this.isAuthenticatedSubject.next(true);
+
+        this.loadUserFromToken();
         
         // Salvar dados do usuário
-        const userData = {
-          userId: response.userId,
-          username: response.username,
-          role: response.role
-        };
-        this.currentUserSubject.next(userData);
+        const userData = this.currentUserSubject.value;
+        if (userData) {
+          localStorage.setItem('comy_user', JSON.stringify(userData));
+        }
         
         console.log('Login realizado com sucesso!', userData);
       }),

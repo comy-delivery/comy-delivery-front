@@ -8,17 +8,26 @@ import { Restaurante } from '../../Shared/models/Restaurante';
 import { RestauranteService } from '../../services/restaurante-service';
 import { PerfilRestaurante } from '../../components/perfil-restaurante/perfil-restaurante';
 import { BuscaService } from '../../services/busca-service';
+import { CommonModule } from '@angular/common';
+import { ClienteService } from '../../services/cliente-service';
+import { AuthService } from '../../services/auth-service';
 
 @Component({
   selector: 'app-home',
-  imports: [Categoria, CardRestaurante, Banner, Filtros, PerfilRestaurante],
+  standalone:true,
+  imports: [Categoria, CardRestaurante, Banner, Filtros, PerfilRestaurante, CommonModule],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
 export class Home implements OnInit {
   protected tipo = 'Cliente';
 
+  // Lista que aceita o objeto composto (Restaurante + Dados calculados)
+  protected restaurantesData: any[] = [];
+
   private restauranteService = inject(RestauranteService);
+  private clienteService = inject(ClienteService);
+  private authService = inject(AuthService);
   private searchService = inject(BuscaService);
 
   private todosRestaurantes: Restaurante[] = [];
@@ -29,6 +38,21 @@ export class Home implements OnInit {
   private estadoFiltros: { preco: string, avaliacao: string } = { preco: 'todos', avaliacao: 'todos' };
 
   ngOnInit(): void {
+    const userId = this.authService.getUserId();
+    const role = this.authService.getUserRole();
+
+    if (role === 'RESTAURANTE') {
+      this.tipo = 'Restaurante';
+    } else if (userId && role === 'CLIENTE') {
+      // Se for cliente logado, busca com distâncias e preços calculados
+      this.tipo = 'Cliente';
+      this.carregarRestaurantesProximos(userId);
+    } else {
+      // Fallback para visitante (sem ID)
+      this.tipo = 'Cliente';
+      this.carregarRestaurantesPadrao();
+    }
+
     try {
       this.restauranteService.buscarRestaurantes().subscribe((response) => {
         this.todosRestaurantes = response;
@@ -104,5 +128,33 @@ export class Home implements OnInit {
     }
 
     this.restaurantesFiltrados = lista;
+  }
+
+  private carregarRestaurantesProximos(id: number) {
+    this.clienteService.listarRestaurantesProximos(id).subscribe({
+      next: (response) => {
+        this.restaurantesData = response;
+      },
+      error: (err) => {
+        console.error('Erro ao buscar restaurantes próximos:', err);
+        this.carregarRestaurantesPadrao();
+      }
+    });
+  }
+
+  private carregarRestaurantesPadrao() {
+    this.restauranteService.buscarRestaurantes().subscribe({
+      next: (response) => {
+        // Adapta para a estrutura esperada pelo template
+        this.restaurantesData = response.map(r => ({
+          restaurante: r,
+          distanciaKm: null,
+          mediaPrecoProdutos: null,
+          valorFreteEstimado: null,
+          tempoEstimadoEntrega: r.tempoMediaEntrega
+        }));
+      },
+      error: (err) => console.error('Erro ao buscar restaurantes:', err)
+    });
   }
 }
