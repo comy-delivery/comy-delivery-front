@@ -8,6 +8,8 @@ import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ClienteService } from '../../services/cliente-service';
 import { AuthService } from '../../services/auth-service';
+import { BuscaService } from '../../services/busca-service';
+import { Subscription } from 'rxjs';
 
 interface CategoriaAgrupada {
   nome: string;
@@ -25,11 +27,17 @@ export class Cardapio implements OnInit {
   private restauranteService = inject(RestauranteService);
   private clienteService = inject(ClienteService);
   private authService = inject(AuthService);
+  private searchService = inject(BuscaService);
   private route = inject(ActivatedRoute);
 
   idRestaurante!: number;
   protected cardapioAgrupado: CategoriaAgrupada[] = [];
+
   protected produtos: Produto[] = [];
+
+  private todosProdutos: Produto[] = [];
+
+  private searchSubscription?: Subscription;
 
   @Input({ required: true }) Restaurante = {} as Restaurante;
 
@@ -47,6 +55,10 @@ export class Cardapio implements OnInit {
   ngOnInit(): void {
     const idUrl = this.route.snapshot.paramMap.get('id');
 
+    this.searchSubscription = this.searchService.search$.subscribe((termo) => {
+      this.filtrarProdutos(termo);
+    });
+
     if (idUrl) {
       this.idRestaurante = Number(idUrl);
 
@@ -62,8 +74,9 @@ export class Cardapio implements OnInit {
       // Carregar produtos do restaurante
       this.produtoService.buscarProdutos(this.idRestaurante).subscribe({
         next: (response) => {
-          this.produtos = response;
-          this.organizarCardapio();
+          this.todosProdutos = response; // Guarda backup
+          this.produtos = response;      // Inicializa lista
+          this.organizarCardapio();      // Organiza a view
         },
         error: (erro) => console.error(erro),
       });
@@ -74,11 +87,37 @@ export class Cardapio implements OnInit {
       // 4. Imagens
       this.carregarBanner(this.idRestaurante);
       this.carregarLogo(this.idRestaurante);
-
-      
-    
     }
   }
+
+  ngOnDestroy(): void {
+    if (this.searchSubscription) {
+      this.searchSubscription.unsubscribe();
+    }
+  }
+
+  filtrarProdutos(termo: string) {
+    if (!this.todosProdutos.length) return;
+
+    if (!termo) {
+      
+      this.produtos = [...this.todosProdutos];
+    } else {
+    
+      const t = termo.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+      
+      this.produtos = this.todosProdutos.filter(p => {
+        const nome = (p.nmProduto || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+        const desc = (p.dsProduto || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+        
+        return nome.includes(t) || desc.includes(t);
+      });
+    }
+    // Reorganiza a visualização com os produtos filtrados
+    this.organizarCardapio();
+  }
+
+
 
   carregarDadosCalculados() {
     const userId = this.authService.getUserId();
