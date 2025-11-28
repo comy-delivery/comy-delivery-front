@@ -55,18 +55,28 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
       tap(response => {
         // Salvar tokens
+        console.log('Resposta do Login:', response);
         this.tokenService.setTokens(response.jwt, response.refreshToken);
         
         // Atualizar estado de autenticação
         this.isAuthenticatedSubject.next(true);
 
-        this.loadUserFromToken();
+        const userId = response.userId || this.tokenService.getUserIdFromToken();
+        const username = this.tokenService.getUsernameFromToken();
+        const role = this.tokenService.getRoleFromToken();
+
+        const userData = {
+          userId: userId,
+          username: username,
+          role: role
+        };
+
+        console.log('Dados do usuário montados:', userData);
+
+        localStorage.setItem('comy_user', JSON.stringify(userData));
         
-        // Salvar dados do usuário
-        const userData = this.currentUserSubject.value;
-        if (userData) {
-          localStorage.setItem('comy_user', JSON.stringify(userData));
-        }
+        this.currentUserSubject.next(userData);
+        this.isAuthenticatedSubject.next(true);
         
         console.log('Login realizado com sucesso!', userData);
       }),
@@ -183,13 +193,22 @@ export class AuthService {
   }
 
   private loadUserFromToken(): void {
+
+    if (!this.tokenService.hasAccessToken()) {
+      return;
+    }
+
+
     const userData = {
       userId: this.tokenService.getUserIdFromToken(),
       username: this.tokenService.getUsernameFromToken(),
       role: this.tokenService.getRoleFromToken()
     };
     
-    this.currentUserSubject.next(userData);
+    if (userData.username || userData.userId) {
+      this.currentUserSubject.next(userData);
+      localStorage.setItem('comy_user', JSON.stringify(userData));
+    }
   }
 
   // Verificar se o usuário tem uma role específica
