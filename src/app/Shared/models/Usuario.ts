@@ -1,12 +1,12 @@
 import { RoleUsuario } from './RoleUsuario';
 
 export interface Usuario {
-  id: number;
+  id?: number;
   username: string;
 
   password?: string;
 
-  roleUsuario: RoleUsuario;
+  roleUsuario: RoleUsuario | string;
 
   recuperar: boolean;
   isAtivo: boolean;

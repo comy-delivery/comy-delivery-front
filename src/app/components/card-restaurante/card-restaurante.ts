@@ -11,8 +11,8 @@ import { RestauranteService } from '../../services/restaurante-service';
 })
 export class CardRestaurante implements OnInit {
   ngOnInit(): void {
-    this.carregarLogo(this.Restaurante.id);
-    this.carregarBanner(this.Restaurante.id);
+    this.carregarLogo(this.Restaurante.id!);
+    this.carregarBanner(this.Restaurante.id!);
   }
   private restauranteService = inject(RestauranteService);
 
@@ -20,7 +20,7 @@ export class CardRestaurante implements OnInit {
   bannerUrl: string | null = null;
 
   carregarLogo(id: number) {
-    this.restauranteService.restauranteLogo(this.Restaurante.id).subscribe({
+    this.restauranteService.restauranteLogo(this.Restaurante.id!).subscribe({
       next: (blob) => {
         this.logoUrl = URL.createObjectURL(blob);
       },
@@ -29,7 +29,7 @@ export class CardRestaurante implements OnInit {
   }
 
   carregarBanner(id: number) {
-    this.restauranteService.restauranteBanner(this.Restaurante.id).subscribe({
+    this.restauranteService.restauranteBanner(this.Restaurante.id!).subscribe({
       next: (blob) => {
         this.bannerUrl = URL.createObjectURL(blob);
       },

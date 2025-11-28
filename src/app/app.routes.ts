@@ -13,7 +13,7 @@ export const routes: Routes = [
   { path: '', component: Home },
   { path: 'cardapio/:id', component: Cardapio },
   { path: 'entrega', component: Entrega },
-  { path: 'perfil/:id', component: Perfil },
+  { path: 'perfil', component: Perfil },
   { path: 'carrinho', component: Carrinho },
   { path: 'login', component: Login },
   { path: 'cadastro', component: Cadastro },

@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 
@@ -8,6 +8,7 @@ import { ItemCardapio } from '../../components/item-cardapio/item-cardapio';
 import { ItemCarrinho } from '../../components/item-carrinho/item-carrinho';
 import { ItemPedido } from '../../Shared/models/ItemPedido';
 import { CarrinhoService } from '../../services/carrinho-service';
+import { PedidoService } from '../../services/pedido-service';
 
 @Component({
   selector: 'app-carrinho',
@@ -18,6 +19,8 @@ import { CarrinhoService } from '../../services/carrinho-service';
 })
 export class Carrinho implements OnInit, OnDestroy {
   private carrinhoService = inject(CarrinhoService);
+  private pedidoService = inject(PedidoService);
+  private router = inject(Router);
 
   // Variável para gerenciar a inscrição na memória
   private subscription!: Subscription;

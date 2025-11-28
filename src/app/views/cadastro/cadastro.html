@@ -1,5 +1,11 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Shrikhand&display=swap');
+  /* Pequeno ajuste para o spinner não quebrar o layout */
+  .spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.15em;
+  }
 </style>
 
 <div class="container">
@@ -12,6 +18,7 @@
         >
           Comy! - Cadastro
         </h3>
+
         <div class="input-group my-3 text-center w-50 mx-auto">
           <div class="btn-group w-100" role="group">
             <input
@@ -78,152 +85,201 @@
           </div>
         </div>
       </div>
+
       <div class="card-body">
-        <div class="row mb-3">
-          <div class="col">
-            <label for="" class="mb-2">Nome completo *</label>
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Nome Completo"
-              aria-label="Nome Completo"
-              required
-            />
-          </div>
-          <div class="col">
-            <label for="" class="mb-2">Telefone *</label>
-            <input
-              type="tel"
-              class="form-control"
-              placeholder="(11) 9XXXX-XXXX"
-              aria-label="Telefone"
-              required
-            />
-          </div>
-        </div>
-        <label for="" class="mb-2">E-mail *</label>
-        <input
-          type="email"
-          class="form-control mb-3"
-          placeholder="seuemail@exemplo.com"
-          aria-label="Email"
-          required
-        />
-        <div class="row mb-3">
-          <div class="col">
-            <label for="" class="mb-2">Senha *</label>
-            <input
-              type="password"
-              class="form-control"
-              placeholder="Min. 8 carac. Maiuscula, Minuscula e Número"
-              aria-label="Senha"
-              required
-            />
-          </div>
-          <div class="col">
-            <label for="" class="mb-2">Confirme a senha *</label>
-            <input
-              type="password"
-              class="form-control"
-              placeholder="Confirme sua senha"
-              aria-label="Confirme sua senha"
-              required
-            />
-          </div>
-        </div>
-        @if (opcao === 'cliente') {
-        <p class="text-secondary">Endereço de entrega</p>
-        <div class="row mb-3">
-          <div class="col-9">
-            <label for="" class="mb-2">Rua *</label>
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Sua rua"
-              aria-label="Sua rua"
-              required
-            />
-          </div>
-          <div class="col">
-            <label for="" class="mb-2">Número *</label>
-            <input
-              type="number"
-              class="form-control"
-              placeholder="Número da residência"
-              aria-label="Número da residência"
-              required
-            />
-          </div>
-        </div>
-        <div class="row mb-3">
-          <div class="col">
-            <label for="" class="mb-2">Bairro *</label>
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Seu bairro"
-              aria-label="Seu bairro"
-            />
-          </div>
-          <div class="col">
-            <label for="" class="mb-2">Cidade *</label>
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Sua cidade"
-              aria-label="Sua cidade"
-              required
-            />
-          </div>
-          <div class="col">
-            <label for="" class="mb-2">CEP *</label>
-            <input
-              type="number"
-              class="form-control"
-              placeholder="Seu CEP"
-              aria-label="Seu CE"
-              required
-            />
-          </div>
-        </div>
-
-        } @else {
-        <p class="text-secondary">Informações de veículo</p>
-        <div class="row g-3">
-          <div class="col-md-4">
-            <label class="form-label">Tipo de Veículo *</label>
-            <select
-              [(ngModel)]="tipoVeiculo"
-              class="form-select"
-              aria-label="Large select example"
-              required
-            >
-              <option selected value="">Selecione</option>
-              <option value="moto">Moto</option>
-              <option value="carro">Carro</option>
-              <option value="bicicleta">Bicicleta</option>
-            </select>
+        <form (ngSubmit)="cadastrar()">
+          <div class="row mb-3">
+            <div class="col">
+              <label class="mb-2">Nome completo *</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Nome Completo"
+                required
+                name="nmCliente"
+                [(ngModel)]="cliente.nmCliente"
+              />
+            </div>
+            <div class="col">
+              <label class="mb-2">Telefone *</label>
+              <input
+                type="tel"
+                class="form-control"
+                placeholder="(11) 9XXXX-XXXX"
+                required
+                name="telefoneCliente"
+                [(ngModel)]="cliente.telefoneCliente"
+              />
+            </div>
           </div>
 
-          @if (tipoVeiculo === 'carro' || tipoVeiculo === 'moto') {
-          <div class="col-md-4">
-            <label class="form-label">Placa *</label>
-            <input class="form-control" placeholder="ABC-1234" required />
+          <div class="mb-3">
+            <label class="mb-2">CPF *</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="000.000.000-00"
+              required
+              name="cpfCliente"
+              [(ngModel)]="cliente.cpfCliente"
+            />
           </div>
+
+          <label class="mb-2">E-mail *</label>
+          <input
+            type="email"
+            class="form-control mb-3"
+            placeholder="seuemail@exemplo.com"
+            required
+            name="emailCliente"
+            [(ngModel)]="cliente.emailCliente"
+          />
+
+          <div class="row mb-3">
+            <div class="col">
+              <label class="mb-2">Senha *</label>
+              <input
+                type="password"
+                class="form-control"
+                placeholder="Min. 8 caracteres"
+                required
+                name="password"
+                [(ngModel)]="cliente.password"
+              />
+            </div>
+            <div class="col">
+              <label class="mb-2">Confirme a senha *</label>
+              <input
+                type="password"
+                class="form-control"
+                placeholder="Confirme sua senha"
+                required
+                name="confirmacaoSenha"
+                [(ngModel)]="confirmacaoSenha"
+              />
+            </div>
+          </div>
+
+          @if (opcao === 'cliente') {
+          <hr class="my-4" />
+          <p class="text-secondary fw-bold">Endereço de entrega</p>
+
+          <div class="mb-3">
+            <label class="mb-2">CEP *</label>
+            <div class="input-group">
+              <input
+                type="text"
+                class="form-control"
+                placeholder="00000-000"
+                required
+                name="cep"
+                maxlength="9"
+                [(ngModel)]="enderecoTemp.cep"
+                (blur)="buscarCep()"
+              />
+              @if (carregandoCep) {
+              <span class="input-group-text bg-white">
+                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+              </span>
+              }
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-9">
+              <label class="mb-2">Rua *</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Rua"
+                required
+                name="logradouro"
+                [(ngModel)]="enderecoTemp.logradouro"
+              />
+            </div>
+            <div class="col">
+              <label class="mb-2">Número *</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Nº"
+                required
+                name="numero"
+                [(ngModel)]="enderecoTemp.numero"
+              />
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col">
+              <label class="mb-2">Bairro *</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Bairro"
+                name="bairro"
+                [(ngModel)]="enderecoTemp.bairro"
+              />
+            </div>
+            <div class="col">
+              <label class="mb-2">Cidade *</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Cidade"
+                required
+                name="cidade"
+                [(ngModel)]="enderecoTemp.cidade"
+              />
+            </div>
+            <div class="col">
+              <label class="mb-2">Estado</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="UF"
+                maxlength="2"
+                name="estado"
+                [(ngModel)]="enderecoTemp.estado"
+              />
+            </div>
+          </div>
+
           } @else {
-          <div class="col-md-4">
-            <label class="form-label">Placa</label>
-            <input class="form-control" placeholder="N/A" disabled />
+          <hr class="my-4" />
+          <p class="text-secondary">Informações de veículo</p>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Tipo de Veículo *</label>
+              <select [(ngModel)]="tipoVeiculo" name="tipoVeiculo" class="form-select" required>
+                <option selected value="">Selecione</option>
+                <option value="moto">Moto</option>
+                <option value="carro">Carro</option>
+                <option value="bicicleta">Bicicleta</option>
+              </select>
+            </div>
+
+            @if (tipoVeiculo === 'carro' || tipoVeiculo === 'moto') {
+            <div class="col-md-4">
+              <label class="form-label">Placa *</label>
+              <input class="form-control" placeholder="ABC-1234" name="placa" required />
+            </div>
+            } @else {
+            <div class="col-md-4">
+              <label class="form-label">Placa</label>
+              <input class="form-control" placeholder="N/A" disabled />
+            </div>
+            }
+
+            <div class="col-md-4">
+              <label class="form-label">Modelo</label>
+              <input class="form-control" placeholder="Honda CG 160" name="modelo" />
+            </div>
           </div>
           }
 
-          <div class="col-md-4">
-            <label class="form-label">Modelo</label>
-            <input class="form-control" placeholder="Honda CG 160" />
-          </div>
-        </div>
-        }
-        <button class="btn btn-primary w-100 mt-3" type="submit">Criar Conta</button>
+          <button class="btn btn-primary w-100 mt-4" type="submit">Criar Conta</button>
+        </form>
         <p class="text-center mt-3">Já tem uma conta? <a routerLink="/login">Fazer Login</a></p>
       </div>
     </div>
