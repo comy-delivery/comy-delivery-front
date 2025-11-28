@@ -25,13 +25,12 @@ export class Home implements OnInit {
   // Lista que aceita o objeto composto (Restaurante + Dados calculados)
   protected restaurantesData: any[] = [];
 
+  private todosRestaurantesData: any[] = [];
+
   private restauranteService = inject(RestauranteService);
   private clienteService = inject(ClienteService);
   private authService = inject(AuthService);
   private searchService = inject(BuscaService);
-
-  private todosRestaurantes: Restaurante[] = [];
-  protected restaurantesFiltrados: Restaurante[] = [];
   
   private estadoBusca: string = '';
   private estadoCategoria: string = 'Todos';
@@ -40,6 +39,11 @@ export class Home implements OnInit {
   ngOnInit(): void {
     const userId = this.authService.getUserId();
     const role = this.authService.getUserRole();
+
+    this.searchService.search$.subscribe((texto) => {
+      this.estadoBusca = texto;
+      this.aplicarFiltros();
+    });
 
     if (role === 'RESTAURANTE') {
       this.tipo = 'Restaurante';
@@ -51,21 +55,6 @@ export class Home implements OnInit {
       // Fallback para visitante (sem ID)
       this.tipo = 'Cliente';
       this.carregarRestaurantesPadrao();
-    }
-
-    try {
-      this.restauranteService.buscarRestaurantes().subscribe((response) => {
-        this.todosRestaurantes = response;
-        this.restaurantesFiltrados = response;
-      });
-
-      this.searchService.search$.subscribe((texto) => {
-        this.estadoBusca = texto;
-        this.aplicarFiltros();
-      });
-
-    } catch (error) {
-      console.error('Erro ao buscar restaurantes:', error);
     }
   }
 
@@ -79,7 +68,6 @@ export class Home implements OnInit {
     this.aplicarFiltros();
   }
 
-  // Função auxiliar para mapear o nome da tela para o ENUM da API
   private mapearCategoriaParaApi(nomeInterface: string): string | null {
     switch (nomeInterface) {
       case 'Lanches': return 'LANCHE';
@@ -93,47 +81,47 @@ export class Home implements OnInit {
   }
 
   private aplicarFiltros() {
-    let lista = [...this.todosRestaurantes];
+    // Começa sempre com a lista completa original
+    let lista = [...this.todosRestaurantesData];
 
     // 1. Filtro por Busca (Input da Navbar)
     if (this.estadoBusca) {
       const termo = this.estadoBusca.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
-      lista = lista.filter(r => {
-        const nome = (r.nmRestaurante || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+      lista = lista.filter(item => {
+        const nome = (item.restaurante.nmRestaurante || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
         return nome.includes(termo);
       });
     }
 
-    // 2. Filtro por Categoria (Abas)
+    // 2. Filtro de Categoria
     if (this.estadoCategoria && this.estadoCategoria !== 'Todos') {
       const categoriaApi = this.mapearCategoriaParaApi(this.estadoCategoria);
-      
       if (categoriaApi) {
-        lista = lista.filter(r => r.categoria === categoriaApi);
+        lista = lista.filter(item => item.restaurante.categoria === categoriaApi);
       }
     }
 
     // 3. Filtro por Avaliação (Radio Buttons)
     if (this.estadoFiltros.avaliacao !== 'todos') {
       const notaMinima = Number(this.estadoFiltros.avaliacao);
-      // Se não tiver avaliação, considera 0
-      lista = lista.filter(r => (r.avaliacaoMediaRestaurante || 0) >= notaMinima);
+      lista = lista.filter(item => (item.restaurante.avaliacaoMediaRestaurante || 0) >= notaMinima);
     }
 
-    // 4. Ordenação por Preço (Placeholder para lógica futura)
-    if (this.estadoFiltros.preco === 'maior_preco') {
-      // lista.sort(...) 
-    } else if (this.estadoFiltros.preco === 'menor_preco') {
-      // lista.sort(...)
+    if (this.estadoFiltros.preco === 'maior') {
+      lista.sort((a, b) => (b.mediaPrecoProdutos || 0) - (a.mediaPrecoProdutos || 0));
+    } else if (this.estadoFiltros.preco === 'menor') {
+      lista.sort((a, b) => (a.mediaPrecoProdutos || 0) - (b.mediaPrecoProdutos || 0));
     }
 
-    this.restaurantesFiltrados = lista;
+    this.restaurantesData = lista;
   }
 
   private carregarRestaurantesProximos(id: number) {
     this.clienteService.listarRestaurantesProximos(id).subscribe({
       next: (response) => {
-        this.restaurantesData = response;
+        this.todosRestaurantesData = response; // Guarda backup
+        this.restaurantesData = response;      // Mostra inicial
+        this.aplicarFiltros();                 // Aplica filtros se já houver algum selecionado
       },
       error: (err) => {
         console.error('Erro ao buscar restaurantes próximos:', err);
@@ -145,14 +133,18 @@ export class Home implements OnInit {
   private carregarRestaurantesPadrao() {
     this.restauranteService.buscarRestaurantes().subscribe({
       next: (response) => {
-        // Adapta para a estrutura esperada pelo template
-        this.restaurantesData = response.map(r => ({
+        // Normaliza estrutura para ficar igual à busca de próximos
+        const data = response.map(r => ({
           restaurante: r,
           distanciaKm: null,
           mediaPrecoProdutos: null,
           valorFreteEstimado: null,
           tempoEstimadoEntrega: r.tempoMediaEntrega
         }));
+        
+        this.todosRestaurantesData = data;
+        this.restaurantesData = data;
+        this.aplicarFiltros();
       },
       error: (err) => console.error('Erro ao buscar restaurantes:', err)
     });
