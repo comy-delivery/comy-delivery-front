@@ -1,7 +1,5 @@
 export interface LoginResponse {
-  accessToken: string;
+  jwt: string;           // Alterado de accessToken para jwt
   refreshToken: string;
-  username: string;
-  role: string;
   userId: number;
 }
