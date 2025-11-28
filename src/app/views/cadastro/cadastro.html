@@ -8,403 +8,427 @@
 </style>
 
 <div class="container">
-  <div class="d-flex flex-column align-items-center m-5">
-    <div class="card shadow w-75 rounded-5">
-      <div class="card-header bg-primary text-center text-warning rounded-top-5">
-        <h3
-          class="mb-0"
-          style="font-family: 'Shrikhand', serif; font-weight: 500; font-size: xx-large"
-        >
-          Comy! - Cadastro
-        </h3>
+  <div class="row justify-content-center m-0 m-md-5">
+    <div class="col-12 col-md-10 col-lg-6"> 
+      <div class="card shadow rounded-5">
+        <div class="card-header bg-primary text-center text-warning rounded-top-5">
+          <h3
+            class="mb-0"
+            style="font-family: 'Shrikhand', serif; font-weight: 500; font-size: xx-large"
+          >
+            Comy! - Cadastro
+          </h3>
 
-        <div class="input-group my-3 text-center w-50 mx-auto">
-          <div class="btn-group w-100" role="group">
-            <input
-              [(ngModel)]="opcao"
-              (ngModelChange)="limparFormulario()"
-              type="radio"
-              class="btn-check"
-              name="options-base"
-              id="option5"
-              value="cliente"
-              autocomplete="off"
-            />
-            <label
-              class="btn btn-outline-warning btn-sm d-flex align-items-center justify-content-center gap-2 rounded-start-5"
-              for="option5"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+          <div class="input-group my-3 text-center w-100 w-md-75 mx-auto"> 
+            <div class="btn-group w-100" role="group">
+              <input
+                [(ngModel)]="opcao"
+                (ngModelChange)="limparFormulario()"
+                type="radio"
+                class="btn-check"
+                name="options-base"
+                id="option5"
+                value="cliente"
+                autocomplete="off"
+              />
+              <label
+                class="btn btn-outline-warning btn-sm d-flex align-items-center justify-content-center gap-2 rounded-start-5"
+                for="option5"
               >
-                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-              Cliente
-            </label>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg>
+                Cliente
+              </label>
 
-            <input
-              [(ngModel)]="opcao"
-              (ngModelChange)="limparFormulario()"
-              type="radio"
-              class="btn-check"
-              name="options-base"
-              id="option6"
-              value="entregador"
-              autocomplete="off"
-            />
-            <label
-              class="btn btn-outline-warning btn-sm justify-content-center d-flex align-items-center gap-2 rounded-end-5"
-              for="option6"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+              <input
+                [(ngModel)]="opcao"
+                (ngModelChange)="limparFormulario()"
+                type="radio"
+                class="btn-check"
+                name="options-base"
+                id="option6"
+                value="entregador"
+                autocomplete="off"
+              />
+              <label
+                class="btn btn-outline-warning btn-sm justify-content-center d-flex align-items-center gap-2 rounded-end-5"
+                for="option6"
               >
-                <circle cx="18.5" cy="17.5" r="3.5" />
-                <circle cx="5.5" cy="17.5" r="3.5" />
-                <circle cx="15" cy="5" r="1" />
-                <path d="M12 17.5V14l-3-3 4-3 2 3h2" />
-              </svg>
-              Entregador
-            </label>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <circle cx="18.5" cy="17.5" r="3.5" />
+                  <circle cx="5.5" cy="17.5" r="3.5" />
+                  <circle cx="15" cy="5" r="1" />
+                  <path d="M12 17.5V14l-3-3 4-3 2 3h2" />
+                </svg>
+                Entregador
+              </label>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="card-body">
-        <!-- Mensagem de Erro -->
-        @if (errorMessage) {
-          <div class="alert alert-danger" role="alert">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle-fill me-2" viewBox="0 0 16 16">
-              <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
-            </svg>
-            {{ errorMessage }}
-          </div>
-        }
-
-        <form (ngSubmit)="cadastrar()">
-          <!-- ========== CAMPOS CLIENTE ========== -->
-          @if (opcao === 'cliente') {
-            <div class="row mb-3">
-              <div class="col">
-                <label class="mb-2">Nome completo <span class="text-danger">*</span></label>
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="Nome Completo"
-                  required
-                  name="nmCliente"
-                  [(ngModel)]="clienteData.nmCliente"
-                  [disabled]="isLoading"
-                />
-              </div>
-              <div class="col">
-                <label class="mb-2">Telefone <span class="text-danger">*</span></label>
-                <input
-                  type="tel"
-                  class="form-control"
-                  placeholder="(11) 9XXXX-XXXX"
-                  required
-                  name="telefoneCliente"
-                  [(ngModel)]="clienteData.telefoneCliente"
-                  [disabled]="isLoading"
-                />
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <label class="mb-2">CPF <span class="text-danger">*</span></label>
-              <input
-                type="text"
-                class="form-control"
-                placeholder="000.000.000-00"
-                required
-                name="cpfCliente"
-                [(ngModel)]="clienteData.cpfCliente"
-                [disabled]="isLoading"
-              />
-            </div>
-
-            <label class="mb-2">E-mail <span class="text-danger">*</span></label>
-            <input
-              type="email"
-              class="form-control mb-3"
-              placeholder="seuemail@exemplo.com"
-              required
-              name="emailCliente"
-              [(ngModel)]="clienteData.emailCliente"
-              [disabled]="isLoading"
-            />
-
-            <div class="row mb-3">
-              <div class="col">
-                <label class="mb-2">Senha <span class="text-danger">*</span></label>
-                <input
-                  type="password"
-                  class="form-control"
-                  placeholder="Min. 8 caracteres"
-                  required
-                  name="password"
-                  [(ngModel)]="clienteData.password"
-                  [disabled]="isLoading"
-                />
-              </div>
-              <div class="col">
-                <label class="mb-2">Confirme a senha <span class="text-danger">*</span></label>
-                <input
-                  type="password"
-                  class="form-control"
-                  placeholder="Confirme sua senha"
-                  required
-                  name="confirmacaoSenha"
-                  [(ngModel)]="confirmacaoSenha"
-                  [disabled]="isLoading"
-                />
-              </div>
-            </div>
-
-            <!-- ENDEREÇO -->
-            <hr class="my-4" />
-            <p class="text-secondary fw-bold">Endereço de entrega</p>
-
-            <div class="mb-3">
-              <label class="mb-2">CEP <span class="text-danger">*</span></label>
-              <div class="input-group">
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="00000-000"
-                  required
-                  name="cep"
-                  maxlength="9"
-                  [(ngModel)]="enderecoTemp.cep"
-                  (blur)="buscarCep()"
-                  [disabled]="isLoading"
-                />
-                @if (carregandoCep) {
-                  <span class="input-group-text bg-white">
-                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-                  </span>
-                }
-              </div>
-            </div>
-
-            <div class="row mb-3">
-              <div class="col-9">
-                <label class="mb-2">Rua <span class="text-danger">*</span></label>
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="Rua"
-                  required
-                  name="logradouro"
-                  [(ngModel)]="enderecoTemp.logradouro"
-                  [disabled]="isLoading"
-                />
-              </div>
-              <div class="col">
-                <label class="mb-2">Número <span class="text-danger">*</span></label>
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="Nº"
-                  required
-                  name="numero"
-                  [(ngModel)]="enderecoTemp.numero"
-                  [disabled]="isLoading"
-                />
-              </div>
-            </div>
-
-            <div class="row mb-3">
-              <div class="col">
-                <label class="mb-2">Bairro</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="Bairro"
-                  name="bairro"
-                  [(ngModel)]="enderecoTemp.bairro"
-                  [disabled]="isLoading"
-                />
-              </div>
-              <div class="col">
-                <label class="mb-2">Cidade <span class="text-danger">*</span></label>
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="Cidade"
-                  required
-                  name="cidade"
-                  [(ngModel)]="enderecoTemp.cidade"
-                  [disabled]="isLoading"
-                />
-              </div>
-              <div class="col">
-                <label class="mb-2">Estado</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="UF"
-                  maxlength="2"
-                  name="estado"
-                  [(ngModel)]="enderecoTemp.estado"
-                  [disabled]="isLoading"
-                />
-              </div>
+        <div class="card-body">
+          @if (errorMessage) {
+            <div class="alert alert-danger" role="alert">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-triangle-fill me-2" viewBox="0 0 16 16">
+                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
+              </svg>
+              {{ errorMessage }}
             </div>
           }
 
-          <!-- ========== CAMPOS ENTREGADOR ========== -->
-          @else {
-            <div class="row mb-3">
-              <div class="col">
-                <label class="mb-2">Nome completo <span class="text-danger">*</span></label>
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="Nome Completo"
-                  required
-                  name="nmEntregador"
-                  [(ngModel)]="entregadorData.nmEntregador"
-                  [disabled]="isLoading"
-                />
-              </div>
-              <div class="col">
-                <label class="mb-2">Telefone</label>
-                <input
-                  type="tel"
-                  class="form-control"
-                  placeholder="(11) 9XXXX-XXXX"
-                  name="telefoneEntregador"
-                  [(ngModel)]="entregadorData.telefoneEntregador"
-                  [disabled]="isLoading"
-                />
-              </div>
-            </div>
-
+          <form (ngSubmit)="cadastrar()">
             <div class="mb-3">
-              <label class="mb-2">CPF <span class="text-danger">*</span></label>
+              <label class="mb-2">Nome de Usuário <span class="text-danger">*</span></label>
               <input
                 type="text"
                 class="form-control"
-                placeholder="000.000.000-00"
+                placeholder="Ex: joao123 (usado para login)"
                 required
-                name="cpfEntregador"
-                [(ngModel)]="entregadorData.cpfEntregador"
+                name="username"
+                [(ngModel)]="username"
                 [disabled]="isLoading"
               />
+              <small class="text-muted">Este será seu nome de usuário para fazer login</small>
             </div>
 
-            <label class="mb-2">E-mail <span class="text-danger">*</span></label>
-            <input
-              type="email"
-              class="form-control mb-3"
-              placeholder="seuemail@exemplo.com"
-              required
-              name="emailEntregador"
-              [(ngModel)]="entregadorData.emailEntregador"
-              [disabled]="isLoading"
-            />
+            @if (opcao === 'cliente') {
+              <div class="row mb-3">
+                <div class="col-12 col-md">
+                  <label class="mb-2">Nome completo <span class="text-danger">*</span></label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Nome Completo"
+                    required
+                    name="nmCliente"
+                    [(ngModel)]="clienteData.nmCliente"
+                    [disabled]="isLoading"
+                  />
+                </div>
+                <div class="col-12 col-md">
+                  <label class="mb-2">Telefone <span class="text-danger">*</span></label>
+                  <input
+                    type="tel"
+                    class="form-control"
+                    placeholder="(11) 9XXXX-XXXX"
+                    required
+                    name="telefoneCliente"
+                    [(ngModel)]="clienteData.telefoneCliente"
+                    [disabled]="isLoading"
+                  />
+                </div>
+              </div>
 
-            <div class="row mb-3">
-              <div class="col">
-                <label class="mb-2">Senha <span class="text-danger">*</span></label>
+              <div class="mb-3">
+                <label class="mb-2">CPF <span class="text-danger">*</span></label>
                 <input
-                  type="password"
+                  type="text"
                   class="form-control"
-                  placeholder="Min. 8 caracteres"
+                  placeholder="000.000.000-00"
                   required
-                  name="passwordEntregador"
-                  [(ngModel)]="entregadorData.password"
+                  name="cpfCliente"
+                  [(ngModel)]="clienteData.cpfCliente"
                   [disabled]="isLoading"
                 />
               </div>
-              <div class="col">
-                <label class="mb-2">Confirme a senha <span class="text-danger">*</span></label>
-                <input
-                  type="password"
-                  class="form-control"
-                  placeholder="Confirme sua senha"
-                  required
-                  name="confirmacaoSenhaEntregador"
-                  [(ngModel)]="confirmacaoSenha"
-                  [disabled]="isLoading"
-                />
-              </div>
-            </div>
 
-            <!-- VEÍCULO -->
-            <hr class="my-4" />
-            <p class="text-secondary fw-bold">Informações de veículo</p>
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label">Tipo de Veículo <span class="text-danger">*</span></label>
-                <select 
-                  [(ngModel)]="tipoVeiculo" 
-                  name="tipoVeiculo" 
-                  class="form-select" 
-                  required
+              <label class="mb-2">E-mail <span class="text-danger">*</span></label>
+              <input
+                type="email"
+                class="form-control mb-3"
+                placeholder="seuemail@exemplo.com"
+                required
+                name="emailCliente"
+                [(ngModel)]="clienteData.emailCliente"
+                [disabled]="isLoading"
+              />
+
+              <div class="row mb-3">
+                <div class="col-12 col-md">
+                  <label class="mb-2">Senha <span class="text-danger">*</span></label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    placeholder="Min. 8 caracteres"
+                    required
+                    name="password"
+                    [(ngModel)]="clienteData.password"
+                    [disabled]="isLoading"
+                  />
+                </div>
+                <div class="col-12 col-md">
+                  <label class="mb-2">Confirme a senha <span class="text-danger">*</span></label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    placeholder="Confirme sua senha"
+                    required
+                    name="confirmacaoSenha"
+                    [(ngModel)]="confirmacaoSenha"
+                    [disabled]="isLoading"
+                  />
+                </div>
+              </div>
+
+              <hr class="my-4" />
+              <p class="text-secondary fw-bold">Endereço de entrega</p>
+
+              <div class="mb-3">
+                <label class="mb-2">CEP <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="00000-000"
+                    required
+                    name="cep"
+                    maxlength="9"
+                    [(ngModel)]="enderecoTemp.cep"
+                    (blur)="buscarCep()"
+                    [disabled]="isLoading"
+                  />
+                  @if (carregandoCep) {
+                    <span class="input-group-text bg-white">
+                      <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                    </span>
+                  }
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="mb-2">Tipo de Endereço</label>
+                <select
+                  class="form-select"
+                  name="tipoEndereco"
+                  [(ngModel)]="enderecoTemp.tipoEndereco"
                   [disabled]="isLoading"
                 >
-                  <option value="">Selecione</option>
-                  <option value="moto">Moto</option>
-                  <option value="carro">Carro</option>
-                  <option value="bicicleta">Bicicleta</option>
+                  <option value="CASA">Casa</option>
+                  <option value="TRABALHO">Trabalho</option>
+                  <option value="OUTRO">Outro</option>
                 </select>
               </div>
 
-              <div class="col-md-6">
-                @if (tipoVeiculo === 'carro' || tipoVeiculo === 'moto') {
-                  <label class="form-label">Placa <span class="text-danger">*</span></label>
-                  <input 
-                    class="form-control" 
-                    placeholder="ABC-1234" 
-                    name="placa"
-                    [(ngModel)]="entregadorData.placa"
+              <div class="row mb-3">
+                <div class="col-12 col-md-9">
+                  <label class="mb-2">Rua <span class="text-danger">*</span></label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Rua"
                     required
+                    name="logradouro"
+                    [(ngModel)]="enderecoTemp.logradouro"
                     [disabled]="isLoading"
                   />
-                } @else {
-                  <label class="form-label">Placa</label>
-                  <input class="form-control" placeholder="N/A" disabled />
-                }
+                </div>
+                <div class="col-12 col-md-3">
+                  <label class="mb-2">Número <span class="text-danger">*</span></label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Nº"
+                    required
+                    name="numero"
+                    [(ngModel)]="enderecoTemp.numero"
+                    [disabled]="isLoading"
+                  />
+                </div>
               </div>
-            </div>
-          }
 
-          <!-- BOTÃO -->
-          <button 
-            class="btn btn-primary w-100 mt-4" 
-            type="submit"
-            [disabled]="isLoading"
-          >
-            @if (isLoading) {
-              <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-              Cadastrando...
-            } @else {
-              Criar Conta
+              <div class="row mb-3">
+                <div class="col-12 col-md-4">
+                  <label class="mb-2">Bairro</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Bairro"
+                    name="bairro"
+                    [(ngModel)]="enderecoTemp.bairro"
+                    [disabled]="isLoading"
+                  />
+                </div>
+                <div class="col-12 col-md-4">
+                  <label class="mb-2">Cidade <span class="text-danger">*</span></label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Cidade"
+                    required
+                    name="cidade"
+                    [(ngModel)]="enderecoTemp.cidade"
+                    [disabled]="isLoading"
+                  />
+                </div>
+                <div class="col-12 col-md-4">
+                  <label class="mb-2">Estado</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="UF"
+                    maxlength="2"
+                    name="estado"
+                    [(ngModel)]="enderecoTemp.estado"
+                    [disabled]="isLoading"
+                  />
+                </div>
+              </div>
             }
-          </button>
-        </form>
-        
-        <p class="text-center mt-3">Já tem uma conta? <a routerLink="/login">Fazer Login</a></p>
+
+            @else {
+              <div class="row mb-3">
+                <div class="col-12 col-md">
+                  <label class="mb-2">Nome completo <span class="text-danger">*</span></label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    placeholder="Nome Completo"
+                    required
+                    name="nmEntregador"
+                    [(ngModel)]="entregadorData.nmEntregador"
+                    [disabled]="isLoading"
+                  />
+                </div>
+                <div class="col-12 col-md">
+                  <label class="mb-2">Telefone</label>
+                  <input
+                    type="tel"
+                    class="form-control"
+                    placeholder="(11) 9XXXX-XXXX"
+                    name="telefoneEntregador"
+                    [(ngModel)]="entregadorData.telefoneEntregador"
+                    [disabled]="isLoading"
+                  />
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="mb-2">CPF <span class="text-danger">*</span></label>
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="000.000.000-00"
+                  required
+                  name="cpfEntregador"
+                  [(ngModel)]="entregadorData.cpfEntregador"
+                  [disabled]="isLoading"
+                />
+              </div>
+
+              <label class="mb-2">E-mail <span class="text-danger">*</span></label>
+              <input
+                type="email"
+                class="form-control mb-3"
+                placeholder="seuemail@exemplo.com"
+                required
+                name="emailEntregador"
+                [(ngModel)]="entregadorData.emailEntregador"
+                [disabled]="isLoading"
+              />
+
+              <div class="row mb-3">
+                <div class="col-12 col-md">
+                  <label class="mb-2">Senha <span class="text-danger">*</span></label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    placeholder="Min. 8 caracteres"
+                    required
+                    name="passwordEntregador"
+                    [(ngModel)]="entregadorData.password"
+                    [disabled]="isLoading"
+                  />
+                </div>
+                <div class="col-12 col-md">
+                  <label class="mb-2">Confirme a senha <span class="text-danger">*</span></label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    placeholder="Confirme sua senha"
+                    required
+                    name="confirmacaoSenhaEntregador"
+                    [(ngModel)]="confirmacaoSenha"
+                    [disabled]="isLoading"
+                  />
+                </div>
+              </div>
+
+              <hr class="my-4" />
+              <p class="text-secondary fw-bold">Informações de veículo</p>
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Tipo de Veículo <span class="text-danger">*</span></label>
+                  <select 
+                    [(ngModel)]="tipoVeiculo" 
+                    name="tipoVeiculo" 
+                    class="form-select" 
+                    required
+                    [disabled]="isLoading"
+                  >
+                    <option value="">Selecione</option>
+                    <option value="moto">Moto</option>
+                    <option value="carro">Carro</option>
+                    <option value="bicicleta">Bicicleta</option>
+                  </select>
+                </div>
+
+                <div class="col-12 col-md-6">
+                  @if (tipoVeiculo === 'carro' || tipoVeiculo === 'moto') {
+                    <label class="form-label">Placa <span class="text-danger">*</span></label>
+                    <input 
+                      class="form-control" 
+                      placeholder="ABC-1234" 
+                      name="placa"
+                      [(ngModel)]="entregadorData.placa"
+                      required
+                      [disabled]="isLoading"
+                    />
+                  } @else {
+                    <label class="form-label">Placa</label>
+                    <input class="form-control" placeholder="N/A" disabled />
+                  }
+                </div>
+              </div>
+            }
+
+            <button 
+              class="btn btn-primary w-100 mt-4" 
+              type="submit"
+              [disabled]="isLoading"
+            >
+              @if (isLoading) {
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Cadastrando...
+              } @else {
+                Criar Conta
+              }
+            </button>
+          </form>
+          
+          <p class="text-center mt-3">Já tem uma conta? <a routerLink="/login">Fazer Login</a></p>
+        </div>
       </div>
     </div>
   </div>
