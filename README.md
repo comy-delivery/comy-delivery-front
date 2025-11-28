@@ -570,7 +570,7 @@ Otimizações implementadas:
 
 ---
 
-
+👥 Equipe de Desenvolvimento
 
 | Integrante  | GitHub                                                                     |
 | ----------- | -------------------------------------------------------------------------- |
