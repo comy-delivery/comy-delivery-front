@@ -572,31 +572,14 @@ Otimizações implementadas:
 
 
 
-## 👥 Equipe de Desenvolvimento
+| Integrante  | GitHub                                                                     |
+| ----------- | -------------------------------------------------------------------------- |
+| **Arthur**  | [https://github.com/Thurrrr](https://github.com/Thurrrr)                   |
+| **Emilio**  | [https://github.com/emiliougusto](https://github.com/emiliougusto)         |
+| **Heloisa** | [https://github.com/helomt](https://github.com/helomt)                     |
+| **Jude**    | [https://github.com/judevieira](https://github.com/judevieira)             |
+| **Sinara**  | [https://github.com/sinara-santinoni](https://github.com/sinara-santinoni) |
 
-<table>
-  <tr>
-    <td align="center">
-      <b>Arthur</b>
-    </td>
-    <td align="center">
-      <b>Emilio</b>
-    </td>
-    <td align="center">
-      <b>Heloisa</b>
-    </td>
-    <td align="center">
-      <b>Jude</b>
-    </td>
-    <td align="center">
-      <b>Sinara</b>
-    </td>
-  </tr>
-</table>
-
-
-
----
 
 ## 📄 Licença
 
