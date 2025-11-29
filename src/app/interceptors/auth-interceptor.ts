@@ -47,6 +47,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       }
     });
     console.log('🔑 Token adicionado na requisição:', req.url);
+    console.log('🔑 Token:', token.substring(0, 50) + '...'); // 👈 ADICIONE ESTE LOG
   } else {
     console.warn('⚠️ Nenhum token encontrado para requisição privada:', req.url);
   }
@@ -54,6 +55,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   // Tratar erros 401 (Unauthorized)
   return next(req).pipe(
     catchError(error => {
+      console.log('❌ ERRO CAPTURADO NO INTERCEPTOR:', error.status, req.url); // 👈 ADICIONE ESTE LOG
+      
       // Se erro 401 e não for a rota de refresh
       if (error.status === 401 && !req.url.includes('/auth/refresh')) {
         console.log('🔄 Token expirado, tentando renovar...');

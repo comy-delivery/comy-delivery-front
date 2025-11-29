@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'pedido-restaurante',
+  selector: 'app-pedido-restaurante',
   standalone: true,
   imports: [CommonModule],
   templateUrl: './pedido-restaurante.html',

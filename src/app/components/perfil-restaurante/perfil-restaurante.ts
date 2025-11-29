@@ -7,6 +7,8 @@ import { Restaurante } from '../../Shared/models/Restaurante';
 import { Pedido } from '../../Shared/models/Pedido';
 import { ActivatedRoute } from '@angular/router';
 import { RestauranteService } from '../../services/restaurante-service';
+import { AuthService } from '../../services/auth-service';
+import { DashboardRestaurante, PedidoService } from '../../services/pedido-service';
 import { ProdutoService } from '../../services/produto-service';
 
 @Component({
@@ -18,6 +20,8 @@ import { ProdutoService } from '../../services/produto-service';
 })
 export class PerfilRestaurante implements OnInit, OnChanges {
   private restauranteService = inject(RestauranteService);
+  private pedidoService = inject(PedidoService);
+  private authService = inject(AuthService);
   private route = inject(ActivatedRoute);
   private produtoService = inject(ProdutoService);
   private id_fixo = 2;
@@ -30,34 +34,58 @@ export class PerfilRestaurante implements OnInit, OnChanges {
 
   produtos: any[] = [];
   pedidos: Pedido[] = [];
+  dashboard: DashboardRestaurante | null = null;
+  
+  isLoading: boolean = true;
+  errorMessage: string = '';
+  isSaving: boolean = false;
+  successMessage: string = '';
+  
   tabAtiva: 'pedidos' | 'produtos' = 'pedidos';
   mostrarModal = false;
   modoEdicao = false;
   produtoAtual: any = {};
   adicionaisTemporarios: any[] = [];
 
+  restauranteId: number | null = null;
+
   ngOnInit(): void {
-    const id = this.id_fixo;
-    this.loadAllForRestaurante(id);
+    const idParam = this.route.snapshot.paramMap.get('id');
+    const id = idParam ? Number(idParam) : this.authService.getUserId();
+
+    if (id) {
+      this.restauranteId = id;
+      this.loadAllForRestaurante(id);
+    } else if (this.Restaurante && this.Restaurante.id) {
+      this.restauranteId = this.Restaurante.id;
+      this.loadAllForRestaurante(this.Restaurante.id);
+    } else {
+      this.errorMessage = 'ID do restaurante não encontrado';
+      this.isLoading = false;
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['Restaurante'] && this.Restaurante && this.Restaurante.id) {
+      this.restauranteId = this.Restaurante.id;
       this.loadAllForRestaurante(this.Restaurante.id);
     }
   }
 
   private loadAllForRestaurante(id: number) {
-    // Buscar restaurante
+    this.isLoading = true;
+    
     this.restauranteService.buscarRestaurantePorId(id).subscribe({
       next: (rest) => {
         this.Restaurante = rest;
         console.log('PerfilRestaurante: restaurante carregado para id=', id, rest);
       },
-      error: (err) => console.error('Erro ao buscar restaurante:', err),
+      error: (err) => {
+        console.error('Erro ao buscar restaurante:', err);
+        this.errorMessage = 'Erro ao carregar dados do restaurante';
+      },
     });
 
-    // Listar produtos
     this.restauranteService.listarProdutosRestaurante(id).subscribe({
       next: (prods) => {
         this.produtos = prods;
@@ -66,7 +94,24 @@ export class PerfilRestaurante implements OnInit, OnChanges {
       error: (err) => console.error('Erro ao listar produtos:', err),
     });
 
-    // Carregar imagens
+    this.pedidoService.listarPorRestaurante(id).subscribe({
+      next: (pedidos) => {
+        this.pedidos = pedidos;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Erro ao listar pedidos:', err);
+        this.isLoading = false;
+      }
+    });
+
+    this.pedidoService.obterDashboard(id).subscribe({
+      next: (dashboard) => {
+        this.dashboard = dashboard;
+      },
+      error: (err) => console.error('Erro ao carregar dashboard:', err)
+    });
+
     this.carregarLogo(id);
     this.carregarBanner(id);
   }
@@ -117,7 +162,7 @@ export class PerfilRestaurante implements OnInit, OnChanges {
     return soma.toFixed(2);
   }
 
-  //crud produtos
+  // ========== CRUD PRODUTOS ==========
 
   confirmRemover(prodId: number) {
     if (confirm('Confirma remoção do produto?')) {
@@ -129,63 +174,109 @@ export class PerfilRestaurante implements OnInit, OnChanges {
     this.mostrarModal = false;
   }
 
+  /**
+   * Método para capturar imagem selecionada
+   */
+  onImagemSelecionada(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.produtoAtual.imagemFile = file;
+      
+      // Preview da imagem
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.produtoAtual.imagemPreview = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  /**
+   * Salvar produto (criar ou atualizar)
+   */
   salvarProduto() {
     const restauranteId = this.Restaurante?.id ?? Number(this.route.snapshot.paramMap.get('id'));
 
     if (!restauranteId) {
       console.error('Restaurante não definido para salvar produto');
+      this.errorMessage = 'Erro: Restaurante não identificado';
       return;
     }
 
-    // Montar objeto JSON para envio (remoção temporária do FormData)
-    const produtoParaSalvar: any = {
-      nmProduto: this.produtoAtual.nmProduto,
-      dsProduto: this.produtoAtual.descricao ?? this.produtoAtual.dsProduto ?? '',
-      categoriaProduto: this.produtoAtual.categoria ?? this.produtoAtual.categoriaProduto ?? '',
-      vlPreco: Number(this.produtoAtual.preco ?? this.produtoAtual.vlPreco ?? 0),
-      restauranteId: restauranteId,
-      tempoPreparacao: this.produtoAtual.tempoPreparacao ?? null,
-      isPromocao: this.produtoAtual.isPromocao ?? false,
-      vlPrecoPromocional: this.produtoAtual.vlPrecoPromocional ?? null,
-      adicionais: this.adicionaisTemporarios,
-      // imagemProduto pode ser uma URL string se o usuário forneceu, caso contrário null
-      imagemProduto: typeof this.produtoAtual.imagemProduto === 'string' ? this.produtoAtual.imagemProduto : null,
+    // Validação básica
+    if (!this.produtoAtual.nome || !this.produtoAtual.preco) {
+      this.errorMessage = 'Preencha pelo menos o nome e o preço do produto';
+      return;
+    }
+
+    // VALIDAR IMAGEM ao criar (obrigatória)
+    if (!this.modoEdicao && !this.produtoAtual.imagemFile) {
+      this.errorMessage = 'A imagem do produto é obrigatória';
+      return;
+    }
+
+    this.isSaving = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    // Preparar o objeto do produto com TODOS os campos obrigatórios
+    const produtoParaEnviar = {
+      nmProduto: this.produtoAtual.nome,
+      descricao: this.produtoAtual.descricao || '',
+      vlPreco: Number(this.produtoAtual.preco),
+      categoria: this.produtoAtual.categoria || '',
+      disponivel: this.produtoAtual.disponivel !== undefined ? this.produtoAtual.disponivel : true,
+      idRestaurante: this.restauranteId
     };
 
-    // ======================
-    //   MODO EDIÇÃO
-    // ======================
+    console.log('📤 Enviando produto:', produtoParaEnviar);
+    console.log('📤 Com imagem:', this.produtoAtual.imagemFile);
+
     if (this.modoEdicao && this.produtoAtual?.id) {
-      const produtoId = this.produtoAtual.id;
-
-      this.produtoService.atualizarProduto(produtoId, produtoParaSalvar).subscribe({
-        next: (produtoAtualizado) => {
-          const atualizadoId =
-            (produtoAtualizado as any).id ?? (produtoAtualizado as any).idProduto ?? produtoId;
-
-          const idx = this.produtos.findIndex(
-            (p) => (p as any).id === atualizadoId || (p as any).idProduto === atualizadoId
-          );
-
+      // ATUALIZAR PRODUTO EXISTENTE
+      this.restauranteService.atualizarProduto(
+        this.produtoAtual.id, 
+        produtoParaEnviar, 
+        this.produtoAtual.imagemFile
+      ).subscribe({
+        next: (updated) => {
+          console.log('✅ Produto atualizado:', updated);
+          const idx = this.produtos.findIndex((p) => p.id === updated.id);
           if (idx >= 0) {
-            this.produtos[idx] = produtoAtualizado;
-          } else {
-            this.produtos.unshift(produtoAtualizado);
+            this.produtos[idx] = updated;
           }
-
-          // reset
-          this.mostrarModal = false;
-          this.modoEdicao = false;
-          this.produtoAtual = {};
-          this.adicionaisTemporarios = [];
+          this.successMessage = 'Produto atualizado com sucesso!';
+          this.isSaving = false;
+          this.fecharModal();
+          this.clearMessages();
         },
-
         error: (err) => {
-          console.error('Erro ao atualizar produto:', err);
-        },
+          console.error('❌ Erro ao atualizar produto:', err);
+          this.errorMessage = `Erro ao atualizar produto: ${err.error?.detail || err.error?.message || err.message}`;
+          this.isSaving = false;
+        }
       });
-
-      return;
+    } else {
+      // CRIAR NOVO PRODUTO
+      this.restauranteService.criarProduto(
+        produtoParaEnviar, 
+        this.produtoAtual.imagemFile
+      ).subscribe({
+        next: (created) => {
+          console.log('✅ Produto criado:', created);
+          this.produtos.push(created);
+          this.successMessage = 'Produto criado com sucesso!';
+          this.isSaving = false;
+          this.fecharModal();
+          this.clearMessages();
+        },
+        error: (err) => {
+          console.error('❌ Erro ao criar produto:', err);
+          console.error('❌ Detalhes:', err.error);
+          this.errorMessage = `Erro ao criar produto: ${err.error?.detail || err.error?.message || err.message}`;
+          this.isSaving = false;
+        }
+      });
     }
 
     // ======================
@@ -220,25 +311,39 @@ export class PerfilRestaurante implements OnInit, OnChanges {
     this.mostrarModal = true;
   }
 
-  removerProduto(prodOrId: any) {
-    const id = typeof prodOrId === 'number' ? prodOrId : prodOrId?.id;
-    const restauranteId = this.Restaurante?.id ?? Number(this.route.snapshot.paramMap.get('id'));
-
-    if (!restauranteId) {
+  /**
+   * Remover produto
+   */
+  removerProduto(produtoId: number) {
+    if (!this.restauranteId) {
       console.error('Restaurante não definido para remover produto');
+      this.errorMessage = 'Erro: Restaurante não identificado';
+      return;
+    }
+    
+    if (!produtoId) {
+      console.error('Produto inválido para remoção');
       return;
     }
 
-    if (!id) {
-      console.error('Produto inválido para remoção', prodOrId);
-      return;
-    }
-
-    this.restauranteService.removerProduto(restauranteId, id).subscribe({
+    this.restauranteService.deletarProduto(produtoId).subscribe({
       next: () => {
-        this.produtos = this.produtos.filter((p) => ((p as any).id ?? (p as any).idProduto) !== id);
+        console.log('✅ Produto removido');
+        this.produtos = this.produtos.filter((p) => p.id !== produtoId);
+        this.successMessage = 'Produto removido com sucesso!';
+        this.clearMessages();
       },
-      error: (err) => console.error('Erro ao remover produto:', err),
+      error: (err) => {
+        console.error('❌ Erro ao remover produto:', err);
+        this.errorMessage = 'Erro ao remover produto';
+      }
     });
+  }
+
+  private clearMessages(): void {
+    setTimeout(() => {
+      this.successMessage = '';
+      this.errorMessage = '';
+    }, 3000);
   }
 }
