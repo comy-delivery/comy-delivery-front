@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Restaurante } from '../Shared/models/Restaurante';
 import { RestauranteRequest } from '../Shared/models/auth/restaurante-request';
@@ -12,6 +12,9 @@ import { EnderecoRequest } from '../Shared/models/auth/endereco-request';
 export class RestauranteService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/restaurante`;
+  // Subject para notificar alterações na lista de restaurantes (criação/atualização)
+  private restaurantesChanged = new Subject<void>();
+  public restaurantesChanged$ = this.restaurantesChanged.asObservable();
 
   // ========== RESTAURANTE - CRUD ==========
 
@@ -21,15 +24,27 @@ export class RestauranteService {
     imagemBanner?: File
   ): Observable<any> {
     const formData = new FormData();
-    formData.append('restaurante', new Blob([JSON.stringify(restaurante)], { type: 'application/json' }));
+    formData.append(
+      'restaurante',
+      new Blob([JSON.stringify(restaurante)], { type: 'application/json' })
+    );
     if (imagemLogo) {
       formData.append('imagemLogo', imagemLogo);
     }
     if (imagemBanner) {
       formData.append('imagemBanner', imagemBanner);
     }
-    
+
     return this.http.post<any>(this.apiUrl, formData);
+  }
+
+  // Notifica listeners que a alteração ocorreu
+  notifyRestaurantesChanged(): void {
+    try {
+      this.restaurantesChanged.next();
+    } catch (e) {
+      console.warn('notifyRestaurantesChanged error', e);
+    }
   }
 
   buscarRestaurantePorId(id: number): Observable<any> {
@@ -47,20 +62,21 @@ export class RestauranteService {
     imagemBanner?: File
   ): Observable<any> {
     const formData = new FormData();
-    formData.append('restaurante', new Blob([JSON.stringify(restaurante)], { type: 'application/json' }));
-
     formData.append(
       'restaurante',
       new Blob([JSON.stringify(restaurante)], { type: 'application/json' })
     );
 
+    formData.append(
+      'restaurante',
+      new Blob([JSON.stringify(restaurante)], { type: 'application/json' })
+    );
     if (imagemLogo) {
       formData.append('imagemLogo', imagemLogo);
     }
     if (imagemBanner) {
       formData.append('imagemBanner', imagemBanner);
     }
-
     return this.http.put<any>(`${this.apiUrl}/${id}`, formData);
   }
 

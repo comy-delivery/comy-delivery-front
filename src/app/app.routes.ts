@@ -20,94 +20,94 @@ import { PerfilRestaurante } from './components/perfil-restaurante/perfil-restau
 
 export const routes: Routes = [
   // ========== ROTAS PÚBLICAS ==========
-  { 
-    path: '', 
-    component: Home 
+  {
+    path: '',
+    component: Home,
   },
-  { 
-    path: 'cardapio/:id', 
-    component: Cardapio 
+  {
+    path: 'cardapio/:id',
+    component: Cardapio,
   },
-  { 
-    path: 'cardapio', 
-    component: Cardapio 
+  {
+    path: 'cardapio',
+    component: Cardapio,
   },
-  
+
   // ========== AUTENTICAÇÃO ==========
-  { 
-    path: 'login', 
+  {
+    path: 'login',
     component: Login,
-    canActivate: [publicGuard]
+    canActivate: [publicGuard],
   },
-  { 
-    path: 'oauth2/callback', 
+  {
+    path: 'oauth2/callback',
     component: OAuth2Callback,
   },
-  { 
-    path: 'cadastro', 
+  {
+    path: 'cadastro',
     component: Cadastro,
-    canActivate: [publicGuard]
+    canActivate: [publicGuard],
   },
-  { 
-    path: 'recuperar-senha', 
+  {
+    path: 'recuperar-senha',
     component: RecuperarSenha,
-    canActivate: [publicGuard]
+    canActivate: [publicGuard],
   },
 
   // ========== CLIENTE ==========
-  { 
-    path: 'perfil', 
+  {
+    path: 'perfil',
     component: Perfil,
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['CLIENTE'] }
+    data: { roles: ['CLIENTE'] },
   },
-  { 
-    path: 'carrinho', 
+  {
+    path: 'carrinho',
     component: Carrinho,
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['CLIENTE'] }
+    data: { roles: ['CLIENTE'] },
   },
 
   // ========== RESTAURANTE ==========
-  { 
-    path: 'restaurante', 
+  {
+    path: 'restaurante',
     component: HomeRestauranteComponent,
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['RESTAURANTE'] }
+    data: { roles: ['RESTAURANTE'] },
   },
 
-  { 
-    path: 'restaurante-perfil', 
+  {
+    path: 'restaurante-perfil',
     component: PerfilRestaurante,
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['RESTAURANTE'] }
+    data: { roles: ['RESTAURANTE'] },
   },
 
   // ========== ENTREGADOR ==========
-  { 
-    path: 'entregador', 
+  {
+    path: 'entregador',
     component: PerfilEntregador,
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['ENTREGADOR'] }
+    data: { roles: ['ENTREGADOR'] },
   },
-  { 
-    path: 'entrega', 
+  {
+    path: 'entrega',
     component: Entrega,
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['ENTREGADOR'] }
+    data: { roles: ['ENTREGADOR'] },
   },
 
   // ========== ADMIN ==========
-  { 
-    path: 'admin', 
+  {
+    path: 'admin',
     component: PainelAdmin,
     canActivate: [authGuard, roleGuard],
-    data: { roles: ['ADMIN'] }
+    data: { roles: ['ADMIN'] },
   },
 
   // ========== ERRO ==========
-  { 
-    path: '**', 
-    component: NotFound 
+  {
+    path: '**',
+    component: NotFound,
   },
 ];
