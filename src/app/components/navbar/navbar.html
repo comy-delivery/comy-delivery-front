@@ -103,7 +103,12 @@
           </button>
         </li>
         <li class="nav-item ms-3">
-          <button class="btn btn-warning p-2" routerLink="/login">Entrar</button>
+          @if(!isLoggedIn()) {
+            <button class="btn btn-warning p-2" routerLink="/login">Entrar</button>
+          }
+          @else {
+            <button class="btn btn-danger p-2" (click)="logout()">Sair</button>
+          }
         </li>
       </ul>
     </div>

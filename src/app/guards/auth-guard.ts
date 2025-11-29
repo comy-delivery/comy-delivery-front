@@ -3,8 +3,8 @@ import { Router, CanActivateFn } from '@angular/router';
 import { AuthService } from '../services/auth-service';
 
 /**
-Guard para proteger rotas que exigem autenticação*/
-
+ * Guard para proteger rotas que exigem autenticação
+ */
 export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
@@ -42,17 +42,36 @@ export const publicGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  if (!authService.isLoggedIn()) {
-    return true;
+  if (authService.isLoggedIn()) {
+    const role = authService.getUserRole();
+    console.log(`👤 Usuário já logado como ${role}, redirecionando...`);
+    
+    // Redireciona para a página inicial de cada role
+    switch(role) {
+      case 'CLIENTE':
+        router.navigate(['/']);
+        break;
+      case 'RESTAURANTE':
+        router.navigate(['/restaurante-perfil']); // 👈 MUDOU AQUI
+        break;
+      case 'ENTREGADOR':
+        router.navigate(['/entregador']);
+        break;
+      case 'ADMIN':
+        router.navigate(['/admin']);
+        break;
+      default:
+        router.navigate(['/']);
+    }
+    return false;
   }
 
-  //se logado, redireciona para home
-  console.log('Usuário já está logado, redirecionando para home...');
-  router.navigate(['/']);
-  return false;
+  return true;
 };
 
-/**Guard para verificar role específica */
+/**
+ * Guard para verificar role específica
+ */
 export const roleGuard: CanActivateFn = (route) => {
   const authService = inject(AuthService);
   const router = inject(Router);

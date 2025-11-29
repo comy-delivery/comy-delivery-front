@@ -21,21 +21,14 @@ export class RestauranteService {
     imagemBanner?: File
   ): Observable<any> {
     const formData = new FormData();
-
-    // Adicionar dados do restaurante como JSON
-    formData.append(
-      'restaurante',
-      new Blob([JSON.stringify(restaurante)], { type: 'application/json' })
-    );
-
-    // Adicionar imagens se existirem
+    formData.append('restaurante', new Blob([JSON.stringify(restaurante)], { type: 'application/json' }));
     if (imagemLogo) {
       formData.append('imagemLogo', imagemLogo);
     }
     if (imagemBanner) {
       formData.append('imagemBanner', imagemBanner);
     }
-
+    
     return this.http.post<any>(this.apiUrl, formData);
   }
 
@@ -54,6 +47,7 @@ export class RestauranteService {
     imagemBanner?: File
   ): Observable<any> {
     const formData = new FormData();
+    formData.append('restaurante', new Blob([JSON.stringify(restaurante)], { type: 'application/json' }));
 
     formData.append(
       'restaurante',
@@ -134,6 +128,10 @@ export class RestauranteService {
     return this.http.patch<void>(`${this.apiUrl}/${id}/status/indisponibilizar`, {});
   }
 
+  abrirTodosRestaurantes(): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/status/abrir-todos`, {});
+  }
+
   // ========== RECUPERAÇÃO DE SENHA ==========
 
   iniciarRecuperacaoSenha(email: string): Observable<any> {
@@ -172,7 +170,45 @@ export class RestauranteService {
     return this.http.patch<any>(`${this.apiUrl}/${id}/calcular-tempo-medio`, {});
   }
 
-  // ========== MÉTODOS LEGADOS (manter compatibilidade) ==========
+  // ========== ATUALIZAÇÕES PARCIAIS - SIMPLIFICADO (USA atualizarRestaurante) ==========
+
+  updateConfiguracao(id: number, restauranteCompleto: any): Observable<any> {
+    return this.atualizarRestaurante(id, restauranteCompleto);
+  }
+
+  updateEndereco(idRestaurante: number, idEndereco: number, endereco: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${idRestaurante}/enderecos/${idEndereco}`, endereco);
+  }
+
+  updateCategoria(id: number, restauranteCompleto: any): Observable<any> {
+    return this.atualizarRestaurante(id, restauranteCompleto);
+  }
+
+  updateFuncionamento(id: number, restauranteCompleto: any): Observable<any> {
+    return this.atualizarRestaurante(id, restauranteCompleto);
+  }
+
+  updateTempoEntrega(id: number, restauranteCompleto: any): Observable<any> {
+    return this.atualizarRestaurante(id, restauranteCompleto);
+  }
+
+  updateDadosFiscais(id: number, restauranteCompleto: any): Observable<any> {
+    return this.atualizarRestaurante(id, restauranteCompleto);
+  }
+
+  uploadLogo(id: number, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('imagem', file);
+    return this.http.put<any>(`${this.apiUrl}/${id}/logo`, formData);
+  }
+
+  uploadBanner(id: number, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('imagem', file);
+    return this.http.put<any>(`${this.apiUrl}/${id}/banner`, formData);
+  }
+
+  // ========== MÉTODOS LEGADOS ==========
 
   buscarRestaurantes(): Observable<any[]> {
     return this.listarRestaurantesAbertos();

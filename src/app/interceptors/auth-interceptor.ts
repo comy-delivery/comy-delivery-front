@@ -18,13 +18,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     '/auth/login',
     '/auth/register-complete',
     '/auth/refresh',
+    '/oauth2/callback',
+    '/oauth2/authorization',
     '/cliente/recuperar-senha',
     '/cliente/redefinir-senha',
     '/restaurante/recuperacao/iniciar',
     '/restaurante/recuperacao/redefinir',
     '/restaurante/abertos',
-    '/restaurante/',
-    '/restaurante/cnpj/',
     '/cupom',
     '/cupom/codigo/'
   ];
@@ -33,6 +33,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   // Se for URL pública, não adiciona token
   if (isPublicUrl) {
+    console.log('🌐 URL pública, sem token:', req.url);
     return next(req);
   }
 
@@ -45,6 +46,9 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         Authorization: `Bearer ${token}`
       }
     });
+    console.log('🔑 Token adicionado na requisição:', req.url);
+  } else {
+    console.warn('⚠️ Nenhum token encontrado para requisição privada:', req.url);
   }
 
   // Tratar erros 401 (Unauthorized)
@@ -52,11 +56,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     catchError(error => {
       // Se erro 401 e não for a rota de refresh
       if (error.status === 401 && !req.url.includes('/auth/refresh')) {
-        console.log('Token expirado, tentando renovar...');
+        console.log('🔄 Token expirado, tentando renovar...');
         
         // Tentar renovar o token
         return authService.refreshToken().pipe(
           switchMap(() => {
+            console.log('✅ Token renovado com sucesso, repetindo requisição...');
             // Repetir a requisição original com o novo token
             const newToken = tokenService.getAccessToken();
             const clonedRequest = req.clone({
@@ -67,7 +72,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             return next(clonedRequest);
           }),
           catchError(refreshError => {
-            console.error('Erro ao renovar token, fazendo logout...');
+            console.error('❌ Erro ao renovar token, fazendo logout...');
             // Se refresh falhar, faz logout
             authService.logout();
             return throwError(() => refreshError);

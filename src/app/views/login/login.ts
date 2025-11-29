@@ -6,7 +6,6 @@ import { AuthService } from '../../services/auth-service';
 import { LoginRequest } from '../../Shared/models/auth/login-request.';
 import { environment } from '../../../environments/environment';
 
-
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -15,27 +14,20 @@ import { environment } from '../../../environments/environment';
   styleUrl: './login.scss',
 })
 export class Login {
-  // Injetar services
   private authService = inject(AuthService);
   private router = inject(Router);
-
-  // Propriedade para a URL base da API
   private readonly API_URL_BASE = environment.apiUrl; 
 
-  // Dados do formulário
   loginData: LoginRequest = {
     username: '',
     password: ''
   };
 
-  // Estados do formulário
   isLoading = false;
   errorMessage = '';
   showPassword = false;
 
-  // Método de login
   onLogin(): void {
-    // Validação básica
     if (!this.loginData.username || !this.loginData.password) {
       this.errorMessage = 'Por favor, preencha todos os campos.';
       return;
@@ -46,28 +38,16 @@ export class Login {
 
     this.authService.login(this.loginData).subscribe({
       next: (response) => {
-        console.log('Login bem-sucedido!', response);
-        
-        // Redirecionar baseado na role
-        const role = this.authService.getUserRole();
-        
-        if (role === 'CLIENTE') {
-          this.router.navigate(['/']);
-        } else if (role === 'RESTAURANTE') {
-          this.router.navigate(['/restaurante/dashboard']);
-        } else if (role === 'ENTREGADOR') {
-          this.router.navigate(['/entregador/entregas']);
-        } else if (role === 'ADMIN') {
-          this.router.navigate(['/admin']);
-        } else {
-          this.router.navigate(['/']);
-        }
-      },
-      error: (error) => {
-        console.error('Erro ao fazer login:', error);
+        console.log('✅ Login bem-sucedido!', response);
         this.isLoading = false;
         
-        // Tratar diferentes tipos de erro
+        // Redirecionar baseado na role
+        this.redirectBasedOnRole();
+      },
+      error: (error) => {
+        console.error('❌ Erro ao fazer login:', error);
+        this.isLoading = false;
+        
         if (error.status === 401) {
           this.errorMessage = 'Usuário ou senha incorretos.';
         } else if (error.status === 403) {
@@ -81,15 +61,42 @@ export class Login {
     });
   }
 
-  // Alternar visibilidade da senha
+  /**
+   * Redireciona baseado na ROLE do usuário
+   */
+  private redirectBasedOnRole(): void {
+    const role = this.authService.getUserRole();
+    
+    console.log('🔀 Redirecionando usuário com role:', role);
+    
+    switch(role) {
+      case 'CLIENTE':
+        this.router.navigate(['/']);
+        break;
+        
+      case 'RESTAURANTE':
+        this.router.navigate(['/restaurante-perfil']);
+        break;
+        
+      case 'ENTREGADOR':
+        this.router.navigate(['/entregador']);
+        break;
+        
+      case 'ADMIN':
+        this.router.navigate(['/admin']);
+        break;
+        
+      default:
+        console.warn('⚠️ Role desconhecida:', role);
+        this.router.navigate(['/']);
+    }
+  }
+
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
   }
 
-  /**
-   * Redireciona o usuário para o endpoint do backend que inicia a autenticação do Google.
-   */
- loginWithGoogle(): void {
-  window.location.href = 'http://localhost:8084/oauth2/authorization/google';
-}
+  loginWithGoogle(): void {
+    window.location.href = `${this.API_URL_BASE}/oauth2/authorization/google`;
+  }
 }
