@@ -17,13 +17,13 @@
           />
         </svg>
         <div>
-          <h4>João Silva</h4>
-          <p class="mb-1 text-secondary"><strong>Email:</strong> emilio@gmail.com</p>
-          <p class="mb-1 text-secondary"><strong>Telefone:</strong> 555199518231</p>
+          <h4>{{cliente?.nmCliente}}</h4>
+          <p class="mb-1 text-secondary"><strong>Email:</strong> {{ cliente?.emailCliente }}</p>
+          <p class="mb-1 text-secondary"><strong>Telefone:</strong> {{ cliente?.telefoneCliente }}</p>
         </div>
       </div>
       <div class="align-items-center">
-        <button class="btn btn-outline-danger">
+        <button class="btn btn-outline-danger" (click)="logout()">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
