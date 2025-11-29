@@ -1,103 +1,140 @@
-<div class="card rounded-4">
-  <div class="card-header">
-    <div class="d-flex justify-content-between align-items-center m-0">
-      <div class="d-flex gap-3">
-        <img
-          src="../banners/banner-massa-nostra.png"
-          alt="Pizza"
-          class="img-fluid rounded-4"
-          style="height: 60px; width: 60px; object-fit: cover"
-        />
-        <div class="d-flex flex-column">
-          <p class="m-0">Pizzaria Nostra <span class="badge text-bg-primary">A caminho</span></p>
-          <p class="text-secondary m-0">pedido #12345 • 10/11/2025 as 19:30</p>
-        </div>
-      </div>
-      <div class="d-flex align-items-center flex-column text-end">
-        <p class="m-0">R$ 25,90</p>
-        <p class="text-secondary m-0">Cartão Crédito</p>
-      </div>
-    </div>
+<div class="container-fluid p-0"></div>
+@if (loading) {
+<div class="text-center p-5">
+  <div class="spinner-border text-primary" role="status">
+    <span class="visually-hidden">Carregando...</span>
   </div>
-
-  <div class="card-body">
-    <div class="d-flex justify-content-between align-items-center flex-column">
-      <div class="alert alert-info w-100" role="alert">Entregador a caminho</div>
-      <p class="align-items-center w-100 p-3 m-0">Itens do Pedido</p>
-      <div class="d-flex justify-content-between align-items-center w-100 p-3">
-        <div class="d-flex gap-3 align-items-center">
+</div>
+} @else if (pedidos.length === 0) {
+<div class="text-center p-5 text-secondary">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="64"
+    height="64"
+    fill="currentColor"
+    class="bi bi-bag-x mb-3"
+    viewBox="0 0 16 16"
+  >
+    <path
+      fill-rule="evenodd"
+      d="M6.146 8.146a.5.5 0 0 1 .708 0L8 9.293l1.146-1.147a.5.5 0 1 1 .708.708L8.707 10l1.147 1.146a.5.5 0 0 1-.708.708L8 10.707l-1.146 1.147a.5.5 0 0 1-.708-.708L7.293 10 6.146 8.854a.5.5 0 0 1 0-.708z"
+    />
+    <path
+      d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1m3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z"
+    />
+  </svg>
+  <h5>Você ainda não fez nenhum pedido.</h5>
+</div>
+} @else {
+<div class="d-flex flex-column gap-3">
+  @for (pedido of pedidos; track pedido.idPedido) {
+  <div class="card rounded-4">
+    <div class="card-header">
+      <div class="d-flex justify-content-between align-items-center m-0">
+        <div class="d-flex gap-3">
           <img
-            src="../banners/banner-massa-nostra.png"
-            alt="Pizza"
+           [src]="getRestauranteLogo(pedido.restauranteId)"
+            alt="Logo"
             class="img-fluid rounded-4"
             style="height: 60px; width: 60px; object-fit: cover"
           />
           <div class="d-flex flex-column">
-            <p class="m-0">1x Pizza Quatro Queijos</p>
+            <p class="m-0">{{ getRestauranteNome(pedido.restauranteId) }} <span class="badge text-bg-primary">{{ getStatusLabel(pedido.status) }}</span></p>
+            <p class="text-secondary m-0">Pedido #{{pedido.idPedido}} • {{pedido.dtCriacao | date:'dd/MM/yyyy HH:mm' }}</p>
           </div>
         </div>
-        <p class="m-0">R$25,90</p>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col">
-        <div class="alert alert-light" role="alert">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            fill="currentColor"
-            class="bi bi-geo-alt"
-            viewBox="0 0 16 16"
-          >
-            <path
-              d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A32 32 0 0 1 8 14.58a32 32 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10"
-            />
-            <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
-          </svg>
-          Endereço de Entrega:
-          <p class="d-flex flex-column">Rua das Flores, 123 - Centro, Cidade - Estado: SC</p>
+        <div class="d-flex align-items-center flex-column text-end">
+          <p class="m-0">R$ {{ pedido.vlTotal | number:'1.2-2' }}</p>
+          <p class="text-secondary m-0">{{ pedido.formaPagamento }}</p>
         </div>
       </div>
-      <div class="col">
-        <div class="alert alert-light" role="alert">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="lucide lucide-bike-icon lucide-bike"
-          >
-            <circle cx="18.5" cy="17.5" r="3.5" />
-            <circle cx="5.5" cy="17.5" r="3.5" />
-            <circle cx="15" cy="5" r="1" />
-            <path d="M12 17.5V14l-3-3 4-3 2 3h2" />
-          </svg>
-          Entregador:
-          <p class="d-flex flex-column">Mauricio Pinto</p>
-          <div class="d-flex align-items-center gap-1 text-warning">
+    </div>
+
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center flex-column">
+        <div class="alert alert-info w-100" role="alert">Entregador a caminho</div>
+        <p class="align-items-center w-100 p-3 m-0">Itens do Pedido</p>
+        @for (item of pedido.itensPedido; track item.idItemPedido) {
+          <div class="d-flex justify-content-between align-items-center w-100 p-3">
+          <div class="d-flex gap-3 align-items-center">
+            <img
+              src="../banners/banner-massa-nostra.png"
+              alt="Pizza"
+              class="img-fluid rounded-4"
+              style="height: 60px; width: 60px; object-fit: cover"
+            />
+            <div class="d-flex flex-column">
+              <p class="m-0">{{ item.qtQuantidade }}x {{ item.produto.nmProduto }}</p>
+            </div>
+          </div>
+          <p class="m-0">R$ {{ item.vlSubtotal | number:'1.2-2' }}</p>
+        </div>
+        }
+      </div>
+      <div class="row">
+        <div class="col">
+          <div class="alert alert-light" role="alert">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
               height="16"
               fill="currentColor"
-              class="bi bi-star-fill"
+              class="bi bi-geo-alt"
               viewBox="0 0 16 16"
             >
               <path
-                d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"
+                d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A32 32 0 0 1 8 14.58a32 32 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10"
               />
+              <path d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4m0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
             </svg>
-            4.9
+            Endereço de Entrega:
+            <p class="d-flex flex-column">{{ pedido.enderecoEntrega.logradouro }}, {{ pedido.enderecoEntrega.numero }}</p>
           </div>
-          <p>• Moto Honda CG</p>
+        </div>
+        <div class="col">
+          <div class="alert alert-light" role="alert">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="lucide lucide-bike-icon lucide-bike"
+            >
+              <circle cx="18.5" cy="17.5" r="3.5" />
+              <circle cx="5.5" cy="17.5" r="3.5" />
+              <circle cx="15" cy="5" r="1" />
+              <path d="M12 17.5V14l-3-3 4-3 2 3h2" />
+            </svg>
+            Entregador:
+            <p class="d-flex flex-column">{{ pedido.entregadorDetalhado.nmEntregador }}</p>
+            <div class="d-flex align-items-center gap-1 text-warning">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                fill="currentColor"
+                class="bi bi-star-fill"
+                viewBox="0 0 16 16"
+              >
+                <path
+                  d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"
+                />
+              </svg>
+              {{ pedido.entregadorDetalhado.avaliacaoMediaEntregador }}
+            </div>
+           <small class="text-muted" style="font-size: 0.75rem" >
+                         {{ pedido.entregadorDetalhado.veiculo }} - {{ pedido.entregadorDetalhado.placa }}
+                       </small>
+          </div>
         </div>
       </div>
     </div>
   </div>
+  }
 </div>
+}
