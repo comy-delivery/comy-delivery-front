@@ -18,6 +18,10 @@ export class ProdutoService {
     });
   }
 
+  atualizarProduto(id: number, produto: Produto) {
+    return this.http.put<Produto>(`http://localhost:8084/api/produto/${id}`, produto);
+  }
+
   adicionarProduto(produto: Produto) {
     return this.http.post<Produto>('http://localhost:8084/api/produto', produto);
   }

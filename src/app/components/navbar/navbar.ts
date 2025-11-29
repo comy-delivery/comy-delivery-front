@@ -7,7 +7,6 @@ import { AuthService } from '../../services/auth-service';
 import { FormsModule } from '@angular/forms';
 import { filter } from 'rxjs/operators';
 
-
 @Component({
   selector: 'app-navbar',
   imports: [RouterLink, CommonModule, FormsModule],
@@ -83,16 +82,50 @@ export class Navbar implements OnInit {
 
   toggleTheme() {
     const html = document.documentElement;
-
     const currentTheme = html.getAttribute('data-bs-theme');
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-
     html.setAttribute('data-bs-theme', newTheme);
-
     localStorage.setItem('theme', newTheme);
+  }
+
+  isLoggedIn(): boolean {
+    return this.authService.isLoggedIn();
+  }
+
+  /**
+   * Redireciona para o perfil correto baseado na role do usuário
+   */
+  irParaPerfil(): void {
+    if (!this.isLoggedIn()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    const role = this.authService.getUserRole();
+    
+    switch(role) {
+      case 'CLIENTE':
+        this.router.navigate(['/perfil']);
+        break;
+      case 'RESTAURANTE':
+        this.router.navigate(['/restaurante']); //Vai para home-restaurante (edição)
+        break;
+      case 'ENTREGADOR':
+        this.router.navigate(['/entregador']);
+        break;
+      case 'ADMIN':
+        this.router.navigate(['/admin']);
+        break;
+      default:
+        this.router.navigate(['/']);
+    }
   }
 
   onSearch(valor: string) {
     this.searchService.updateSearch(valor);
   }
+
+  logout(): void {
+  this.authService.logout();
+}
 }

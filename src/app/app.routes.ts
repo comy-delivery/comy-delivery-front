@@ -8,67 +8,106 @@ import { Login } from './views/login/login';
 import { Cadastro } from './views/cadastro/cadastro';
 import { Entrega } from './views/entrega/entrega';
 import { RecuperarSenha } from './views/recuperar-senha/recuperar-senha';
-import { authGuard, publicGuard } from './guards/auth-guard';
+import { Restaurante } from './views/restaurante/restaurante';
+import { Entregador } from './views/entregador/entregador';
+import { PainelAdmin } from './views/painel-admin/painel-admin';
+import { authGuard, publicGuard, roleGuard } from './guards/auth-guard';
 import { OAuth2Callback } from './components/oauth2-callback/oauth2-callback';
+import { HomeRestauranteComponent } from './components/home-restaurante/home-restaurante';
+import { PainelEntregador } from './components/painel-entregador/painel-entregador';
+import { PerfilEntregador } from './components/perfil-entregador/perfil-entregador';
+import { PerfilRestaurante } from './components/perfil-restaurante/perfil-restaurante';
 
 export const routes: Routes = [
-  // rotas publics
-  { 
-    path: '', 
-    component: Home 
+  // ========== ROTAS PÚBLICAS ==========
+  {
+    path: '',
+    component: Home,
   },
-  { 
-    path: 'cardapio/:id', 
-    component: Cardapio 
+  {
+    path: 'cardapio/:id',
+    component: Cardapio,
   },
-  { 
-    path: 'cardapio', 
-    component: Cardapio 
+  {
+    path: 'cardapio',
+    component: Cardapio,
   },
-  
-  // rotas de autenticacao (acessa se nao estiver logado)
-  { 
-    path: 'login', 
+
+  // ========== AUTENTICAÇÃO ==========
+  {
+    path: 'login',
     component: Login,
-    canActivate: [publicGuard] // Se logado, redireciona para home
+    canActivate: [publicGuard],
   },
-  //Rota de Callback do OAuth2. Deve ser acessível por qualquer um.
-  { 
-    path: 'oauth2/callback', 
+  {
+    path: 'oauth2/callback',
     component: OAuth2Callback,
-    // Geralmente não precisa de guard, pois apenas processa o redirecionamento.
   },
-  { 
-    path: 'cadastro', 
+  {
+    path: 'cadastro',
     component: Cadastro,
-    canActivate: [publicGuard]
+    canActivate: [publicGuard],
   },
-  { 
-    path: 'esqueceu', 
+  {
+    path: 'recuperar-senha',
     component: RecuperarSenha,
-    canActivate: [publicGuard]
+    canActivate: [publicGuard],
   },
 
-  // rotas protegidas (acessa se tiver logado)
-  { 
-    path: 'perfil', 
+  // ========== CLIENTE ==========
+  {
+    path: 'perfil',
     component: Perfil,
-    canActivate: [authGuard] // bloqueia se nao estiver logado
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['CLIENTE'] },
   },
-  { 
-    path: 'carrinho', 
+  {
+    path: 'carrinho',
     component: Carrinho,
-    canActivate: [authGuard]
-  },
-  { 
-    path: 'entrega', 
-    component: Entrega,
-    canActivate: [authGuard]
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['CLIENTE'] },
   },
 
-  // rota de erro
-  { 
-    path: '**', 
-    component: NotFound 
+  // ========== RESTAURANTE ==========
+  {
+    path: 'restaurante',
+    component: HomeRestauranteComponent,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['RESTAURANTE'] },
+  },
+
+  {
+    path: 'restaurante-perfil',
+    component: PerfilRestaurante,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['RESTAURANTE'] },
+  },
+
+  // ========== ENTREGADOR ==========
+  {
+    path: 'entregador',
+    component: PerfilEntregador,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['ENTREGADOR'] },
+  },
+  {
+    path: 'entrega',
+    component: Entrega,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['ENTREGADOR'] },
+  },
+
+  // ========== ADMIN ==========
+  {
+    path: 'admin',
+    component: PainelAdmin,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['ADMIN'] },
+  },
+
+  // ========== ERRO ==========
+  {
+    path: '**',
+    component: NotFound,
   },
 ];

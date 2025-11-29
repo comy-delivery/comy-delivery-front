@@ -7,6 +7,9 @@ import { Restaurante } from '../../Shared/models/Restaurante';
 import { Pedido } from '../../Shared/models/Pedido';
 import { ActivatedRoute } from '@angular/router';
 import { RestauranteService } from '../../services/restaurante-service';
+import { AuthService } from '../../services/auth-service';
+import { DashboardRestaurante, PedidoService } from '../../services/pedido-service';
+import { ProdutoService } from '../../services/produto-service';
 
 @Component({
   selector: 'app-perfil-restaurante',
@@ -17,7 +20,11 @@ import { RestauranteService } from '../../services/restaurante-service';
 })
 export class PerfilRestaurante implements OnInit, OnChanges {
   private restauranteService = inject(RestauranteService);
+  private pedidoService = inject(PedidoService);
+  private authService = inject(AuthService);
   private route = inject(ActivatedRoute);
+  private produtoService = inject(ProdutoService);
+  private id_fixo = 2;
 
   @Input() Restaurante: Restaurante = {} as Restaurante;
   @Input() pedidosInput: Pedido[] = [];
@@ -27,51 +34,90 @@ export class PerfilRestaurante implements OnInit, OnChanges {
 
   produtos: any[] = [];
   pedidos: Pedido[] = [];
+  dashboard: DashboardRestaurante | null = null;
+  
+  isLoading: boolean = true;
+  errorMessage: string = '';
+  isSaving: boolean = false;
+  successMessage: string = '';
+  
   tabAtiva: 'pedidos' | 'produtos' = 'pedidos';
   mostrarModal = false;
   modoEdicao = false;
   produtoAtual: any = {};
   adicionaisTemporarios: any[] = [];
 
+  restauranteId: number | null = null;
+
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
-    const id = idParam ? Number(idParam) : null;
+    const id = idParam ? Number(idParam) : this.authService.getUserId();
 
     if (id) {
+      this.restauranteId = id;
       this.loadAllForRestaurante(id);
     } else if (this.Restaurante && this.Restaurante.id) {
+      this.restauranteId = this.Restaurante.id;
       this.loadAllForRestaurante(this.Restaurante.id);
+    } else {
+      this.errorMessage = 'ID do restaurante não encontrado';
+      this.isLoading = false;
     }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['Restaurante'] && this.Restaurante && this.Restaurante.id) {
+      this.restauranteId = this.Restaurante.id;
       this.loadAllForRestaurante(this.Restaurante.id);
     }
   }
 
   private loadAllForRestaurante(id: number) {
-    // Buscar restaurante
+    this.isLoading = true;
+    
     this.restauranteService.buscarRestaurantePorId(id).subscribe({
       next: (rest) => {
         this.Restaurante = rest;
+        console.log('PerfilRestaurante: restaurante carregado para id=', id, rest);
       },
-      error: (err) => console.error('Erro ao buscar restaurante:', err),
+      error: (err) => {
+        console.error('Erro ao buscar restaurante:', err);
+        this.errorMessage = 'Erro ao carregar dados do restaurante';
+      },
     });
 
-    // Listar produtos
     this.restauranteService.listarProdutosRestaurante(id).subscribe({
-      next: (prods) => (this.produtos = prods),
+      next: (prods) => {
+        this.produtos = prods;
+        console.log('PerfilRestaurante: produtos carregados para id=', id, prods && prods.length);
+      },
       error: (err) => console.error('Erro ao listar produtos:', err),
     });
 
-    // Carregar imagens
+    this.pedidoService.listarPorRestaurante(id).subscribe({
+      next: (pedidos) => {
+        this.pedidos = pedidos;
+        this.isLoading = false;
+      },
+      error: (err) => {
+        console.error('Erro ao listar pedidos:', err);
+        this.isLoading = false;
+      }
+    });
+
+    this.pedidoService.obterDashboard(id).subscribe({
+      next: (dashboard) => {
+        this.dashboard = dashboard;
+      },
+      error: (err) => console.error('Erro ao carregar dashboard:', err)
+    });
+
     this.carregarLogo(id);
     this.carregarBanner(id);
   }
 
   carregarLogo(id: number) {
-    this.restauranteService.buscarLogo(id).subscribe({ 
+    this.restauranteService.buscarLogo(id).subscribe({
       next: (blob) => {
         this.logoUrl = URL.createObjectURL(blob);
       },
@@ -80,7 +126,7 @@ export class PerfilRestaurante implements OnInit, OnChanges {
   }
 
   carregarBanner(id: number) {
-    this.restauranteService.buscarBanner(id).subscribe({ 
+    this.restauranteService.buscarBanner(id).subscribe({
       next: (blob) => {
         this.bannerUrl = URL.createObjectURL(blob);
       },
@@ -116,7 +162,7 @@ export class PerfilRestaurante implements OnInit, OnChanges {
     return soma.toFixed(2);
   }
 
-  //crud produtos
+  // ========== CRUD PRODUTOS ==========
 
   confirmRemover(prodId: number) {
     if (confirm('Confirma remoção do produto?')) {
@@ -128,41 +174,109 @@ export class PerfilRestaurante implements OnInit, OnChanges {
     this.mostrarModal = false;
   }
 
+  /**
+   * Método para capturar imagem selecionada
+   */
+  onImagemSelecionada(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.produtoAtual.imagemFile = file;
+      
+      // Preview da imagem
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.produtoAtual.imagemPreview = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  /**
+   * Salvar produto (criar ou atualizar)
+   */
   salvarProduto() {
     const restauranteId = this.Restaurante?.id ?? Number(this.route.snapshot.paramMap.get('id'));
+
     if (!restauranteId) {
       console.error('Restaurante não definido para salvar produto');
+      this.errorMessage = 'Erro: Restaurante não identificado';
       return;
     }
 
-    
+    // Validação básica
+    if (!this.produtoAtual.nome || !this.produtoAtual.preco) {
+      this.errorMessage = 'Preencha pelo menos o nome e o preço do produto';
+      return;
+    }
+
+    // VALIDAR IMAGEM ao criar (obrigatória)
+    if (!this.modoEdicao && !this.produtoAtual.imagemFile) {
+      this.errorMessage = 'A imagem do produto é obrigatória';
+      return;
+    }
+
+    this.isSaving = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    // Preparar o objeto do produto com TODOS os campos obrigatórios
+    const produtoParaEnviar = {
+      nmProduto: this.produtoAtual.nome,
+      descricao: this.produtoAtual.descricao || '',
+      vlPreco: Number(this.produtoAtual.preco),
+      categoria: this.produtoAtual.categoria || '',
+      disponivel: this.produtoAtual.disponivel !== undefined ? this.produtoAtual.disponivel : true,
+      idRestaurante: this.restauranteId
+    };
+
+    console.log('📤 Enviando produto:', produtoParaEnviar);
+    console.log('📤 Com imagem:', this.produtoAtual.imagemFile);
+
     if (this.modoEdicao && this.produtoAtual?.id) {
-      // TODO: Implementar no backend e no service
-      console.warn('Método atualizarProduto não disponível no service atual');
-      
-      // Quando implementar:
-      // this.restauranteService.atualizarProduto(restauranteId, this.produtoAtual.id, this.produtoAtual)
-      //   .subscribe({
-      //     next: (updated) => {
-      //       const idx = this.produtos.findIndex((p) => p.id === updated.id);
-      //       if (idx >= 0) this.produtos[idx] = updated;
-      //       this.fecharModal();
-      //     },
-      //     error: (err) => console.error('Erro ao atualizar produto:', err),
-      //   });
+      // ATUALIZAR PRODUTO EXISTENTE
+      this.restauranteService.atualizarProduto(
+        this.produtoAtual.id, 
+        produtoParaEnviar, 
+        this.produtoAtual.imagemFile
+      ).subscribe({
+        next: (updated) => {
+          console.log('✅ Produto atualizado:', updated);
+          const idx = this.produtos.findIndex((p) => p.id === updated.id);
+          if (idx >= 0) {
+            this.produtos[idx] = updated;
+          }
+          this.successMessage = 'Produto atualizado com sucesso!';
+          this.isSaving = false;
+          this.fecharModal();
+          this.clearMessages();
+        },
+        error: (err) => {
+          console.error('❌ Erro ao atualizar produto:', err);
+          this.errorMessage = `Erro ao atualizar produto: ${err.error?.detail || err.error?.message || err.message}`;
+          this.isSaving = false;
+        }
+      });
     } else {
-      // TODO: Implementar no backend e no service
-      console.warn('Método criarProduto não disponível no service atual');
-      
-      // Quando implementar:
-      // this.restauranteService.criarProduto(restauranteId, this.produtoAtual)
-      //   .subscribe({
-      //     next: (created) => {
-      //       this.produtos.push(created);
-      //       this.fecharModal();
-      //     },
-      //     error: (err) => console.error('Erro ao criar produto:', err),
-      //   });
+      // CRIAR NOVO PRODUTO
+      this.restauranteService.criarProduto(
+        produtoParaEnviar, 
+        this.produtoAtual.imagemFile
+      ).subscribe({
+        next: (created) => {
+          console.log('✅ Produto criado:', created);
+          this.produtos.push(created);
+          this.successMessage = 'Produto criado com sucesso!';
+          this.isSaving = false;
+          this.fecharModal();
+          this.clearMessages();
+        },
+        error: (err) => {
+          console.error('❌ Erro ao criar produto:', err);
+          console.error('❌ Detalhes:', err.error);
+          this.errorMessage = `Erro ao criar produto: ${err.error?.detail || err.error?.message || err.message}`;
+          this.isSaving = false;
+        }
+      });
     }
   }
 
@@ -180,29 +294,39 @@ export class PerfilRestaurante implements OnInit, OnChanges {
     this.mostrarModal = true;
   }
 
-  removerProduto(prodOrId: any) {
-    const id = typeof prodOrId === 'number' ? prodOrId : prodOrId?.id;
-    const restauranteId = this.Restaurante?.id ?? Number(this.route.snapshot.paramMap.get('id'));
-    
-    if (!restauranteId) {
+  /**
+   * Remover produto
+   */
+  removerProduto(produtoId: number) {
+    if (!this.restauranteId) {
       console.error('Restaurante não definido para remover produto');
+      this.errorMessage = 'Erro: Restaurante não identificado';
       return;
     }
     
-    if (!id) {
-      console.error('Produto inválido para remoção', prodOrId);
+    if (!produtoId) {
+      console.error('Produto inválido para remoção');
       return;
     }
 
-    // TODO: Implementar no backend e no service
-    console.warn('Método removerProduto não disponível no service atual');
-    
-    // Quando implementar:
-    // this.restauranteService.removerProduto(restauranteId, id).subscribe({
-    //   next: () => {
-    //     this.produtos = this.produtos.filter((p) => p.id !== id);
-    //   },
-    //   error: (err) => console.error('Erro ao remover produto:', err),
-    // });
+    this.restauranteService.deletarProduto(produtoId).subscribe({
+      next: () => {
+        console.log('✅ Produto removido');
+        this.produtos = this.produtos.filter((p) => p.id !== produtoId);
+        this.successMessage = 'Produto removido com sucesso!';
+        this.clearMessages();
+      },
+      error: (err) => {
+        console.error('❌ Erro ao remover produto:', err);
+        this.errorMessage = 'Erro ao remover produto';
+      }
+    });
+  }
+
+  private clearMessages(): void {
+    setTimeout(() => {
+      this.successMessage = '';
+      this.errorMessage = '';
+    }, 3000);
   }
 }
