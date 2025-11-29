@@ -24,7 +24,6 @@ export class PerfilRestaurante implements OnInit, OnChanges {
   private authService = inject(AuthService);
   private route = inject(ActivatedRoute);
   private produtoService = inject(ProdutoService);
-  private id_fixo = 2;
 
   @Input() Restaurante: Restaurante = {} as Restaurante;
   @Input() pedidosInput: Pedido[] = [];
@@ -43,7 +42,6 @@ export class PerfilRestaurante implements OnInit, OnChanges {
   
   tabAtiva: 'pedidos' | 'produtos' = 'pedidos';
   mostrarModal = false;
-  modoEdicao = false;
   produtoAtual: any = {};
   adicionaisTemporarios: any[] = [];
 
@@ -139,8 +137,9 @@ export class PerfilRestaurante implements OnInit, OnChanges {
   }
 
   abrirModalAdicionar() {
-    this.modoEdicao = false;
-    this.produtoAtual = {};
+    this.produtoAtual = {
+      disponivel: true // Define como disponível por padrão
+    };
     this.adicionaisTemporarios = [];
     this.mostrarModal = true;
   }
@@ -165,13 +164,15 @@ export class PerfilRestaurante implements OnInit, OnChanges {
   // ========== CRUD PRODUTOS ==========
 
   confirmRemover(prodId: number) {
-    if (confirm('Confirma remoção do produto?')) {
+    if (confirm('Tem certeza que deseja remover este produto?')) {
       this.removerProduto(prodId);
     }
   }
 
   fecharModal() {
     this.mostrarModal = false;
+    this.produtoAtual = {};
+    this.adicionaisTemporarios = [];
   }
 
   /**
@@ -192,10 +193,10 @@ export class PerfilRestaurante implements OnInit, OnChanges {
   }
 
   /**
-   * Salvar produto (criar ou atualizar)
+   * Salvar produto (apenas criar novo)
    */
   salvarProduto() {
-    const restauranteId = this.Restaurante?.id ?? Number(this.route.snapshot.paramMap.get('id'));
+    const restauranteId = this.restauranteId;
 
     if (!restauranteId) {
       console.error('Restaurante não definido para salvar produto');
@@ -209,8 +210,14 @@ export class PerfilRestaurante implements OnInit, OnChanges {
       return;
     }
 
-    // VALIDAR IMAGEM ao criar (obrigatória)
-    if (!this.modoEdicao && !this.produtoAtual.imagemFile) {
+    // Validar categoria (obrigatória no backend)
+    if (!this.produtoAtual.categoria || this.produtoAtual.categoria.trim() === '') {
+      this.errorMessage = 'A categoria do produto é obrigatória';
+      return;
+    }
+
+    // VALIDAR IMAGEM (obrigatória ao criar)
+    if (!this.produtoAtual.imagemFile) {
       this.errorMessage = 'A imagem do produto é obrigatória';
       return;
     }
@@ -224,60 +231,43 @@ export class PerfilRestaurante implements OnInit, OnChanges {
       nmProduto: this.produtoAtual.nome,
       descricao: this.produtoAtual.descricao || '',
       vlPreco: Number(this.produtoAtual.preco),
-      categoria: this.produtoAtual.categoria || '',
+      categoriaProduto: this.produtoAtual.categoria || 'Sem categoria', // Backend exige categoria
       disponivel: this.produtoAtual.disponivel !== undefined ? this.produtoAtual.disponivel : true,
-      idRestaurante: this.restauranteId
+      restauranteId: restauranteId // Backend espera 'restauranteId', não 'idRestaurante'
     };
 
     console.log('📤 Enviando produto:', produtoParaEnviar);
     console.log('📤 Com imagem:', this.produtoAtual.imagemFile);
 
-    if (this.modoEdicao && this.produtoAtual?.id) {
-      // ATUALIZAR PRODUTO EXISTENTE
-      this.restauranteService.atualizarProduto(
-        this.produtoAtual.id, 
-        produtoParaEnviar, 
-        this.produtoAtual.imagemFile
-      ).subscribe({
-        next: (updated) => {
-          console.log('✅ Produto atualizado:', updated);
-          const idx = this.produtos.findIndex((p) => p.id === updated.id);
-          if (idx >= 0) {
-            this.produtos[idx] = updated;
-          }
-          this.successMessage = 'Produto atualizado com sucesso!';
-          this.isSaving = false;
-          this.fecharModal();
-          this.clearMessages();
-        },
-        error: (err) => {
-          console.error('❌ Erro ao atualizar produto:', err);
-          this.errorMessage = `Erro ao atualizar produto: ${err.error?.detail || err.error?.message || err.message}`;
-          this.isSaving = false;
+    // CRIAR NOVO PRODUTO
+    this.restauranteService.criarProduto(
+      produtoParaEnviar, 
+      this.produtoAtual.imagemFile
+    ).subscribe({
+      next: (created) => {
+        console.log('✅ Produto criado:', created);
+        this.produtos.push(created);
+        this.successMessage = 'Produto criado com sucesso!';
+        this.isSaving = false;
+        this.fecharModal();
+        this.clearMessages();
+        
+        // Recarrega a lista de produtos para garantir sincronização
+        if (this.restauranteId) {
+          this.restauranteService.listarProdutosRestaurante(this.restauranteId).subscribe({
+            next: (prods) => {
+              this.produtos = prods;
+            }
+          });
         }
-      });
-    } else {
-      // CRIAR NOVO PRODUTO
-      this.restauranteService.criarProduto(
-        produtoParaEnviar, 
-        this.produtoAtual.imagemFile
-      ).subscribe({
-        next: (created) => {
-          console.log('✅ Produto criado:', created);
-          this.produtos.push(created);
-          this.successMessage = 'Produto criado com sucesso!';
-          this.isSaving = false;
-          this.fecharModal();
-          this.clearMessages();
-        },
-        error: (err) => {
-          console.error('❌ Erro ao criar produto:', err);
-          console.error('❌ Detalhes:', err.error);
-          this.errorMessage = `Erro ao criar produto: ${err.error?.detail || err.error?.message || err.message}`;
-          this.isSaving = false;
-        }
-      });
-    }
+      },
+      error: (err) => {
+        console.error('❌ Erro ao criar produto:', err);
+        console.error('❌ Detalhes:', err.error);
+        this.errorMessage = `Erro ao criar produto: ${err.error?.detail || err.error?.message || err.message}`;
+        this.isSaving = false;
+      }
+    });
   }
 
   adicionarNovoAdicionalAoProduto() {
@@ -288,11 +278,7 @@ export class PerfilRestaurante implements OnInit, OnChanges {
     this.adicionaisTemporarios.splice(index, 1);
   }
 
-  editarProduto(prod: any) {
-    this.modoEdicao = true;
-    this.produtoAtual = { ...prod };
-    this.mostrarModal = true;
-  }
+  // ❌ REMOVIDO: método editarProduto()
 
   /**
    * Remover produto
