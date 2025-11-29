@@ -6,13 +6,13 @@ import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root',
 })
-export class EntregadorService {
+export class EntregaService {
 
   private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/entregador`;
+  private apiUrl = `${environment.apiUrl}/entrega`;
 
-  buscarPorId(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`);
+  buscarPorPedido(idPedido: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/pedido/${idPedido}`);
   }
   
 }

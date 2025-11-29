@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Pedido } from '../Shared/models/Pedido';
+import { environment } from '../../environments/environment';
 
 export interface DashboardRestaurante {
   totalPedidosHistorico: number;
@@ -14,19 +15,21 @@ export interface DashboardRestaurante {
 })
 export class PedidoService {
   private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/pedido`;
+  private apiUrl = environment.apiUrl ? `${environment.apiUrl}/pedido` : 'http://localhost:8084/api/pedido';
 
-  // ========== CRUD BÁSICO ==========
-
-  buscarPedidos(): Observable<Pedido[]> {
+  buscarPedidos() {
     return this.http.get<Pedido[]>(this.apiUrl);
   }
 
-  buscarPedidoPorId(id: number): Observable<Pedido> {
+  buscarPedidoPorId(id: number) {
     return this.http.get<Pedido>(`${this.apiUrl}/${id}`);
   }
 
-  criarPedido(pedido: Pedido): Observable<Pedido> {
+  buscarPedidosPorCliente(idCliente: number) {
+    return this.http.get<Pedido[]>(`${this.apiUrl}/cliente/${idCliente}`);
+  }
+
+  criarPedido(pedido: Pedido) {
     return this.http.post<Pedido>(this.apiUrl, pedido);
   }
 
