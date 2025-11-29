@@ -118,9 +118,9 @@ export class RestauranteService {
   // return this.http.post<any>(`${this.apiUrl}/${restauranteId}/produtos`, produto);
   // }
 
-  atualizarProduto(restauranteId: number, produtoId: number, produto: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/${restauranteId}/produtos/${produtoId}`, produto);
-  }
+  //atualizarProduto(restauranteId: number, produtoId: number, produto: any): Observable<any> {
+  //  return this.http.put<any>(`${this.apiUrl}/${restauranteId}/produtos/${produtoId}`, produto);
+  //}
 
   removerProduto(restauranteId: number, produtoId: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${restauranteId}/produtos/${produtoId}`);
