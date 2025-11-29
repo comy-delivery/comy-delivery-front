@@ -75,9 +75,17 @@ export class Cardapio implements OnInit, OnDestroy {
       // Carregar produtos do restaurante
       this.produtoService.buscarProdutos(this.idRestaurante).subscribe({
         next: (response) => {
-          this.todosProdutos = response; // Guarda backup
+          this.todosProdutos = response.map(prod => {
+        
+            if (!prod.restaurante) {
+              prod.restaurante = { id: this.idRestaurante } as any; 
+            
+            }
+            return prod;
+          });
+          // ---------------------
+
           this.filtrarProdutos(this.termoBusca);    
-         
         },
         error: (erro) => console.error(erro),
       });

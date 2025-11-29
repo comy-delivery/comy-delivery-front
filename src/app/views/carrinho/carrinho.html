@@ -47,9 +47,20 @@
         </div>
 
         <div class="input-group">
-          <input type="text" class="form-control" placeholder="Cupom de desconto" />
-          <button class="btn btn-outline-secondary" type="button">Aplicar</button>
+          <input type="text" class="form-control" placeholder="Cupom de desconto" [(ngModel)]="codigoCupom"
+            [disabled]="cupomAplicado"/>
+          @if (!cupomAplicado) {
+            <button class="btn btn-outline-secondary" type="button" (click)="aplicarCupom()">Aplicar</button>
+          } @else {
+            <button class="btn btn-outline-danger" type="button" (click)="removerCupom()">X</button>
+          }
         </div>
+
+        @if (msgCupom) {
+          <div class="alert py-1 px-2" [ngClass]="erroCupom ? 'alert-danger' : 'alert-success'" style="font-size: 13px;">
+            {{ msgCupom }}
+          </div>
+        }
 
         <button class="btn btn-primary w-100 mt-3">Finalizar Pedido</button>
       </div>
