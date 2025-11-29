@@ -1,4 +1,4 @@
-import { Component, inject, Input, OnInit } from '@angular/core';
+import { Component, inject, Input, OnDestroy, OnInit } from '@angular/core';
 import { ItemCardapio } from '../../components/item-cardapio/item-cardapio';
 import { Produto } from '../../Shared/models/Produto';
 import { ProdutoService } from '../../services/produto-service';
@@ -22,7 +22,7 @@ interface CategoriaAgrupada {
   templateUrl: './cardapio.html',
   styleUrl: './cardapio.scss',
 })
-export class Cardapio implements OnInit {
+export class Cardapio implements OnInit, OnDestroy {
   private produtoService = inject(ProdutoService);
   private restauranteService = inject(RestauranteService);
   private clienteService = inject(ClienteService);
@@ -37,10 +37,10 @@ export class Cardapio implements OnInit {
 
   private todosProdutos: Produto[] = [];
 
+  private termoBusca: string = '';
   private searchSubscription?: Subscription;
 
   @Input({ required: true }) Restaurante = {} as Restaurante;
-
   @Input() id!: string;
 
   distancia: number | null = null;
@@ -56,7 +56,8 @@ export class Cardapio implements OnInit {
     const idUrl = this.route.snapshot.paramMap.get('id');
 
     this.searchSubscription = this.searchService.search$.subscribe((termo) => {
-      this.filtrarProdutos(termo);
+      this.termoBusca = termo; // Salva o termo
+      this.filtrarProdutos(termo); // Tenta filtrar (se já tiver produtos)
     });
 
     if (idUrl) {
@@ -75,8 +76,8 @@ export class Cardapio implements OnInit {
       this.produtoService.buscarProdutos(this.idRestaurante).subscribe({
         next: (response) => {
           this.todosProdutos = response; // Guarda backup
-          this.produtos = response;      // Inicializa lista
-          this.organizarCardapio();      // Organiza a view
+          this.filtrarProdutos(this.termoBusca);    
+         
         },
         error: (erro) => console.error(erro),
       });
@@ -97,7 +98,7 @@ export class Cardapio implements OnInit {
   }
 
   filtrarProdutos(termo: string) {
-    if (!this.todosProdutos.length) return;
+    if (!this.todosProdutos || this.todosProdutos.length === 0) return;
 
     if (!termo) {
       
