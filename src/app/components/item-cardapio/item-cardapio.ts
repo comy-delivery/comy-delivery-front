@@ -3,22 +3,27 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { Produto } from '../../Shared/models/Produto';
-import { Adicional } from '../../Shared/models/Adicional'; // <--- COMENTADO
+import { Adicional } from '../../Shared/models/Adicional';
 import { ProdutoService } from '../../services/produto-service';
-import { AdicionalService } from '../../services/adicional-service'; // <--- COMENTADO
+import { AdicionalService } from '../../services/adicional-service'; 
 import { ItemPedido } from '../../Shared/models/ItemPedido';
 import { CarrinhoService } from '../../services/carrinho-service';
+import { Router } from '@angular/router';
+import { AuthService } from '../../services/auth-service';
 
 @Component({
   selector: 'app-item-cardapio',
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './item-cardapio.html',
   styleUrl: './item-cardapio.scss',
 })
 export class ItemCardapio implements OnInit {
   private produtoService = inject(ProdutoService);
-  private adicionalService = inject(AdicionalService); // <--- COMENTADO
+  private adicionalService = inject(AdicionalService); 
   private carrinhoService = inject(CarrinhoService);
+  private authService = inject(AuthService); // <--- INJETAR
+  private router = inject(Router);
 
   @Input({ required: true }) Produto = {} as Produto;
 
@@ -26,13 +31,13 @@ export class ItemCardapio implements OnInit {
 
   // Controle do Modal e Listas
   showModal = false;
-  adicionaisDisponiveis: Adicional[] = []; // <--- COMENTADO
-  adicionaisSelecionados: Adicional[] = []; // <--- COMENTADO
+  adicionaisDisponiveis: Adicional[] = []; 
+  adicionaisSelecionados: Adicional[] = []; 
 
   // Controle do Carrinho
   observacao = '';
   quantidade = 1;
-  isLoadingAdicionais = false; // <--- COMENTADO
+  isLoadingAdicionais = false; 
 
   ngOnInit(): void {
     this.carregarLogo(this.Produto.idProduto);
@@ -49,9 +54,17 @@ export class ItemCardapio implements OnInit {
 
   // Lógica do Modal
   abrirModalAdicionais() {
+
+    if (!this.authService.isLoggedIn()) {
+        alert('Faça login para personalizar seu pedido!');
+        this.router.navigate(['/login']);
+        return;
+    }
+
+    
     this.showModal = true;
     this.resetaFormulario();
-    this.carregarAdicionais(); // <--- COMENTADO
+    this.carregarAdicionais();
   }
 
   fecharModal() {
@@ -59,15 +72,22 @@ export class ItemCardapio implements OnInit {
   }
 
   private resetaFormulario() {
-    this.adicionaisSelecionados = []; // <--- COMENTADO
+    this.adicionaisSelecionados = []; 
     this.observacao = '';
     this.quantidade = 1;
-    this.adicionaisDisponiveis = []; // <--- COMENTADO
+    this.adicionaisDisponiveis = []; 
   }
 
-  // BLOCO INTEIRO COMENTADO
+
   carregarAdicionais() {
     this.isLoadingAdicionais = true;
+
+    if (!this.Produto || !this.Produto.idProduto) {
+        console.error("Produto inválido para buscar adicionais");
+        this.isLoadingAdicionais = false;
+        return;
+    }
+
     this.adicionalService.buscarAdicionaisPorProduto(this.Produto.idProduto).subscribe({
       next: (resposta) => {
         this.adicionaisDisponiveis = resposta as Adicional[];
@@ -82,7 +102,6 @@ export class ItemCardapio implements OnInit {
 
   // Lógica de Seleção e Cálculo
 
-  // <--- BLOCO INTEIRO COMENTADO
   toggleAdicional(adicional: Adicional) {
     if (!adicional.isDisponivel) return;
 
@@ -114,8 +133,7 @@ export class ItemCardapio implements OnInit {
   calcularTotal(): number {
     let total = this.Produto.vlPreco;
 
-    // <--- CÁLCULO DE ADICIONAIS COMENTADO
-
+ 
     this.adicionaisSelecionados.forEach((adicional) => {
       total += Number(adicional.vlPrecoAdicional);
     });
