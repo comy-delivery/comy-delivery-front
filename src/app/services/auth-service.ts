@@ -18,6 +18,7 @@ import { RestauranteRequest } from '../Shared/models/auth/restaurante-request';
   providedIn: 'root'
 })
 export class AuthService {
+
   private http = inject(HttpClient);
   private tokenService = inject(TokenService);
   private router = inject(Router);
@@ -43,9 +44,7 @@ export class AuthService {
         this.currentUserSubject.next(JSON.parse(savedUser));
         this.isAuthenticatedSubject.next(true);
       }
-
     }
-
   }
 
   // ========== LOGIN COM USUÁRIO/SENHA ==========
@@ -57,29 +56,10 @@ export class AuthService {
         console.log('Resposta do Login:', response);
         this.tokenService.setTokens(response.jwt, response.refreshToken);
         
-        // Atualizar estado de autenticação e dados do usuário
-        this.updateAuthState(response.accessToken);
-        // Atualizar estado de autenticação
-        this.isAuthenticatedSubject.next(true);
-
-        const userId = response.userId || this.tokenService.getUserIdFromToken();
-        const username = this.tokenService.getUsernameFromToken();
-        const role = this.tokenService.getRoleFromToken();
-
-        const userData = {
-          userId: userId,
-          username: username,
-          role: role
-        };
-
-        console.log('Dados do usuário montados:', userData);
-
-        localStorage.setItem('comy_user', JSON.stringify(userData));
+        // Atualizar estado de autenticação e dados do usuário de forma centralizada
+        this.updateAuthState();
         
-        this.currentUserSubject.next(userData);
-        this.isAuthenticatedSubject.next(true);
-        
-        console.log('Login realizado com sucesso!', userData);
+        console.log('Login realizado com sucesso!');
       }),
       catchError(error => {
         console.error('Erro ao fazer login:', error);
@@ -90,18 +70,12 @@ export class AuthService {
   
   // ========== LOGIN COM OAUTH2 (GOOGLE) 🆕 ==========
 
-  /**
-   * Processa e armazena os tokens recebidos via redirecionamento OAuth2.
-   * Este método é chamado pelo OAuth2CallbackComponent.
-   * @param accessToken O Access Token (JWT).
-   * @param refreshToken O Refresh Token.
-   */
   handleOAuth2Tokens(accessToken: string, refreshToken: string): void {
     // 1. Salvar tokens
     this.tokenService.setTokens(accessToken, refreshToken);
     
     // 2. Atualizar estado de autenticação e dados do usuário
-    this.updateAuthState(accessToken);
+    this.updateAuthState();
     
     console.log('Login OAuth2 realizado e tokens salvos.');
   }
@@ -112,6 +86,7 @@ export class AuthService {
     this.tokenService.clearTokens();
     this.isAuthenticatedSubject.next(false);
     this.currentUserSubject.next(null);
+    localStorage.removeItem('comy_user'); // Importante limpar o user salvo
     this.router.navigate(['/login']);
     console.log('Logout realizado!');
   }
@@ -129,9 +104,9 @@ export class AuthService {
 
     return this.http.post<RefreshTokenResponse>(`${this.apiUrl}/refresh`, request).pipe(
       tap(response => {
-        // Atualizar apenas o Access Token (Refresh Token continua o mesmo)
+        // Atualizar apenas o Access Token
         this.tokenService.setAccessToken(response.accessToken);
-        this.updateAuthState(response.accessToken); // Atualiza dados do usuário a partir do novo token
+        this.updateAuthState(); // Atualiza dados do usuário a partir do novo token
         console.log('Token renovado com sucesso!');
       }),
       catchError(error => {
@@ -190,7 +165,7 @@ export class AuthService {
     );
   }
 
-  // ========== MÉTODOS AUXILIARES ==========
+  // ========== MÉTODOS AUXILIARES PÚBLICOS ==========
 
   isLoggedIn(): boolean {
     return this.isAuthenticatedSubject.value;
@@ -212,46 +187,6 @@ export class AuthService {
     return this.tokenService.getUsernameFromToken();
   }
 
-  // Função interna para atualizar o estado de autenticação
-  private updateAuthState(accessToken: string): void {
-    // 1. Atualiza estado de autenticação
-    this.isAuthenticatedSubject.next(true);
-
-    // 2. Salva dados do usuário decodificando o token
-  private loadUserFromToken(): void {
-
-    if (!this.tokenService.hasAccessToken()) {
-      return;
-    }
-
-
-    const userData = {
-        userId: this.tokenService.getUserIdFromToken(),
-        username: this.tokenService.getUsernameFromToken(),
-        role: this.tokenService.getRoleFromToken()
-    };
-
-    // Certifique-se de que os dados foram obtidos antes de emitir
-    if (userData.userId && userData.role) {
-      this.currentUserSubject.next(userData);
-    } else {
-      // Se não conseguiu decodificar (token inválido/expirado), limpa o estado
-      this.tokenService.clearTokens();
-      this.isAuthenticatedSubject.next(false);
-      this.currentUserSubject.next(null);
-    }
-  }
-
-  // Função renomeada para ser mais genérica
-  private loadUserFromToken(): void {
-    // Apenas chama a função de atualização, que faz o trabalho de decodificar e emitir
-    const currentToken = this.tokenService.getAccessToken();
-    if (currentToken) {
-        this.updateAuthState(currentToken);
-        localStorage.setItem('comy_user', JSON.stringify(userData));
-    }
-  }
-
   // Verificar se o usuário tem uma role específica
   hasRole(role: string): boolean {
     const userRole = this.getUserRole();
@@ -263,4 +198,36 @@ export class AuthService {
     const userRole = this.getUserRole();
     return userRole ? roles.includes(userRole) : false;
   }
+
+  // ========== MÉTODOS PRIVADOS ==========
+
+  // Função interna para atualizar o estado de autenticação baseada no token atual
+  private updateAuthState(): void {
+    if (!this.tokenService.hasAccessToken()) {
+      return;
+    }
+
+    const userData = {
+        userId: this.tokenService.getUserIdFromToken(),
+        username: this.tokenService.getUsernameFromToken(),
+        role: this.tokenService.getRoleFromToken()
+    };
+
+    // Certifique-se de que os dados foram obtidos antes de emitir
+    if (userData.userId && userData.role) {
+      this.currentUserSubject.next(userData);
+      this.isAuthenticatedSubject.next(true);
+      // Persistir usuário para recuperação no F5 caso o token ainda seja válido
+      localStorage.setItem('comy_user', JSON.stringify(userData));
+    } else {
+      // Se não conseguiu decodificar (token inválido/expirado), limpa o estado
+      this.logout();
+    }
+  }
+
+  private loadUserFromToken(): void {
+    // Apenas chama a função de atualização, que faz o trabalho de decodificar e emitir
+    this.updateAuthState();
+  }
+  
 }
