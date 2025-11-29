@@ -25,6 +25,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     '/restaurante/abertos',
     '/restaurante/',
     '/restaurante/cnpj/',
+    '/cupom',
+    '/cupom/codigo/'
   ];
 
   const isPublicUrl = publicUrls.some(url => req.url.includes(url));

@@ -49,7 +49,7 @@ export class Login {
         console.log('Login bem-sucedido!', response);
         
         // Redirecionar baseado na role
-        const role = response.role;
+        const role = this.authService.getUserRole();
         
         if (role === 'CLIENTE') {
           this.router.navigate(['/']);

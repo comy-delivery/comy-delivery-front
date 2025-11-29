@@ -36,7 +36,16 @@ export class AuthService {
     // Carregar dados do usuário ao inicializar (se tiver token)
     if (this.tokenService.hasAccessToken()) {
       this.loadUserFromToken();
+    } else {
+      // Tenta recuperar do localStorage se existir
+      const savedUser = localStorage.getItem('comy_user');
+      if (savedUser) {
+        this.currentUserSubject.next(JSON.parse(savedUser));
+        this.isAuthenticatedSubject.next(true);
+      }
+
     }
+
   }
 
   // ========== LOGIN COM USUÁRIO/SENHA ==========
@@ -45,10 +54,32 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
       tap(response => {
         // Salvar tokens
-        this.tokenService.setTokens(response.accessToken, response.refreshToken);
+        console.log('Resposta do Login:', response);
+        this.tokenService.setTokens(response.jwt, response.refreshToken);
         
         // Atualizar estado de autenticação e dados do usuário
         this.updateAuthState(response.accessToken);
+        // Atualizar estado de autenticação
+        this.isAuthenticatedSubject.next(true);
+
+        const userId = response.userId || this.tokenService.getUserIdFromToken();
+        const username = this.tokenService.getUsernameFromToken();
+        const role = this.tokenService.getRoleFromToken();
+
+        const userData = {
+          userId: userId,
+          username: username,
+          role: role
+        };
+
+        console.log('Dados do usuário montados:', userData);
+
+        localStorage.setItem('comy_user', JSON.stringify(userData));
+        
+        this.currentUserSubject.next(userData);
+        this.isAuthenticatedSubject.next(true);
+        
+        console.log('Login realizado com sucesso!', userData);
       }),
       catchError(error => {
         console.error('Erro ao fazer login:', error);
@@ -187,6 +218,13 @@ export class AuthService {
     this.isAuthenticatedSubject.next(true);
 
     // 2. Salva dados do usuário decodificando o token
+  private loadUserFromToken(): void {
+
+    if (!this.tokenService.hasAccessToken()) {
+      return;
+    }
+
+
     const userData = {
         userId: this.tokenService.getUserIdFromToken(),
         username: this.tokenService.getUsernameFromToken(),
@@ -210,6 +248,7 @@ export class AuthService {
     const currentToken = this.tokenService.getAccessToken();
     if (currentToken) {
         this.updateAuthState(currentToken);
+        localStorage.setItem('comy_user', JSON.stringify(userData));
     }
   }
 
