@@ -17,7 +17,7 @@ import { CupomService } from '../../services/cupom-service';
 @Component({
   selector: 'app-carrinho',
   standalone: true,
-  imports: [CommonModule, ItemCardapio, ItemCarrinho, RouterLink, FormsModule],
+  imports: [CommonModule, ItemCarrinho, RouterLink, FormsModule],
   templateUrl: './carrinho.html',
   styleUrl: './carrinho.scss',
 })
