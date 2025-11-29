@@ -9,6 +9,7 @@ import { ActivatedRoute } from '@angular/router';
 import { RestauranteService } from '../../services/restaurante-service';
 import { AuthService } from '../../services/auth-service';
 import { DashboardRestaurante, PedidoService } from '../../services/pedido-service';
+import { ProdutoService } from '../../services/produto-service';
 
 @Component({
   selector: 'app-perfil-restaurante',
@@ -22,6 +23,8 @@ export class PerfilRestaurante implements OnInit, OnChanges {
   private pedidoService = inject(PedidoService);
   private authService = inject(AuthService);
   private route = inject(ActivatedRoute);
+  private produtoService = inject(ProdutoService);
+  private id_fixo = 2;
 
   @Input() Restaurante: Restaurante = {} as Restaurante;
   @Input() pedidosInput: Pedido[] = [];
@@ -75,6 +78,7 @@ export class PerfilRestaurante implements OnInit, OnChanges {
     this.restauranteService.buscarRestaurantePorId(id).subscribe({
       next: (rest) => {
         this.Restaurante = rest;
+        console.log('PerfilRestaurante: restaurante carregado para id=', id, rest);
       },
       error: (err) => {
         console.error('Erro ao buscar restaurante:', err);
@@ -85,6 +89,7 @@ export class PerfilRestaurante implements OnInit, OnChanges {
     this.restauranteService.listarProdutosRestaurante(id).subscribe({
       next: (prods) => {
         this.produtos = prods;
+        console.log('PerfilRestaurante: produtos carregados para id=', id, prods && prods.length);
       },
       error: (err) => console.error('Erro ao listar produtos:', err),
     });
@@ -112,7 +117,7 @@ export class PerfilRestaurante implements OnInit, OnChanges {
   }
 
   carregarLogo(id: number) {
-    this.restauranteService.buscarLogo(id).subscribe({ 
+    this.restauranteService.buscarLogo(id).subscribe({
       next: (blob) => {
         this.logoUrl = URL.createObjectURL(blob);
       },
@@ -121,7 +126,7 @@ export class PerfilRestaurante implements OnInit, OnChanges {
   }
 
   carregarBanner(id: number) {
-    this.restauranteService.buscarBanner(id).subscribe({ 
+    this.restauranteService.buscarBanner(id).subscribe({
       next: (blob) => {
         this.bannerUrl = URL.createObjectURL(blob);
       },
@@ -190,7 +195,9 @@ export class PerfilRestaurante implements OnInit, OnChanges {
    * Salvar produto (criar ou atualizar)
    */
   salvarProduto() {
-    if (!this.restauranteId) {
+    const restauranteId = this.Restaurante?.id ?? Number(this.route.snapshot.paramMap.get('id'));
+
+    if (!restauranteId) {
       console.error('Restaurante não definido para salvar produto');
       this.errorMessage = 'Erro: Restaurante não identificado';
       return;
@@ -271,6 +278,23 @@ export class PerfilRestaurante implements OnInit, OnChanges {
         }
       });
     }
+
+    // ======================
+    //   MODO CADASTRO
+    // ======================
+    this.produtoService.adicionarProduto(produtoParaSalvar).subscribe({
+      next: (novo) => {
+        this.produtos.push(novo);
+
+        this.mostrarModal = false;
+        this.produtoAtual = {};
+        this.adicionaisTemporarios = [];
+      },
+
+      error: (err) => {
+        console.error('Erro ao adicionar produto:', err);
+      },
+    });
   }
 
   adicionarNovoAdicionalAoProduto() {

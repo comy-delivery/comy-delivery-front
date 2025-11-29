@@ -15,16 +15,15 @@ import { RestauranteRequest } from '../Shared/models/auth/restaurante-request';
 
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
-
   private http = inject(HttpClient);
   private tokenService = inject(TokenService);
   private router = inject(Router);
-  
+
   private apiUrl = `${environment.apiUrl}/auth`;
-  
+
   // BehaviorSubject para controlar estado de autenticação
   private isAuthenticatedSubject = new BehaviorSubject<boolean>(this.tokenService.hasAccessToken());
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
@@ -51,35 +50,35 @@ export class AuthService {
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
-      tap(response => {
+      tap((response) => {
         // Salvar tokens
         console.log('Resposta do Login:', response);
         this.tokenService.setTokens(response.jwt, response.refreshToken);
-        
+
         // Atualizar estado de autenticação e dados do usuário de forma centralizada
         this.updateAuthState();
-        
+
         console.log('Login realizado com sucesso!');
       }),
-      catchError(error => {
+      catchError((error) => {
         console.error('Erro ao fazer login:', error);
         return throwError(() => error);
       })
     );
   }
-  
+
   // ========== LOGIN COM OAUTH2 (GOOGLE) 🆕 ==========
 
   handleOAuth2Tokens(accessToken: string, refreshToken: string): void {
     // 1. Salvar tokens
     this.tokenService.setTokens(accessToken, refreshToken);
-    
+
     // 2. Atualizar estado de autenticação e dados do usuário
     this.updateAuthState();
-    
+
     console.log('Login OAuth2 realizado e tokens salvos.');
   }
-  
+
   // ========== LOGOUT ==========
 
   logout(): void {
@@ -95,7 +94,7 @@ export class AuthService {
 
   refreshToken(): Observable<RefreshTokenResponse> {
     const refreshToken = this.tokenService.getRefreshToken();
-    
+
     if (!refreshToken) {
       return throwError(() => new Error('Refresh token não encontrado'));
     }
@@ -103,13 +102,13 @@ export class AuthService {
     const request: RefreshTokenRequest = { refreshToken };
 
     return this.http.post<RefreshTokenResponse>(`${this.apiUrl}/refresh`, request).pipe(
-      tap(response => {
+      tap((response) => {
         // Atualizar apenas o Access Token
         this.tokenService.setAccessToken(response.accessToken);
         this.updateAuthState(); // Atualiza dados do usuário a partir do novo token
         console.log('Token renovado com sucesso!');
       }),
-      catchError(error => {
+      catchError((error) => {
         console.error('Erro ao renovar token:', error);
         this.logout(); // Se refresh falhar, faz logout
         return throwError(() => error);
@@ -121,12 +120,12 @@ export class AuthService {
 
   registerCliente(data: ClienteRequest): Observable<any> {
     const params = new HttpParams().set('role', 'CLIENTE');
-    
+
     return this.http.post(`${this.apiUrl}/register-complete`, data, { params }).pipe(
-      tap(response => {
+      tap((response) => {
         console.log('Cliente cadastrado com sucesso!', response);
       }),
-      catchError(error => {
+      catchError((error) => {
         console.error('Erro ao cadastrar cliente:', error);
         return throwError(() => error);
       })
@@ -137,12 +136,12 @@ export class AuthService {
 
   registerEntregador(data: EntregadorRequest): Observable<any> {
     const params = new HttpParams().set('role', 'ENTREGADOR');
-    
+
     return this.http.post(`${this.apiUrl}/register-complete`, data, { params }).pipe(
-      tap(response => {
+      tap((response) => {
         console.log('Entregador cadastrado com sucesso!', response);
       }),
-      catchError(error => {
+      catchError((error) => {
         console.error('Erro ao cadastrar entregador:', error);
         return throwError(() => error);
       })
@@ -151,14 +150,22 @@ export class AuthService {
 
   // ========== CADASTRO RESTAURANTE (apenas ADMIN) ==========
 
-  registerRestaurante(data: RestauranteRequest): Observable<any> {
+  registerRestaurante(data: RestauranteRequest, withAuth: boolean = false): Observable<any> {
     const params = new HttpParams().set('role', 'RESTAURANTE');
-    
-    return this.http.post(`${this.apiUrl}/register-complete`, data, { params }).pipe(
-      tap(response => {
+
+    const options: any = { params };
+    if (withAuth) {
+      const access = this.tokenService.getAccessToken();
+      if (access) {
+        options.headers = { Authorization: `Bearer ${access}` };
+      }
+    }
+
+    return this.http.post(`${this.apiUrl}/register-complete`, data, options).pipe(
+      tap((response) => {
         console.log('Restaurante cadastrado com sucesso!', response);
       }),
-      catchError(error => {
+      catchError((error) => {
         console.error('Erro ao cadastrar restaurante:', error);
         return throwError(() => error);
       })
@@ -208,9 +215,9 @@ export class AuthService {
     }
 
     const userData = {
-        userId: this.tokenService.getUserIdFromToken(),
-        username: this.tokenService.getUsernameFromToken(),
-        role: this.tokenService.getRoleFromToken()
+      userId: this.tokenService.getUserIdFromToken(),
+      username: this.tokenService.getUsernameFromToken(),
+      role: this.tokenService.getRoleFromToken(),
     };
 
     // Certifique-se de que os dados foram obtidos antes de emitir
@@ -229,5 +236,4 @@ export class AuthService {
     // Apenas chama a função de atualização, que faz o trabalho de decodificar e emitir
     this.updateAuthState();
   }
-  
 }

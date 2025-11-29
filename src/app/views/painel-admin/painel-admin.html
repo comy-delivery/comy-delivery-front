@@ -1,1 +1,175 @@
-<p>painel-admin works!</p>
+<div class="container mt-4">
+
+	<!-- ALERTAS -->
+	@if(successMessage) {
+		<div class="alert alert-success" role="alert">
+			<i class="bi bi-check-circle"></i> {{ successMessage }}
+		</div>
+	}
+
+	@if(errorMessage) {
+		<div class="alert alert-danger" role="alert">
+			<i class="bi bi-exclamation-triangle"></i> {{ errorMessage }}
+		</div>
+	}
+
+	<div class="card p-3 shadow rounded-4">
+		<div class="d-flex justify-content-between align-items-center mb-3">
+			<h4 class="mb-0">Painel Admin — Cadastrar Restaurante</h4>
+		</div>
+
+		<form (ngSubmit)="cadastrar()">
+			<div class="row g-3">
+
+				<div class="col-md-6">
+					<label class="form-label">Usuário (username)</label>
+					<input class="form-control" [(ngModel)]="restaurante.username" name="username" required />
+				</div>
+
+				<div class="col-md-6">
+					<label class="form-label">Senha</label>
+					<input type="password" class="form-control" [(ngModel)]="restaurante.password" name="password" required />
+				</div>
+
+				<div class="col-md-6">
+					<label class="form-label">Nome do Restaurante</label>
+					<input class="form-control" [(ngModel)]="restaurante.nmRestaurante" name="nmRestaurante" required />
+				</div>
+
+				<div class="col-md-6">
+					<label class="form-label">E-mail</label>
+					<input class="form-control" [(ngModel)]="restaurante.emailRestaurante" name="emailRestaurante" />
+				</div>
+
+				<div class="col-md-4">
+					<label class="form-label">CNPJ</label>
+					<input class="form-control" [(ngModel)]="restaurante.cnpj" name="cnpj" />
+				</div>
+
+				<div class="col-md-4">
+					<label class="form-label">Telefone</label>
+					<input class="form-control" [(ngModel)]="restaurante.telefoneRestaurante" name="telefoneRestaurante" />
+				</div>
+
+				<div class="col-md-4">
+					<label class="form-label">Categoria</label>
+					<select class="form-select" [(ngModel)]="restaurante.categoria" name="categoria">
+						<option value="">Selecione...</option>
+						<option value="PIZZA">Pizza</option>
+						<option value="LANCHE">Lanche</option>
+						<option value="ASIATICA">Asiática</option>
+						<option value="BRASILEIRA">Brasileira</option>
+						<option value="SAUDAVEL">Saudável</option>
+						<option value="DOCE">Doces</option>
+					</select>
+				</div>
+
+				<div class="col-md-3">
+					<label class="form-label">Abertura</label>
+					<input type="time" class="form-control" [(ngModel)]="restaurante.horarioAbertura" name="horarioAbertura" />
+				</div>
+
+				<div class="col-md-3">
+					<label class="form-label">Fechamento</label>
+					<input type="time" class="form-control" [(ngModel)]="restaurante.horarioFechamento" name="horarioFechamento" />
+				</div>
+
+				<div class="col-md-4">
+					<label class="form-label">Tempo médio de entrega (min)</label>
+					<input type="number" class="form-control" [(ngModel)]="restaurante.tempoMediaEntrega" name="tempoMediaEntrega" min="0" />
+				</div>
+
+				<div class="col-md-8">
+					<label class="form-label">Dias de funcionamento</label>
+					<div class="d-flex flex-wrap gap-2">
+						<label class="btn btn-outline-secondary btn-sm">
+							<input type="checkbox" (change)="toggleDia('SEGUNDA', $event)" /> Segunda
+						</label>
+						<label class="btn btn-outline-secondary btn-sm">
+							<input type="checkbox" (change)="toggleDia('TERCA', $event)" /> Terça
+						</label>
+						<label class="btn btn-outline-secondary btn-sm">
+							<input type="checkbox" (change)="toggleDia('QUARTA', $event)" /> Quarta
+						</label>
+						<label class="btn btn-outline-secondary btn-sm">
+							<input type="checkbox" (change)="toggleDia('QUINTA', $event)" /> Quinta
+						</label>
+						<label class="btn btn-outline-secondary btn-sm">
+							<input type="checkbox" (change)="toggleDia('SEXTA', $event)" /> Sexta
+						</label>
+						<label class="btn btn-outline-secondary btn-sm">
+							<input type="checkbox" (change)="toggleDia('SABADO', $event)" /> Sábado
+						</label>
+						<label class="btn btn-outline-secondary btn-sm">
+							<input type="checkbox" (change)="toggleDia('DOMINGO', $event)" /> Domingo
+						</label>
+					</div>
+				</div>
+
+				<div class="col-12">
+					<label class="form-label">Descrição</label>
+					<textarea class="form-control" rows="2" [(ngModel)]="restaurante.descricaoRestaurante" name="descricaoRestaurante"></textarea>
+				</div>
+
+				<div class="col-12">
+					<h6>Endereço principal</h6>
+				</div>
+
+				<div class="col-md-6">
+					<label class="form-label">Logradouro</label>
+					<input class="form-control" [(ngModel)]="restaurante.enderecos[0].logradouro" name="logradouro" />
+				</div>
+
+				<div class="col-md-2">
+					<label class="form-label">Número</label>
+					<input class="form-control" [(ngModel)]="restaurante.enderecos[0].numero" name="numero" />
+				</div>
+
+				<div class="col-md-4">
+					<label class="form-label">Bairro</label>
+					<input class="form-control" [(ngModel)]="restaurante.enderecos[0].bairro" name="bairro" />
+				</div>
+
+				<div class="col-md-4">
+					<label class="form-label">Cidade</label>
+					<input class="form-control" [(ngModel)]="restaurante.enderecos[0].cidade" name="cidade" />
+				</div>
+
+				<div class="col-md-4">
+					<label class="form-label">CEP</label>
+					<input class="form-control" [(ngModel)]="restaurante.enderecos[0].cep" name="cep" />
+				</div>
+
+				<div class="col-md-4">
+					<label class="form-label">Estado</label>
+					<input class="form-control" [(ngModel)]="restaurante.enderecos[0].estado" name="estado" />
+				</div>
+
+				<div class="col-md-4">
+					<label class="form-label">Tipo de endereço</label>
+					<input class="form-control" [(ngModel)]="restaurante.enderecos[0].tipoEndereco" name="tipoEndereco" placeholder="RESIDENCIAL / COMERCIAL" />
+				</div>
+
+				<div class="col-md-6">
+					<label class="form-label">Logo (opcional)</label>
+					<input type="file" class="form-control" (change)="onLogoChange($event)" accept="image/*" />
+				</div>
+
+				<div class="col-md-6">
+					<label class="form-label">Banner (opcional)</label>
+					<input type="file" class="form-control" (change)="onBannerChange($event)" accept="image/*" />
+				</div>
+
+				<div class="col-12 d-flex justify-content-end">
+					<button class="btn btn-primary" type="submit" [disabled]="isSaving">
+						@if(isSaving) { <span class="spinner-border spinner-border-sm me-2"></span> }
+						Cadastrar Restaurante
+					</button>
+				</div>
+
+			</div>
+		</form>
+	</div>
+
+</div>
+

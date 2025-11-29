@@ -14,13 +14,17 @@ import { AuthService } from '../../services/auth-service';
 
 @Component({
   selector: 'app-home',
-  standalone:true,
+  standalone: true,
   imports: [Categoria, CardRestaurante, Banner, Filtros, PerfilRestaurante, CommonModule],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
 export class Home implements OnInit {
-  protected tipo = 'Cliente';
+  protected tipo = 'Restaurante';
+
+  // manter userId/role como propriedades para recarregar quando necessário
+  private userId: number | null = null;
+  private userRole: string | null = null;
 
   // Lista que aceita o objeto composto (Restaurante + Dados calculados)
   protected restaurantesData: any[] = [];
@@ -31,30 +35,60 @@ export class Home implements OnInit {
   private clienteService = inject(ClienteService);
   private authService = inject(AuthService);
   private searchService = inject(BuscaService);
-  
+
   private estadoBusca: string = '';
   private estadoCategoria: string = 'Todos';
-  private estadoFiltros: { preco: string, avaliacao: string } = { preco: 'todos', avaliacao: 'todos' };
+  private estadoFiltros: { preco: string; avaliacao: string } = {
+    preco: 'todos',
+    avaliacao: 'todos',
+  };
 
   ngOnInit(): void {
-    const userId = this.authService.getUserId();
-    const role = this.authService.getUserRole();
+    this.userId = this.authService.getUserId();
+    this.userRole = this.authService.getUserRole();
 
     this.searchService.search$.subscribe((texto) => {
       this.estadoBusca = texto;
       this.aplicarFiltros();
     });
 
-    if (role === 'RESTAURANTE') {
+    if (this.userRole === 'RESTAURANTE') {
       this.tipo = 'Restaurante';
-    } else if (userId && role === 'CLIENTE') {
+    } else if (this.userId && this.userRole === 'CLIENTE') {
       // Se for cliente logado, busca com distâncias e preços calculados
       this.tipo = 'Cliente';
-      this.carregarRestaurantesProximos(userId);
+      this.carregarRestaurantesProximos(this.userId);
     } else {
       // Fallback para visitante (sem ID)
       this.tipo = 'Cliente';
       this.carregarRestaurantesPadrao();
+    }
+
+    // Inscrever para alterações na lista de restaurantes (quando PainelAdmin notificar)
+    try {
+      this.restauranteService.restaurantesChanged$?.subscribe(() => {
+        console.log('Notificação: restaurantes alterados — recarregando lista');
+        if (this.userRole === 'CLIENTE' && this.userId) {
+          this.carregarRestaurantesProximos(this.userId);
+        } else {
+          this.carregarRestaurantesPadrao();
+        }
+      });
+    } catch (e) {
+      console.warn('Erro ao inscrever restaurantesChanged$', e);
+    }
+  }
+
+  // Handler chamado quando um CardRestaurante emite que foi deletado
+  onRestauranteDeleted(id: number) {
+    try {
+      const getId = (item: any) => (item && item.restaurante ? item.restaurante.id : item.id);
+
+      this.todosRestaurantesData = this.todosRestaurantesData.filter((r) => getId(r) !== id);
+      this.restaurantesData = this.restaurantesData.filter((r) => getId(r) !== id);
+      this.aplicarFiltros();
+    } catch (e) {
+      console.warn('Erro ao remover restaurante localmente', e);
     }
   }
 
@@ -70,13 +104,20 @@ export class Home implements OnInit {
 
   private mapearCategoriaParaApi(nomeInterface: string): string | null {
     switch (nomeInterface) {
-      case 'Lanches': return 'LANCHE';
-      case 'Pizzaria': return 'PIZZA';
-      case 'Doces': return 'DOCE';
-      case 'Asiática': return 'ASIATICA';
-      case 'Brasileira': return 'BRASILEIRA';
-      case 'Saudável': return 'SAUDAVEL';
-      default: return null;
+      case 'Lanches':
+        return 'LANCHE';
+      case 'Pizzaria':
+        return 'PIZZA';
+      case 'Doces':
+        return 'DOCE';
+      case 'Asiática':
+        return 'ASIATICA';
+      case 'Brasileira':
+        return 'BRASILEIRA';
+      case 'Saudável':
+        return 'SAUDAVEL';
+      default:
+        return null;
     }
   }
 
@@ -86,9 +127,15 @@ export class Home implements OnInit {
 
     // 1. Filtro por Busca (Input da Navbar)
     if (this.estadoBusca) {
-      const termo = this.estadoBusca.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
-      lista = lista.filter(item => {
-        const nome = (item.restaurante.nmRestaurante || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+      const termo = this.estadoBusca
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+      lista = lista.filter((item) => {
+        const nome = (item.restaurante.nmRestaurante || '')
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '');
         return nome.includes(termo);
       });
     }
@@ -97,20 +144,20 @@ export class Home implements OnInit {
     if (this.estadoCategoria && this.estadoCategoria !== 'Todos') {
       const categoriaApi = this.mapearCategoriaParaApi(this.estadoCategoria);
       if (categoriaApi) {
-        lista = lista.filter(item => item.restaurante.categoria === categoriaApi);
+        lista = lista.filter((item) => item.restaurante.categoria === categoriaApi);
       }
     }
 
     // 3. Filtro por Avaliação (Radio Buttons)
     if (this.estadoFiltros.avaliacao !== 'todos') {
       const filtroNota = Number(this.estadoFiltros.avaliacao);
-      
-      lista = lista.filter(item => {
+
+      lista = lista.filter((item) => {
         const nota = item.restaurante.avaliacaoMediaRestaurante || 0;
 
         if (filtroNota === 5) {
           // Traga os de 5
-          return nota >= 5; 
+          return nota >= 5;
         } else if (filtroNota === 4.5) {
           // Traga entre 4.9 e 4.5
           return nota >= 4.5 && nota < 5;
@@ -118,7 +165,7 @@ export class Home implements OnInit {
           // Traga 4.4 a 4.0
           return nota >= 4.0 && nota < 4.5;
         }
-        
+
         return false;
       });
     }
@@ -135,14 +182,23 @@ export class Home implements OnInit {
   private carregarRestaurantesProximos(id: number) {
     this.clienteService.listarRestaurantesProximos(id).subscribe({
       next: (response) => {
-        this.todosRestaurantesData = response; // Guarda backup
-        this.restaurantesData = response;      // Mostra inicial
-        this.aplicarFiltros();                 // Aplica filtros se já houver algum selecionado
+        // Normaliza cada item para a estrutura usada pelo restante do componente
+        const normalized = response.map((r: any) => ({
+          restaurante: r,
+          distanciaKm: r.distanciaKm ?? null,
+          mediaPrecoProdutos: r.mediaPrecoProdutos ?? null,
+          valorFreteEstimado: r.valorFreteEstimado ?? null,
+          tempoEstimadoEntrega: r.tempoEstimadoEntrega ?? r.tempoMediaEntrega ?? null,
+        }));
+
+        this.todosRestaurantesData = normalized; // Guarda backup
+        this.restaurantesData = normalized; // Mostra inicial
+        this.aplicarFiltros(); // Aplica filtros se já houver algum selecionado
       },
       error: (err) => {
         console.error('Erro ao buscar restaurantes próximos:', err);
         this.carregarRestaurantesPadrao();
-      }
+      },
     });
   }
 
@@ -150,19 +206,21 @@ export class Home implements OnInit {
     this.restauranteService.buscarRestaurantes().subscribe({
       next: (response) => {
         // Normaliza estrutura para ficar igual à busca de próximos
-        const data = response.map(r => ({
+        const data = response.map((r) => ({
           restaurante: r,
           distanciaKm: null,
           mediaPrecoProdutos: null,
           valorFreteEstimado: null,
-          tempoEstimadoEntrega: r.tempoMediaEntrega
+          tempoEstimadoEntrega: r.tempoMediaEntrega,
         }));
-        
+
         this.todosRestaurantesData = data;
         this.restaurantesData = data;
         this.aplicarFiltros();
       },
-      error: (err) => console.error('Erro ao buscar restaurantes:', err)
+      error: (err) => console.error('Erro ao buscar restaurantes:', err),
     });
   }
+
+  // (Removed local suppression helpers — frontend now reflects server state directly)
 }
