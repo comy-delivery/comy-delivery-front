@@ -61,6 +61,15 @@ export class CarrinhoService {
     }
   }
 
+  atualizarItem(index: number, itemAtualizado: ItemPedido): void {
+    const itensAtuais = this.itensSource.value;
+    if (index >= 0 && index < itensAtuais.length) {
+      itensAtuais[index] = itemAtualizado;
+      // Salva no localStorage e notifica os componentes
+      this.atualizarEstado([...itensAtuais]); 
+    }
+  }
+
   limpar(): void {
     this.atualizarEstado([]);
   }

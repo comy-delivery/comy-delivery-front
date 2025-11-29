@@ -4,11 +4,13 @@ import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth-service';
 import { LoginRequest } from '../../Shared/models/auth/login-request.';
+import { environment } from '../../../environments/environment';
+
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule], // ← Adicionar FormsModule
+  imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
@@ -16,6 +18,9 @@ export class Login {
   // Injetar services
   private authService = inject(AuthService);
   private router = inject(Router);
+
+  // Propriedade para a URL base da API
+  private readonly API_URL_BASE = environment.apiUrl; 
 
   // Dados do formulário
   loginData: LoginRequest = {
@@ -44,7 +49,7 @@ export class Login {
         console.log('Login bem-sucedido!', response);
         
         // Redirecionar baseado na role
-        const role = response.role;
+        const role = this.authService.getUserRole();
         
         if (role === 'CLIENTE') {
           this.router.navigate(['/']);
@@ -81,9 +86,10 @@ export class Login {
     this.showPassword = !this.showPassword;
   }
 
-  // Login com Google (implementar futuramente)
-  loginWithGoogle(): void {
-    console.log('Login com Google - A implementar');
-    // TODO: Implementar OAuth do Google
-  }
+  /**
+   * Redireciona o usuário para o endpoint do backend que inicia a autenticação do Google.
+   */
+ loginWithGoogle(): void {
+  window.location.href = 'http://localhost:8084/oauth2/authorization/google';
+}
 }

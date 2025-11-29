@@ -40,15 +40,18 @@
         </li>
         <li class="nav-item text-white">
           Entregas aqui:
-          <p class="m-0">Endereco usuario</p>
+          <p class="m-0">{{enderecoExibicao}}</p>
         </li>
       </ul>
       <form class="d-flex w-50" role="search">
         <input
           class="form-control me-2"
           type="search"
-          placeholder="Buscar restaurante ou prato"
+          [placeholder]="placeholderTexto"
           aria-label="Search"
+          name="search"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearch($event)"
         />
       </form>
       <ul class="navbar-nav ms-3 gap-2">

@@ -19,7 +19,7 @@ export class App {
     return this.router.url === '/login';
   }
   isCadastroRoute(): boolean {
-    return this.router.url === '/cadastro';
+    return this.router.url.includes('/cadastro');
   }
   isEsqueceuRoute(): boolean {
     return this.router.url === '/esqueceu';

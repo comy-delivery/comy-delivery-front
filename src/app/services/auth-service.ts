@@ -14,11 +14,11 @@ import { EntregadorRequest } from '../Shared/models/auth/entregador-request';
 import { RestauranteRequest } from '../Shared/models/auth/restaurante-request';
 
 
-
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
+
   private http = inject(HttpClient);
   private tokenService = inject(TokenService);
   private router = inject(Router);
@@ -37,29 +37,29 @@ export class AuthService {
     // Carregar dados do usuário ao inicializar (se tiver token)
     if (this.tokenService.hasAccessToken()) {
       this.loadUserFromToken();
+    } else {
+      // Tenta recuperar do localStorage se existir
+      const savedUser = localStorage.getItem('comy_user');
+      if (savedUser) {
+        this.currentUserSubject.next(JSON.parse(savedUser));
+        this.isAuthenticatedSubject.next(true);
+      }
     }
   }
 
-  // ========== LOGIN ==========
+  // ========== LOGIN COM USUÁRIO/SENHA ==========
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
       tap(response => {
         // Salvar tokens
-        this.tokenService.setTokens(response.accessToken, response.refreshToken);
+        console.log('Resposta do Login:', response);
+        this.tokenService.setTokens(response.jwt, response.refreshToken);
         
-        // Atualizar estado de autenticação
-        this.isAuthenticatedSubject.next(true);
+        // Atualizar estado de autenticação e dados do usuário de forma centralizada
+        this.updateAuthState();
         
-        // Salvar dados do usuário
-        const userData = {
-          userId: response.userId,
-          username: response.username,
-          role: response.role
-        };
-        this.currentUserSubject.next(userData);
-        
-        console.log('Login realizado com sucesso!', userData);
+        console.log('Login realizado com sucesso!');
       }),
       catchError(error => {
         console.error('Erro ao fazer login:', error);
@@ -67,13 +67,26 @@ export class AuthService {
       })
     );
   }
+  
+  // ========== LOGIN COM OAUTH2 (GOOGLE) 🆕 ==========
 
+  handleOAuth2Tokens(accessToken: string, refreshToken: string): void {
+    // 1. Salvar tokens
+    this.tokenService.setTokens(accessToken, refreshToken);
+    
+    // 2. Atualizar estado de autenticação e dados do usuário
+    this.updateAuthState();
+    
+    console.log('Login OAuth2 realizado e tokens salvos.');
+  }
+  
   // ========== LOGOUT ==========
 
   logout(): void {
     this.tokenService.clearTokens();
     this.isAuthenticatedSubject.next(false);
     this.currentUserSubject.next(null);
+    localStorage.removeItem('comy_user'); // Importante limpar o user salvo
     this.router.navigate(['/login']);
     console.log('Logout realizado!');
   }
@@ -91,8 +104,9 @@ export class AuthService {
 
     return this.http.post<RefreshTokenResponse>(`${this.apiUrl}/refresh`, request).pipe(
       tap(response => {
-        // Atualizar apenas o Access Token (Refresh Token continua o mesmo)
+        // Atualizar apenas o Access Token
         this.tokenService.setAccessToken(response.accessToken);
+        this.updateAuthState(); // Atualiza dados do usuário a partir do novo token
         console.log('Token renovado com sucesso!');
       }),
       catchError(error => {
@@ -151,7 +165,7 @@ export class AuthService {
     );
   }
 
-  // ========== MÉTODOS AUXILIARES ==========
+  // ========== MÉTODOS AUXILIARES PÚBLICOS ==========
 
   isLoggedIn(): boolean {
     return this.isAuthenticatedSubject.value;
@@ -173,16 +187,6 @@ export class AuthService {
     return this.tokenService.getUsernameFromToken();
   }
 
-  private loadUserFromToken(): void {
-    const userData = {
-      userId: this.tokenService.getUserIdFromToken(),
-      username: this.tokenService.getUsernameFromToken(),
-      role: this.tokenService.getRoleFromToken()
-    };
-    
-    this.currentUserSubject.next(userData);
-  }
-
   // Verificar se o usuário tem uma role específica
   hasRole(role: string): boolean {
     const userRole = this.getUserRole();
@@ -194,4 +198,36 @@ export class AuthService {
     const userRole = this.getUserRole();
     return userRole ? roles.includes(userRole) : false;
   }
+
+  // ========== MÉTODOS PRIVADOS ==========
+
+  // Função interna para atualizar o estado de autenticação baseada no token atual
+  private updateAuthState(): void {
+    if (!this.tokenService.hasAccessToken()) {
+      return;
+    }
+
+    const userData = {
+        userId: this.tokenService.getUserIdFromToken(),
+        username: this.tokenService.getUsernameFromToken(),
+        role: this.tokenService.getRoleFromToken()
+    };
+
+    // Certifique-se de que os dados foram obtidos antes de emitir
+    if (userData.userId && userData.role) {
+      this.currentUserSubject.next(userData);
+      this.isAuthenticatedSubject.next(true);
+      // Persistir usuário para recuperação no F5 caso o token ainda seja válido
+      localStorage.setItem('comy_user', JSON.stringify(userData));
+    } else {
+      // Se não conseguiu decodificar (token inválido/expirado), limpa o estado
+      this.logout();
+    }
+  }
+
+  private loadUserFromToken(): void {
+    // Apenas chama a função de atualização, que faz o trabalho de decodificar e emitir
+    this.updateAuthState();
+  }
+  
 }
