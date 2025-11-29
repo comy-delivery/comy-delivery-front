@@ -40,12 +40,14 @@ export class ItemCarrinho implements OnInit {
   aumentarQuantidade() {
     this.item.qtQuantidade++;
     this.recalcularTotal();
+    this.carrinhoService.atualizarItem(this.index, this.item);
   }
 
   diminuirQuantidade() {
     if (this.item.qtQuantidade > 1) {
       this.item.qtQuantidade--;
       this.recalcularTotal();
+      this.carrinhoService.atualizarItem(this.index, this.item);
     }
   }
 

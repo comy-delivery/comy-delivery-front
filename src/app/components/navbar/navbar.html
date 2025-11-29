@@ -47,9 +47,11 @@
         <input
           class="form-control me-2"
           type="search"
-          placeholder="Buscar restaurante ou categoria"
+          [placeholder]="placeholderTexto"
           aria-label="Search"
-          (input)="onSearch($event)"
+          name="search"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearch($event)"
         />
       </form>
       <ul class="navbar-nav ms-3 gap-2">

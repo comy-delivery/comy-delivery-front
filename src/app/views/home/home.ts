@@ -102,7 +102,6 @@ export class Home implements OnInit {
     }
 
     // 3. Filtro por Avaliação (Radio Buttons)
-    // 3. Filtro por Avaliação (Lógica Ajustada)
     if (this.estadoFiltros.avaliacao !== 'todos') {
       const filtroNota = Number(this.estadoFiltros.avaliacao);
       
