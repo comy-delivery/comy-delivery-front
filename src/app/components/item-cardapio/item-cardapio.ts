@@ -61,7 +61,13 @@ export class ItemCardapio implements OnInit {
         return;
     }
 
-    
+    const role = this.authService.getUserRole();
+    if (role !== 'CLIENTE') {
+        alert('Apenas clientes podem realizar pedidos. Entre com uma conta de cliente.');
+        return;
+    }
+
+
     this.showModal = true;
     this.resetaFormulario();
     this.carregarAdicionais();
@@ -94,7 +100,8 @@ export class ItemCardapio implements OnInit {
         this.isLoadingAdicionais = false;
       },
       error: (erro) => {
-        console.error('Erro ao buscar adicionais:', erro);
+        
+        console.error('Erro ao buscar adicionais. Status:', erro.status, erro); 
         this.isLoadingAdicionais = false;
       },
     });
