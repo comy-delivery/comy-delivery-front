@@ -15,12 +15,19 @@ export class RestauranteService {
 
   // ========== RESTAURANTE - CRUD ==========
 
-  cadastrarRestaurante(restaurante: RestauranteRequest, imagemLogo?: File, imagemBanner?: File): Observable<any> {
+  cadastrarRestaurante(
+    restaurante: RestauranteRequest,
+    imagemLogo?: File,
+    imagemBanner?: File
+  ): Observable<any> {
     const formData = new FormData();
-    
+
     // Adicionar dados do restaurante como JSON
-    formData.append('restaurante', new Blob([JSON.stringify(restaurante)], { type: 'application/json' }));
-    
+    formData.append(
+      'restaurante',
+      new Blob([JSON.stringify(restaurante)], { type: 'application/json' })
+    );
+
     // Adicionar imagens se existirem
     if (imagemLogo) {
       formData.append('imagemLogo', imagemLogo);
@@ -28,7 +35,7 @@ export class RestauranteService {
     if (imagemBanner) {
       formData.append('imagemBanner', imagemBanner);
     }
-    
+
     return this.http.post<any>(this.apiUrl, formData);
   }
 
@@ -40,18 +47,26 @@ export class RestauranteService {
     return this.http.get<any>(`${this.apiUrl}/cnpj/${cnpj}`);
   }
 
-  atualizarRestaurante(id: number, restaurante: any, imagemLogo?: File, imagemBanner?: File): Observable<any> {
+  atualizarRestaurante(
+    id: number,
+    restaurante: any,
+    imagemLogo?: File,
+    imagemBanner?: File
+  ): Observable<any> {
     const formData = new FormData();
-    
-    formData.append('restaurante', new Blob([JSON.stringify(restaurante)], { type: 'application/json' }));
-    
+
+    formData.append(
+      'restaurante',
+      new Blob([JSON.stringify(restaurante)], { type: 'application/json' })
+    );
+
     if (imagemLogo) {
       formData.append('imagemLogo', imagemLogo);
     }
     if (imagemBanner) {
       formData.append('imagemBanner', imagemBanner);
     }
-    
+
     return this.http.put<any>(`${this.apiUrl}/${id}`, formData);
   }
 
@@ -75,7 +90,11 @@ export class RestauranteService {
     return this.http.post<any>(`${this.apiUrl}/${id}/enderecos`, endereco);
   }
 
-  alterarEnderecoRestaurante(idRestaurante: number, idEndereco: number, endereco: any): Observable<any> {
+  alterarEnderecoRestaurante(
+    idRestaurante: number,
+    idEndereco: number,
+    endereco: any
+  ): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/${idRestaurante}/enderecos/${idEndereco}`, endereco);
   }
 
@@ -83,6 +102,18 @@ export class RestauranteService {
 
   listarProdutosRestaurante(restauranteId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/${restauranteId}/produtos`);
+  }
+
+  //adicionarProduto(restauranteId: number, produto: any): Observable<any> {
+  // return this.http.post<any>(`${this.apiUrl}/${restauranteId}/produtos`, produto);
+  // }
+
+  atualizarProduto(restauranteId: number, produtoId: number, produto: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${restauranteId}/produtos/${produtoId}`, produto);
+  }
+
+  removerProduto(restauranteId: number, produtoId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${restauranteId}/produtos/${produtoId}`);
   }
 
   // ========== STATUS DO RESTAURANTE ==========

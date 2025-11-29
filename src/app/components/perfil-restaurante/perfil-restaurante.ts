@@ -7,6 +7,7 @@ import { Restaurante } from '../../Shared/models/Restaurante';
 import { Pedido } from '../../Shared/models/Pedido';
 import { ActivatedRoute } from '@angular/router';
 import { RestauranteService } from '../../services/restaurante-service';
+import { ProdutoService } from '../../services/produto-service';
 
 @Component({
   selector: 'app-perfil-restaurante',
@@ -18,6 +19,8 @@ import { RestauranteService } from '../../services/restaurante-service';
 export class PerfilRestaurante implements OnInit, OnChanges {
   private restauranteService = inject(RestauranteService);
   private route = inject(ActivatedRoute);
+  private produtoService = inject(ProdutoService);
+  private id_fixo = 2;
 
   @Input() Restaurante: Restaurante = {} as Restaurante;
   @Input() pedidosInput: Pedido[] = [];
@@ -34,14 +37,8 @@ export class PerfilRestaurante implements OnInit, OnChanges {
   adicionaisTemporarios: any[] = [];
 
   ngOnInit(): void {
-    const idParam = this.route.snapshot.paramMap.get('id');
-    const id = idParam ? Number(idParam) : null;
-
-    if (id) {
-      this.loadAllForRestaurante(id);
-    } else if (this.Restaurante && this.Restaurante.id) {
-      this.loadAllForRestaurante(this.Restaurante.id);
-    }
+    const id = this.id_fixo;
+    this.loadAllForRestaurante(id);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -55,13 +52,17 @@ export class PerfilRestaurante implements OnInit, OnChanges {
     this.restauranteService.buscarRestaurantePorId(id).subscribe({
       next: (rest) => {
         this.Restaurante = rest;
+        console.log('PerfilRestaurante: restaurante carregado para id=', id, rest);
       },
       error: (err) => console.error('Erro ao buscar restaurante:', err),
     });
 
     // Listar produtos
     this.restauranteService.listarProdutosRestaurante(id).subscribe({
-      next: (prods) => (this.produtos = prods),
+      next: (prods) => {
+        this.produtos = prods;
+        console.log('PerfilRestaurante: produtos carregados para id=', id, prods && prods.length);
+      },
       error: (err) => console.error('Erro ao listar produtos:', err),
     });
 
@@ -71,7 +72,7 @@ export class PerfilRestaurante implements OnInit, OnChanges {
   }
 
   carregarLogo(id: number) {
-    this.restauranteService.buscarLogo(id).subscribe({ 
+    this.restauranteService.buscarLogo(id).subscribe({
       next: (blob) => {
         this.logoUrl = URL.createObjectURL(blob);
       },
@@ -80,7 +81,7 @@ export class PerfilRestaurante implements OnInit, OnChanges {
   }
 
   carregarBanner(id: number) {
-    this.restauranteService.buscarBanner(id).subscribe({ 
+    this.restauranteService.buscarBanner(id).subscribe({
       next: (blob) => {
         this.bannerUrl = URL.createObjectURL(blob);
       },
@@ -130,40 +131,79 @@ export class PerfilRestaurante implements OnInit, OnChanges {
 
   salvarProduto() {
     const restauranteId = this.Restaurante?.id ?? Number(this.route.snapshot.paramMap.get('id'));
+
     if (!restauranteId) {
       console.error('Restaurante não definido para salvar produto');
       return;
     }
 
-    
+    // Montar objeto JSON para envio (remoção temporária do FormData)
+    const produtoParaSalvar: any = {
+      nmProduto: this.produtoAtual.nmProduto,
+      dsProduto: this.produtoAtual.descricao ?? this.produtoAtual.dsProduto ?? '',
+      categoriaProduto: this.produtoAtual.categoria ?? this.produtoAtual.categoriaProduto ?? '',
+      vlPreco: Number(this.produtoAtual.preco ?? this.produtoAtual.vlPreco ?? 0),
+      restauranteId: restauranteId,
+      tempoPreparacao: this.produtoAtual.tempoPreparacao ?? null,
+      isPromocao: this.produtoAtual.isPromocao ?? false,
+      vlPrecoPromocional: this.produtoAtual.vlPrecoPromocional ?? null,
+      adicionais: this.adicionaisTemporarios,
+      // imagemProduto pode ser uma URL string se o usuário forneceu, caso contrário null
+      imagemProduto: typeof this.produtoAtual.imagemProduto === 'string' ? this.produtoAtual.imagemProduto : null,
+    };
+
+    // ======================
+    //   MODO EDIÇÃO
+    // ======================
     if (this.modoEdicao && this.produtoAtual?.id) {
-      // TODO: Implementar no backend e no service
-      console.warn('Método atualizarProduto não disponível no service atual');
-      
-      // Quando implementar:
-      // this.restauranteService.atualizarProduto(restauranteId, this.produtoAtual.id, this.produtoAtual)
-      //   .subscribe({
-      //     next: (updated) => {
-      //       const idx = this.produtos.findIndex((p) => p.id === updated.id);
-      //       if (idx >= 0) this.produtos[idx] = updated;
-      //       this.fecharModal();
-      //     },
-      //     error: (err) => console.error('Erro ao atualizar produto:', err),
-      //   });
-    } else {
-      // TODO: Implementar no backend e no service
-      console.warn('Método criarProduto não disponível no service atual');
-      
-      // Quando implementar:
-      // this.restauranteService.criarProduto(restauranteId, this.produtoAtual)
-      //   .subscribe({
-      //     next: (created) => {
-      //       this.produtos.push(created);
-      //       this.fecharModal();
-      //     },
-      //     error: (err) => console.error('Erro ao criar produto:', err),
-      //   });
+      const produtoId = this.produtoAtual.id;
+
+      this.produtoService.atualizarProduto(produtoId, produtoParaSalvar).subscribe({
+        next: (produtoAtualizado) => {
+          const atualizadoId =
+            (produtoAtualizado as any).id ?? (produtoAtualizado as any).idProduto ?? produtoId;
+
+          const idx = this.produtos.findIndex(
+            (p) => (p as any).id === atualizadoId || (p as any).idProduto === atualizadoId
+          );
+
+          if (idx >= 0) {
+            this.produtos[idx] = produtoAtualizado;
+          } else {
+            this.produtos.unshift(produtoAtualizado);
+          }
+
+          // reset
+          this.mostrarModal = false;
+          this.modoEdicao = false;
+          this.produtoAtual = {};
+          this.adicionaisTemporarios = [];
+        },
+
+        error: (err) => {
+          console.error('Erro ao atualizar produto:', err);
+        },
+      });
+
+      return;
     }
+
+    // ======================
+    //   MODO CADASTRO
+    // ======================
+    this.produtoService.adicionarProduto(produtoParaSalvar).subscribe({
+      next: (novo) => {
+        this.produtos.push(novo);
+
+        this.mostrarModal = false;
+        this.produtoAtual = {};
+        this.adicionaisTemporarios = [];
+      },
+
+      error: (err) => {
+        console.error('Erro ao adicionar produto:', err);
+      },
+    });
   }
 
   adicionarNovoAdicionalAoProduto() {
@@ -183,26 +223,22 @@ export class PerfilRestaurante implements OnInit, OnChanges {
   removerProduto(prodOrId: any) {
     const id = typeof prodOrId === 'number' ? prodOrId : prodOrId?.id;
     const restauranteId = this.Restaurante?.id ?? Number(this.route.snapshot.paramMap.get('id'));
-    
+
     if (!restauranteId) {
       console.error('Restaurante não definido para remover produto');
       return;
     }
-    
+
     if (!id) {
       console.error('Produto inválido para remoção', prodOrId);
       return;
     }
 
-    // TODO: Implementar no backend e no service
-    console.warn('Método removerProduto não disponível no service atual');
-    
-    // Quando implementar:
-    // this.restauranteService.removerProduto(restauranteId, id).subscribe({
-    //   next: () => {
-    //     this.produtos = this.produtos.filter((p) => p.id !== id);
-    //   },
-    //   error: (err) => console.error('Erro ao remover produto:', err),
-    // });
+    this.restauranteService.removerProduto(restauranteId, id).subscribe({
+      next: () => {
+        this.produtos = this.produtos.filter((p) => ((p as any).id ?? (p as any).idProduto) !== id);
+      },
+      error: (err) => console.error('Erro ao remover produto:', err),
+    });
   }
 }

@@ -239,11 +239,11 @@
           <div class="mb-3">
             <label class="form-label">URL da Imagem</label>
             <input
-              type="url"
+              type="file"
               class="form-control"
               [(ngModel)]="produtoAtual.imagemProduto"
               name="imagem"
-              placeholder="https://exemplo.com/imagem.jpg"
+              accept="image/*"
             />
           </div>
 

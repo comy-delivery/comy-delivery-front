@@ -20,7 +20,7 @@ import { AuthService } from '../../services/auth-service';
   styleUrl: './home.scss',
 })
 export class Home implements OnInit {
-  protected tipo = 'Cliente';
+  protected tipo = 'Restaurante';
 
   // Lista que aceita o objeto composto (Restaurante + Dados calculados)
   protected restaurantesData: any[] = [];
