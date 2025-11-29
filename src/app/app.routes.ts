@@ -9,9 +9,10 @@ import { Cadastro } from './views/cadastro/cadastro';
 import { Entrega } from './views/entrega/entrega';
 import { RecuperarSenha } from './views/recuperar-senha/recuperar-senha';
 import { authGuard, publicGuard } from './guards/auth-guard';
+import { OAuth2Callback } from './components/oauth2-callback/oauth2-callback';
 
 export const routes: Routes = [
-  //rotas publics
+  // rotas publics
   { 
     path: '', 
     component: Home 
@@ -25,11 +26,17 @@ export const routes: Routes = [
     component: Cardapio 
   },
   
-  //rotas de autenticacao (acessa se nao estiver logado)
+  // rotas de autenticacao (acessa se nao estiver logado)
   { 
     path: 'login', 
     component: Login,
-    canActivate: [publicGuard] //Se logado, redireciona para home
+    canActivate: [publicGuard] // Se logado, redireciona para home
+  },
+  //Rota de Callback do OAuth2. Deve ser acessível por qualquer um.
+  { 
+    path: 'oauth2/callback', 
+    component: OAuth2Callback,
+    // Geralmente não precisa de guard, pois apenas processa o redirecionamento.
   },
   { 
     path: 'cadastro', 
@@ -46,7 +53,7 @@ export const routes: Routes = [
   { 
     path: 'perfil', 
     component: Perfil,
-    canActivate: [authGuard] //bloqueia se nao estiver logado
+    canActivate: [authGuard] // bloqueia se nao estiver logado
   },
   { 
     path: 'carrinho', 
@@ -59,7 +66,7 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
 
-  //rota de erro
+  // rota de erro
   { 
     path: '**', 
     component: NotFound 
