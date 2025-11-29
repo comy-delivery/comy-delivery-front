@@ -47,8 +47,22 @@ export class PedidosCliente implements OnInit {
             const dateB = b.dtCriacao ? new Date(b.dtCriacao).getTime() : 0;
             return dateB - dateA;
           });
+
+          this.pedidos.forEach(p => {
+            if (!p.restaurante) {
+              // Tenta recuperar de restauranteId se o objeto principal não existir
+              if (p.restauranteId) {
+                p.restaurante = { id: p.restauranteId, nmRestaurante: 'Carregando...' };
+              } else {
+                p.restaurante = { id: 0, nmRestaurante: 'Desconhecido' };
+              }
+            } else if (typeof p.restaurante === 'number') {
+               // Caso o backend retorne apenas o ID no campo restaurante
+               p.restaurante = { id: p.restaurante, nmRestaurante: 'Carregando...' };
+            }
+          });
           
-          // Carrega infos extras (Restaurante e Entrega)
+        
           this.carregarDadosRestaurantes();
           this.carregarDadosEntregas();
           this.carregarImagensProdutos();
@@ -67,7 +81,8 @@ export class PedidosCliente implements OnInit {
 
   carregarDadosEntregas() {
     this.pedidos.forEach(pedido => {
-      // 1. Busca a entrega vinculada ao pedido
+      if (!pedido.idPedido) return;
+      
       this.entregaService.buscarPorPedido(pedido.idPedido).subscribe({
         next: (entrega) => {
           if (!entrega) return;
@@ -98,20 +113,25 @@ export class PedidosCliente implements OnInit {
   }
 
   carregarDadosRestaurantes() {
-    // CORREÇÃO: Acessa p.restaurante.id em vez de p.restauranteId
+  
     const idsRestaurantes = [...new Set(this.pedidos
-      .filter(p => p.restaurante && p.restaurante.id)
-      .map(p => p.restaurante.id)
-    )];
+      .map(p => p.restaurante?.id)
+      .filter(id => id && id > 0)
+    )] as number[];
     
     idsRestaurantes.forEach(id => {
       if (!this.restaurantesCache[id]) {
-        this.restaurantesCache[id] = { nome: 'Carregando...', logoUrl: '' };
+        this.restaurantesCache[id] = { nome: 'Carregando...', logoUrl: 'assets/img/loading.png' };
         
         // Busca Nome
         this.restauranteService.buscarRestaurantePorId(id).subscribe({
           next: (rest) => {
              if(this.restaurantesCache[id]) this.restaurantesCache[id].nome = rest.nmRestaurante;
+
+             
+             this.pedidos.forEach(p => {
+                 if(p.restaurante?.id === id) p.restaurante.nmRestaurante = rest.nmRestaurante;
+               });
           }
         });
 
@@ -130,25 +150,22 @@ export class PedidosCliente implements OnInit {
 
   carregarImagensProdutos() {
     this.pedidos.forEach(pedido => {
-      pedido.itensPedido.forEach((item: any) => {
-        const idProduto = item.produto.idProduto;
-        
-        // Se ainda não tem no cache, busca
-        if (idProduto && !this.imagensProdutosCache[idProduto]) {
-          // Define um placeholder temporário ou vazio
-          this.imagensProdutosCache[idProduto] = 'assets/img/loading.png'; 
-          
-          this.produtoService.itemImagem(idProduto).subscribe({
-            next: (blob) => {
-              this.imagensProdutosCache[idProduto] = URL.createObjectURL(blob);
-            },
-            error: () => {
-              // Imagem de fallback em caso de erro
-              this.imagensProdutosCache[idProduto] = 'assets/img/sem-imagem.png'; 
-            }
-          });
-        }
-      });
+      if(pedido.itensPedido){
+        pedido.itensPedido.forEach((item: any) => {
+          const idProduto = item.produto?.idProduto;
+          if (idProduto && !this.imagensProdutosCache[idProduto]) {
+            this.imagensProdutosCache[idProduto] = 'assets/img/loading.png'; 
+            this.produtoService.itemImagem(idProduto).subscribe({
+              next: (blob) => {
+                this.imagensProdutosCache[idProduto] = URL.createObjectURL(blob);
+              },
+              error: () => {
+                this.imagensProdutosCache[idProduto] = 'assets/img/sem-imagem.png'; 
+              }
+            });
+          }
+        });
+      }
     });
   }
 
@@ -159,11 +176,15 @@ export class PedidosCliente implements OnInit {
 
   // CORREÇÃO: Recebe ID ou tenta pegar do objeto se o ID não for passado
   getRestauranteNome(id: number): string {
-    return this.restaurantesCache[id]?.nome || 'Restaurante';
+   if (this.restaurantesCache[id]?.nome && this.restaurantesCache[id].nome !== 'Carregando...') {
+      return this.restaurantesCache[id].nome;
+    }
+    const pedido = this.pedidos.find(p => p.restaurante?.id === id);
+    return pedido?.restaurante?.nmRestaurante || 'Restaurante';
   }
 
   getRestauranteLogo(id: number): string {
-    return this.restaurantesCache[id]?.logoUrl || 'assets/img/loading.png';
+    return this.restaurantesCache[id]?.logoUrl || 'assets/img/placeholder.png';
   }
 
   getStatusLabel(status: string): string {

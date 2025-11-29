@@ -61,7 +61,7 @@
           <div class="d-flex justify-content-between align-items-center w-100 p-3">
           <div class="d-flex gap-3 align-items-center">
             <img
-              [src]="getProdutoImagem(item.produto.idProduto)"
+              [src]="getProdutoImagem(item.produto?.idProduto)"
               alt="{{ item.produto.nmProduto }}"
               class="img-fluid rounded-4"
               style="height: 60px; width: 60px; object-fit: cover"
@@ -121,7 +121,7 @@
         } @else {
           <div class="col-12 col-md-6 mb-2">
             <div class="alert alert-secondary h-100 d-flex align-items-center justify-content-center" role="alert">
-              <small>Aguardando entregador...</small>
+              <small>Aguardando definição de entregador...</small>
             </div>
           </div>
         }
