@@ -175,6 +175,50 @@ export class RestauranteService {
     return this.http.put<any>(`${this.apiUrl}/${id}/banner`, formData);
   }
 
+  // ========== PRODUTOS - CRUD ==========
+
+/**
+ * Criar novo produto para o restaurante
+ * Backend espera multipart/form-data com 'produto' (JSON) e 'imagem' (File)
+ */
+criarProduto(produto: any, imagem: File): Observable<any> {
+  const formData = new FormData();
+  
+  // Adiciona o produto como JSON
+  formData.append('produto', new Blob([JSON.stringify(produto)], { type: 'application/json' }));
+  
+  // Adiciona a imagem (obrigatória)
+  formData.append('imagem', imagem);
+  
+  // POST para /api/produto (não /api/restaurante/{id}/produtos)
+  return this.http.post<any>(`${environment.apiUrl}/produto`, formData);
+}
+
+/**
+ * Atualizar produto existente
+ * IMPORTANTE: Imagem é opcional no update
+ */
+atualizarProduto(produtoId: number, produto: any, imagem?: File): Observable<any> {
+  const formData = new FormData();
+  
+  // Adiciona o produto como JSON
+  formData.append('produto', new Blob([JSON.stringify(produto)], { type: 'application/json' }));
+  
+  // Adiciona a imagem apenas se fornecida
+  if (imagem) {
+    formData.append('imagem', imagem);
+  }
+  
+  return this.http.put<any>(`${environment.apiUrl}/produto/${produtoId}`, formData);
+}
+
+/**
+ * Deletar produto
+ */
+deletarProduto(produtoId: number): Observable<void> {
+  return this.http.delete<void>(`${environment.apiUrl}/produto/${produtoId}`);
+}
+
   // ========== MÉTODOS LEGADOS ==========
 
   buscarRestaurantes(): Observable<any[]> {

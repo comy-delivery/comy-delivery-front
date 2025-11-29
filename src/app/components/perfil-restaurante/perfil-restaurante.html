@@ -1,365 +1,312 @@
-<div class="bg-primary p-5 text-white">
-  <div class="container">
-    <div class="d-flex align-items-center gap-3">
-      <img
-        *ngIf="logoUrl"
-        [src]="logoUrl"
-        alt="logo"
-        style="width: 64px; height: 64px; border-radius: 8px; object-fit: cover"
-      />
-      <div>
-        <p class="fs-4 mb-0">Painel Administrativo</p>
-        <p class="fs-5 mb-0">{{ Restaurante.nmRestaurante }}</p>
+<div class="container-fluid p-4">
+
+  <!-- ========== LOADING ========== -->
+  @if(isLoading) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Carregando...</span>
       </div>
+      <p class="mt-3">Carregando dados do restaurante...</p>
     </div>
-    <div class="row gap-lg-0 gap-md-2 gap-sm-2 gap-2">
-      <div class="col-lg-3 col-md-6 col-sm-12 col-12 mb-3">
-        <div class="card bg-info bg-opacity-25 p-3 rounded-4 h-100">
-          <div class="row">
-            <div class="col-10">
-              <div class="d-flex flex-column text-white">
-                <p class="card-text m-0 opacity-75">Novos Pedidos</p>
-                <h2 class="text-white m-0">{{ getCountByStatus('PENDENTE') }}</h2>
-              </div>
-            </div>
-            <div class="col align-content-center text-warning">
-              <span class="fs-1">©</span>
-            </div>
+  }
+
+  <!-- ========== MENSAGENS ========== -->
+  @if(successMessage) {
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+      <i class="bi bi-check-circle"></i> {{ successMessage }}
+      <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+    </div>
+  }
+
+  @if(errorMessage) {
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="bi bi-exclamation-triangle"></i> {{ errorMessage }}
+      <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+    </div>
+  }
+
+  <!-- ========== ERRO ========== -->
+  @if(errorMessage) {
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <i class="bi bi-exclamation-triangle"></i> {{ errorMessage }}
+      <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+    </div>
+  }
+
+  <!-- ========== CONTEÚDO PRINCIPAL ========== -->
+  @if(!isLoading) {
+    
+    <!-- ========== HEADER COM BANNER E LOGO ========== -->
+    <div class="restaurant-header mb-4">
+      <div class="banner-container position-relative">
+        @if(bannerUrl) {
+          <img [src]="bannerUrl" alt="Banner" class="w-100 rounded" style="height: 200px; object-fit: cover;">
+        } @else {
+          <div class="banner-placeholder rounded d-flex align-items-center justify-content-center" 
+               style="height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <span class="text-white">Banner do Restaurante</span>
           </div>
+        }
+        
+        <div class="logo-container position-absolute" style="bottom: -50px; left: 30px;">
+          @if(logoUrl) {
+            <img [src]="logoUrl" alt="Logo" class="rounded-circle border border-4 border-white shadow"
+                 style="width: 120px; height: 120px; object-fit: cover;">
+          } @else {
+            <div class="rounded-circle border border-4 border-white shadow bg-primary d-flex align-items-center justify-content-center"
+                 style="width: 120px; height: 120px;">
+              <i class="bi bi-shop text-white" style="font-size: 3rem;"></i>
+            </div>
+          }
         </div>
       </div>
-
-      <div class="col-lg-3 col-md-6 col-sm-12 col-12 mb-3">
-        <div class="card bg-info bg-opacity-25 p-3 rounded-4 h-100">
-          <div class="row">
-            <div class="col-10">
-              <div class="d-flex flex-column text-white">
-                <p class="card-text m-0 opacity-75">Em Preparo</p>
-                <h2 class="text-white m-0">
-                  {{ getCountByStatuses(['EM_PREPARACAO', 'CONFIRMADO', 'A_CAMINHO']) }}
-                </h2>
-              </div>
-            </div>
-            <div class="col align-content-center text-success">
-              <span class="fs-1">⏲️</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-lg-3 col-md-6 col-sm-12 col-12 mb-3">
-        <div class="card bg-info bg-opacity-25 p-3 rounded-4 h-100">
-          <div class="row">
-            <div class="col-10">
-              <div class="d-flex flex-column text-white">
-                <p class="card-text m-0 opacity-75">Produtos</p>
-                <h2 class="text-white m-0">{{ produtos.length }}</h2>
-              </div>
-            </div>
-            <div class="col align-content-center text-danger">
-              <span class="fs-1">🍕</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-lg-3 col-md-6 col-sm-12 col-12 mb-3">
-        <div class="card bg-info bg-opacity-25 p-3 rounded-4 h-100">
-          <div class="row">
-            <div class="col-10">
-              <div class="d-flex flex-column text-white">
-                <p class="card-text m-0 opacity-75">Receita Hoje</p>
-                <h2 class="text-white m-0">R$ {{ getReceitaHoje() }}</h2>
-              </div>
-            </div>
-            <div class="col align-content-center text-success">
-              <span class="fs-1">$</span>
-            </div>
-          </div>
+      
+      <div class="restaurant-info mt-5 pt-3">
+        <h2>{{ Restaurante.nmRestaurante || 'Nome do Restaurante' }}</h2>
+        <p class="text-muted">{{ Restaurante.descricaoRestaurante || 'Descrição do restaurante' }}</p>
+        <div class="d-flex gap-3 text-muted">
+          <span><i class="bi bi-clock"></i> {{ Restaurante.horarioAbertura }} - {{ Restaurante.horarioFechamento }}</span>
+          <span><i class="bi bi-tag"></i> {{ Restaurante.categoria }}</span>
+          @if(Restaurante.isAberto) {
+            <span class="badge bg-success">Aberto</span>
+          } @else {
+            <span class="badge bg-danger">Fechado</span>
+          }
         </div>
       </div>
     </div>
-  </div>
-</div>
 
-<div class="bg-body border-bottom">
-  <div class="container">
-    <div class="d-flex gap-3 py-3 justify-content-center">
-      <button
-        class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold d-flex align-items-center gap-2"
-        (click)="ativarTab('pedidos')"
-      >
-        Pedidos
-        <span
-          class="badge bg-warning text-dark rounded-circle fw-semibold"
-          style="
-            width: 22px;
-            height: 22px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-          "
-        >
-          {{ pedidos.length }}
-        </span>
-      </button>
+    <!-- ========== DASHBOARD CARDS ========== -->
+    @if(dashboard) {
+      <div class="row g-3 mb-4">
+        <div class="col-md-3">
+          <div class="card shadow-sm">
+            <div class="card-body text-center">
+              <i class="bi bi-box-seam text-primary" style="font-size: 2.5rem;"></i>
+              <h6 class="mt-2 text-muted">Total de Pedidos</h6>
+              <h3 class="mb-0">{{ dashboard.totalPedidosHistorico }}</h3>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="card shadow-sm">
+            <div class="card-body text-center">
+              <i class="bi bi-currency-dollar text-success" style="font-size: 2.5rem;"></i>
+              <h6 class="mt-2 text-muted">Faturamento Hoje</h6>
+              <h3 class="mb-0">R$ {{ dashboard.faturamentoDiario | number:'1.2-2' }}</h3>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="card shadow-sm">
+            <div class="card-body text-center">
+              <i class="bi bi-hourglass-split text-warning" style="font-size: 2.5rem;"></i>
+              <h6 class="mt-2 text-muted">Pedidos Pendentes</h6>
+              <h3 class="mb-0">{{ getCountByStatus('PENDENTE') }}</h3>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <div class="card shadow-sm">
+            <div class="card-body text-center">
+              <i class="bi bi-check-circle text-info" style="font-size: 2.5rem;"></i>
+              <h6 class="mt-2 text-muted">Pedidos Aceitos</h6>
+              <h3 class="mb-0">{{ getCountByStatus('ACEITO') }}</h3>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
 
-      <button
-        class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-semibold d-flex align-items-center gap-2"
-        (click)="ativarTab('produtos')"
-      >
-        Produtos
-        <span class="badge bg-secondary text-white ms-2">{{ produtos.length }}</span>
-      </button>
-    </div>
-  </div>
-</div>
+    <!-- ========== TABS DE NAVEGAÇÃO ========== -->
+    <ul class="nav nav-tabs mb-4">
+      <li class="nav-item">
+        <button 
+          class="nav-link" 
+          [class.active]="tabAtiva === 'pedidos'"
+          (click)="ativarTab('pedidos')">
+          <i class="bi bi-receipt"></i> Pedidos ({{ pedidos.length }})
+        </button>
+      </li>
+      <li class="nav-item">
+        <button 
+          class="nav-link" 
+          [class.active]="tabAtiva === 'produtos'"
+          (click)="ativarTab('produtos')">
+          <i class="bi bi-box"></i> Produtos ({{ produtos.length }})
+        </button>
+      </li>
+    </ul>
 
-<div class="container mt-4 mb-5">
-  <div *ngIf="tabAtiva === 'pedidos'">
-    <h3>Novos Pedidos</h3>
-
-    <div class="mt-4" *ngIf="pedidos.length > 0">
+    <!-- ========== CONTEÚDO DAS TABS ========== -->
+    
+    <!-- TAB PEDIDOS -->
+    <!-- TAB PEDIDOS -->
+@if(tabAtiva === 'pedidos') {
+  <div class="pedidos-container">
+    @if(pedidos.length === 0) {
+      <div class="alert alert-info text-center">
+        <i class="bi bi-info-circle"></i> Nenhum pedido encontrado
+      </div>
+    } @else {
       <div class="row g-3">
-        <div class="col-12" *ngFor="let ped of pedidos">
-          <div class="card p-3">
-            <div class="d-flex justify-content-between align-items-start">
-              <div>
-                <strong>#{{ ped.idPedido }}</strong>
-                <div class="small text-muted">Cliente: Cliente</div>
-                <div class="small text-muted">Total: R$ {{ ped.vlTotal }}</div>
-                <div class="small text-muted">Status: {{ ped.status }}</div>
-                <div class="small text-muted">Criado: {{ ped.dtCriacao }}</div>
-              </div>
-              <div class="text-end">
-                <button class="btn btn-sm btn-success mb-1" (click)="ped.status = 'CONFIRMADO'">
-                  Confirmar
-                </button>
-                <button class="btn btn-sm btn-danger mb-1" (click)="ped.status = 'CANCELADO'">
-                  Recusar
-                </button>
-              </div>
-            </div>
-            <div class="mt-3">
-              <pedido-restaurante [pedido]="ped"></pedido-restaurante>
-            </div>
+        @for(pedido of pedidos; track pedido.idPedido) {
+          <div class="col-12">
+            <app-pedido-restaurante [pedido]="pedido"></app-pedido-restaurante>
           </div>
+        }
+      </div>
+    }
+  </div>
+}
+
+    <!-- TAB PRODUTOS -->
+    @if(tabAtiva === 'produtos') {
+      <div class="produtos-container">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4>Gerenciar Produtos</h4>
+          <button class="btn btn-primary" (click)="abrirModalAdicionar()">
+            <i class="bi bi-plus-circle"></i> Adicionar Produto
+          </button>
         </div>
-      </div>
-    </div>
 
-    <div *ngIf="pedidos.length === 0" class="text-center text-muted mt-5">
-      <p>Nenhum pedido novo no momento.</p>
-    </div>
-  </div>
-
-  <div *ngIf="tabAtiva === 'produtos'">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h3>Gerenciar Produtos</h3>
-      <button class="btn btn-primary" (click)="abrirModalAdicionar()">+ Adicionar Produto</button>
-    </div>
-
-    <div class="produtos-grid">
-      <app-produto-restaurante
-        *ngFor="let produto of produtos"
-        [produto]="produto"
-        (onEditar)="editarProduto($event)"
-        (onRemover)="confirmRemover($event)"
-      >
-      </app-produto-restaurante>
-    </div>
-
-    <div *ngIf="produtos.length === 0" class="text-center text-muted mt-5">
-      <p>Nenhum produto cadastrado. Clique em "Adicionar Produto" para começar.</p>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" *ngIf="mostrarModal" (click)="fecharModal()">
-  <div class="modal-dialog modal-lg" (click)="$event.stopPropagation()">
-    <div class="modal-content" style="max-height: 90vh; overflow-y: auto">
-      <div class="modal-header">
-        <h5 class="modal-title">{{ modoEdicao ? 'Editar Produto' : 'Adicionar Produto' }}</h5>
-        <button type="button" class="btn-close" (click)="fecharModal()"></button>
-      </div>
-
-      <div class="modal-body">
-        <form>
-          <div class="mb-3">
-            <label class="form-label">Nome do Produto*</label>
-            <input
-              type="text"
-              class="form-control"
-              [(ngModel)]="produtoAtual.nmProduto"
-              name="nome"
-              placeholder="Ex: Pizza Margherita"
-              required
-            />
+        @if(produtos.length === 0) {
+          <div class="alert alert-info text-center">
+            <i class="bi bi-info-circle"></i> Nenhum produto cadastrado
           </div>
-
-          <div class="mb-3">
-            <label class="form-label">Descrição*</label>
-            <textarea
-              class="form-control"
-              [(ngModel)]="produtoAtual.descricao"
-              name="descricao"
-              placeholder="Ingredientes ou detalhes do produto"
-              rows="3"
-              required
-            ></textarea>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Categoria*</label>
-            <input
-              type="text"
-              class="form-control"
-              [(ngModel)]="produtoAtual.categoria"
-              name="categoria"
-              placeholder="Ex: Pizzas, Bebidas, Sobremesas"
-              required
-            />
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Preço (R$)*</label>
-            <input
-              type="number"
-              class="form-control"
-              [(ngModel)]="produtoAtual.preco"
-              name="preco"
-              placeholder="0.00"
-              step="0.01"
-              min="0"
-              required
-            />
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">URL da Imagem</label>
-            <input
-              type="url"
-              class="form-control"
-              [(ngModel)]="produtoAtual.imagemProduto"
-              name="imagem"
-              placeholder="https://exemplo.com/imagem.jpg"
-            />
-          </div>
-
-          <div class="mb-3">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <div>
-                <label class="form-label fw-bold mb-1">➕ Adicionais deste Produto</label>
-                <p class="text-muted small mb-0">
-                  Cadastre opções extras que o cliente poderá escolher
-                </p>
+        } @else {
+          <div class="row g-3">
+            @for(produto of produtos; track produto.id) {
+              <div class="col-md-6 col-lg-4">
+                <app-produto-restaurante 
+                  [produto]="produto"
+                  (editar)="editarProduto($event)"
+                  (remover)="confirmRemover(produto.idProduto)" />
               </div>
-              <button
-                type="button"
-                class="btn btn-success btn-sm"
-                (click)="adicionarNovoAdicionalAoProduto()"
-              >
-                + Novo Adicional
+            }
+          </div>
+        }
+      </div>
+    }
+
+  }
+
+  <!-- ========== MODAL DE PRODUTO ========== -->
+  <!-- ========== MODAL DE PRODUTO ========== -->
+@if(mostrarModal) {
+  <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            @if(modoEdicao) {
+              Editar Produto
+            } @else {
+              Adicionar Produto
+            }
+          </h5>
+          <button type="button" class="btn-close" (click)="fecharModal()"></button>
+        </div>
+        
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Nome do Produto <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" [(ngModel)]="produtoAtual.nome">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Descrição</label>
+            <textarea class="form-control" rows="3" [(ngModel)]="produtoAtual.descricao"></textarea>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Preço <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" [(ngModel)]="produtoAtual.preco" step="0.01" min="0">
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Categoria</label>
+              <input type="text" class="form-control" [(ngModel)]="produtoAtual.categoria" placeholder="Ex: Pizzas, Lanches, Bebidas">
+            </div>
+          </div>
+
+          <!-- 👇 ADICIONE ESTA SEÇÃO DE IMAGEM -->
+          <div class="mb-3">
+            <label class="form-label">
+              Imagem do Produto 
+              @if(!modoEdicao) {
+                <span class="text-danger">*</span>
+              }
+            </label>
+            <input 
+              type="file" 
+              class="form-control" 
+              accept="image/*" 
+              (change)="onImagemSelecionada($event)">
+            
+            @if(produtoAtual.imagemPreview) {
+              <div class="mt-2">
+                <img [src]="produtoAtual.imagemPreview" class="img-thumbnail" style="max-height: 200px;">
+              </div>
+            }
+          </div>
+
+          <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <label class="form-label mb-0">Adicionais</label>
+              <button class="btn btn-sm btn-outline-primary" (click)="adicionarNovoAdicionalAoProduto()">
+                <i class="bi bi-plus"></i> Adicionar Adicional
               </button>
             </div>
 
-            <div
-              *ngIf="adicionaisTemporarios.length > 0"
-              class="border rounded p-3 bg-light"
-              style="max-height: 400px; overflow-y: auto"
-            >
-              <div
-                *ngFor="let adicional of adicionaisTemporarios; let i = index"
-                class="card mb-3 shadow-sm"
-              >
-                <div class="card-body p-3">
+            @for(adicional of adicionaisTemporarios; track $index) {
+              <div class="card mb-2">
+                <div class="card-body">
                   <div class="row g-2">
                     <div class="col-md-5">
-                      <label class="form-label small mb-1">Nome do Adicional*</label>
-                      <input
-                        type="text"
-                        class="form-control form-control-sm"
-                        [(ngModel)]="adicional.nome"
-                        [name]="'adicional-nome-' + i"
-                        placeholder="Ex: Queijo Extra"
-                        required
-                      />
+                      <input type="text" class="form-control form-control-sm" 
+                             [(ngModel)]="adicional.nome" placeholder="Nome">
                     </div>
-
                     <div class="col-md-3">
-                      <label class="form-label small mb-1">Preço (R$)*</label>
-                      <input
-                        type="number"
-                        class="form-control form-control-sm"
-                        [(ngModel)]="adicional.preco"
-                        [name]="'adicional-preco-' + i"
-                        placeholder="0.00"
-                        step="0.01"
-                        min="0"
-                        required
-                      />
+                      <input type="number" class="form-control form-control-sm" 
+                             [(ngModel)]="adicional.preco" placeholder="Preço" step="0.01">
                     </div>
-
                     <div class="col-md-3">
-                      <label class="form-label small mb-1">Descrição</label>
-                      <input
-                        type="text"
-                        class="form-control form-control-sm"
-                        [(ngModel)]="adicional.descricao"
-                        [name]="'adicional-desc-' + i"
-                        placeholder="Opcional"
-                      />
+                      <input type="text" class="form-control form-control-sm" 
+                             [(ngModel)]="adicional.descricao" placeholder="Descrição">
                     </div>
-
-                    <div class="col-md-1 d-flex align-items-end">
-                      <button
-                        type="button"
-                        class="btn btn-danger btn-sm w-100"
-                        (click)="removerAdicionalTemporario(i)"
-                        title="Remover adicional"
-                      >
-                        🗑️
+                    <div class="col-md-1">
+                      <button class="btn btn-sm btn-danger w-100" 
+                              (click)="removerAdicionalTemporario($index)">
+                        <i class="bi bi-trash"></i>
                       </button>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div
-              *ngIf="adicionaisTemporarios.length === 0"
-              class="text-center border rounded p-4 bg-light"
-            >
-              <p class="text-muted mb-2">📝 Nenhum adicional cadastrado para este produto.</p>
-              <small class="text-muted"
-                >Clique em "Novo Adicional" para adicionar opções como queijo extra, bacon,
-                etc.</small
-              >
-            </div>
-
-            <div
-              *ngIf="adicionaisTemporarios.length > 0"
-              class="alert alert-success mt-3 mb-0 py-2"
-            >
-              <small>
-                <i class="bi bi-check-circle"></i>
-                <strong>{{ adicionaisTemporarios.length }}</strong> adicional(is) cadastrado(s) para
-                este produto
-              </small>
-            </div>
+            }
           </div>
-
-          <div class="d-flex gap-2 mt-4">
-            <button type="button" class="btn btn-secondary flex-fill" (click)="fecharModal()">
-              Cancelar
-            </button>
-            <button type="button" class="btn btn-primary flex-fill" (click)="salvarProduto()">
-              {{ modoEdicao ? 'Salvar Alterações' : 'Adicionar Produto' }}
-            </button>
-          </div>
-        </form>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="fecharModal()">Cancelar</button>
+          <button type="button" class="btn btn-primary" (click)="salvarProduto()" [disabled]="isSaving">
+            @if(isSaving) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+            }
+            @if(modoEdicao) {
+              Atualizar
+            } @else {
+              Salvar
+            }
+          </button>
+        </div>
       </div>
     </div>
   </div>
+}
 </div>
