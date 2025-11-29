@@ -297,8 +297,10 @@ export class PerfilRestaurante implements OnInit, OnChanges {
 
     this.restauranteService.deletarProduto(produtoId).subscribe({
       next: () => {
-        console.log('✅ Produto removido');
-        this.produtos = this.produtos.filter((p) => p.id !== produtoId);
+        console.log('✅ Produto removido do backend, ID:', produtoId);
+        // Filtra usando idProduto (não 'id')
+        this.produtos = this.produtos.filter((p) => p.idProduto !== produtoId);
+        console.log('📦 Produtos restantes:', this.produtos.length);
         this.successMessage = 'Produto removido com sucesso!';
         this.clearMessages();
       },

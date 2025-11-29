@@ -21,9 +21,10 @@ export class ProdutoRestaurante implements OnInit {
   ngOnInit(): void {
     this.carregarImg(this.produto.idProduto);
   }
+  
   @Input({ required: true }) produto = {} as Produto;
-  @Output() onEditar = new EventEmitter<Produto>();
-  @Output() onRemover = new EventEmitter<number>();
+  // ❌ REMOVIDO: @Output() onEditar
+  @Output() remover = new EventEmitter<number>();
 
   private produtoService = inject(ProdutoService);
 
@@ -38,12 +39,12 @@ export class ProdutoRestaurante implements OnInit {
     });
   }
 
-  editarProduto() {
-    this.onEditar.emit(this.produto);
-  }
+  // ❌ REMOVIDO: método editarProduto()
 
   removerProduto() {
-    this.onRemover.emit(this.produto.idProduto);
+    console.log('🗑️ Tentando remover produto:', this.produto.idProduto);
+    console.log('📦 Produto completo:', this.produto);
+    this.remover.emit(this.produto.idProduto);
   }
 
   contarAdicionais(): number {
