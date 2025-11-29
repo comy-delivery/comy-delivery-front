@@ -278,23 +278,6 @@ export class PerfilRestaurante implements OnInit, OnChanges {
         }
       });
     }
-
-    // ======================
-    //   MODO CADASTRO
-    // ======================
-    this.produtoService.adicionarProduto(produtoParaSalvar).subscribe({
-      next: (novo) => {
-        this.produtos.push(novo);
-
-        this.mostrarModal = false;
-        this.produtoAtual = {};
-        this.adicionaisTemporarios = [];
-      },
-
-      error: (err) => {
-        console.error('Erro ao adicionar produto:', err);
-      },
-    });
   }
 
   adicionarNovoAdicionalAoProduto() {
