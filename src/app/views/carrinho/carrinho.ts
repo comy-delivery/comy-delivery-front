@@ -2,7 +2,7 @@ import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import { firstValueFrom, Subscription } from 'rxjs';
 
 import { ItemCardapio } from '../../components/item-cardapio/item-cardapio';
 import { ItemCarrinho } from '../../components/item-carrinho/item-carrinho';
@@ -12,6 +12,7 @@ import { PedidoService } from '../../services/pedido-service';
 import { AuthService } from '../../services/auth-service';
 import { ClienteService } from '../../services/cliente-service';
 import { CupomService } from '../../services/cupom-service';
+import { RestauranteService } from '../../services/restaurante-service';
 
 
 @Component({
@@ -25,8 +26,11 @@ export class Carrinho implements OnInit, OnDestroy {
   private carrinhoService = inject(CarrinhoService);
   private pedidoService = inject(PedidoService);
   private clienteService = inject(ClienteService);
+  private restauranteService = inject(RestauranteService);
   private authService = inject(AuthService);
   private cupomService = inject(CupomService);
+  
+  
   private router = inject(Router);
 
   // Variável para gerenciar a inscrição na memória
@@ -41,6 +45,8 @@ export class Carrinho implements OnInit, OnDestroy {
   msgCupom: string = '';
   erroCupom: boolean = false;
   validandoCupom: boolean = false;
+
+  isFinalizando: boolean = false;
 
   ngOnInit(): void {
     this.subscription = this.carrinhoService.itensCarrinho$.subscribe((itens) => {
@@ -182,6 +188,77 @@ calcularFrete() {
     this.cupomAplicado = false;
     this.msgCupom = '';
     this.erroCupom = false;
+  }
+
+  async finalizarPedido() {
+    if (this.itemsCarrinho.length === 0) return;
+    
+    this.isFinalizando = true;
+    const userId = this.authService.getUserId();
+    // Pega o ID do restaurante do primeiro item (assume que carrinho é de um único restaurante)
+    const restauranteId = this.itemsCarrinho[0].produto.restaurante?.id;
+
+    if (!userId || !restauranteId) {
+      alert('Erro ao identificar usuário ou restaurante.');
+      this.isFinalizando = false;
+      return;
+    }
+
+    try {
+      // 1. Buscar endereço do Cliente (Entrega)
+      const cliente = await firstValueFrom(this.clienteService.buscarClientePorId(userId));
+      // Pega o padrão ou o primeiro da lista
+      const enderecoEntrega = cliente.enderecos.find((e: any) => e.isPadrao) || cliente.enderecos[0];
+
+      // 2. Buscar endereço do Restaurante (Origem)
+      const restaurante = await firstValueFrom(this.restauranteService.buscarRestaurantePorId(restauranteId));
+      const enderecoOrigem = restaurante.enderecos && restaurante.enderecos.length > 0 ? restaurante.enderecos[0] : null;
+
+      if (!enderecoEntrega || !enderecoOrigem) {
+        alert('Endereço de entrega ou do restaurante não encontrado.');
+        this.isFinalizando = false;
+        return;
+      }
+
+      // 3. Montar Payload (DTO)
+      const pedidoDTO = {
+        cliente: userId,
+        restaurante: restauranteId,
+        enderecoEntregaId: enderecoEntrega.idEndereco, // Ou .id se for o nome do campo
+        enderecoOrigemId: enderecoOrigem.idEndereco,   // Ou .id
+        itensPedido: this.itemsCarrinho.map(item => ({
+          produtoId: item.produto.idProduto,
+          qtQuantidade: item.qtQuantidade
+        })),
+        formaPagamento: "CREDITO", // Fixo conforme solicitado ou bindado de um select
+        dsObservacoes: "Entrega rápida" // Fixo conforme solicitado ou bindado de um textarea
+      };
+
+      console.log('Enviando pedido:', pedidoDTO);
+
+      // 4. Enviar Requisição
+      // Obs: O TypeScript pode reclamar que pedidoDTO não bate com a interface Pedido. 
+      // Usamos 'as any' para forçar o envio desse formato específico solicitado.
+      this.pedidoService.criarPedido(pedidoDTO as any).subscribe({
+        next: (res) => {
+          alert('Pedido realizado com sucesso! 🍕');
+          console.log(pedidoDTO)
+          this.carrinhoService.limpar();
+          this.router.navigate(['/perfil']); // Redireciona para área do cliente
+        },
+        error: (err) => {
+          console.log(pedidoDTO)
+          console.error('Erro ao criar pedido:', err);
+          alert('Ocorreu um erro ao finalizar o pedido. Tente novamente.');
+          this.isFinalizando = false;
+        }
+      });
+
+    } catch (error) {
+      console.error('Erro ao buscar dados para finalizar:', error);
+      alert('Erro de conexão ao preparar o pedido.');
+      this.isFinalizando = false;
+    }
   }
 
 
