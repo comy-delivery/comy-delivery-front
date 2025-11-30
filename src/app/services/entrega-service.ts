@@ -7,9 +7,8 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class EntregaService {
-
   private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/entrega`;
+  private apiUrl = `${environment.apiUrl}/entrega/entregador`;
 
   buscarPorPedido(idPedido: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/pedido/${idPedido}`);
@@ -19,8 +18,12 @@ export class EntregaService {
     return this.http.get<any[]>(`${this.apiUrl}`);
   }
 
+  // Buscar entregas já realizadas/aceitas pelo entregador (histórico)
+  buscarEntregasRealizadas(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/realizadas`);
+  }
+
   aceitarEntrega(id: number, body: any = {}): Observable<any> {
     return this.http.patch<any>(`${this.apiUrl}/${id}`, body);
   }
-  
 }

@@ -1,4 +1,4 @@
-"<ng-container *ngIf="entregas?.length; else vazio">
+<ng-container *ngIf="entregas?.length; else vazio">
   <div *ngFor="let e of entregas" class="card p-3 position-relative rounded-4 mb-3">
     <div class="position-absolute top-0 end-0 m-3 text-end">
       <h3 class="text-success">R$ {{ e.ganho ?? e.valor ?? (e.pedido?.total) ?? '0.00' }}</h3>
