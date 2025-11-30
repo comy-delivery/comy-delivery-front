@@ -1,24 +1,31 @@
 <div class="card rounded-4">
-  <div class="card-body">
+  @if (isLoading) {
+  <div class="text-center p-4">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Carregando...</span>
+    </div>
+  </div>
+  } @else {
+    <div class="card-body">
     <div class="row g-3">
       <div class="col-md-6">
         <label class="form-label">Nome:</label>
-        <input class="form-control" value="João Silva" [readOnly]="botaoEditar" />
+        <input class="form-control" [(ngModel)]="cliente.nmCliente" name="nmCliente" [readOnly]="botaoEditar" />
       </div>
 
       <div class="col-md-6">
         <label class="form-label">Email:</label>
-        <input class="form-control" value="emilio@gmail.com" [readOnly]="botaoEditar" />
+        <input class="form-control" [(ngModel)]="cliente.emailCliente" name="emailCliente" [readOnly]="botaoEditar" />
       </div>
 
       <div class="col-md-6">
         <label class="form-label">CPF: </label>
-        <input class="form-control" value="123.456.789-11" [readOnly]="botaoEditar" />
+        <input class="form-control" [(ngModel)]="cliente.cpfCliente" name="cpfCliente" [readOnly]="botaoEditar" />
       </div>
 
       <div class="col-md-6">
         <label class="form-label">Telefone: </label>
-        <input class="form-control" value="51995171877" [readOnly]="botaoEditar" />
+        <input class="form-control" [(ngModel)]="cliente.telefoneCliente" name="telefoneCliente" [readOnly]="botaoEditar" />
       </div>
     </div>
   </div>
@@ -68,7 +75,7 @@
     </button>
     }
 
-    <button class="btn btn-outline-danger">
+    <button class="btn btn-outline-danger" (click)="clickExcluir()">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="20"
@@ -90,4 +97,7 @@
       Excluir
     </button>
   </div>
+
+  }
+  
 </div>

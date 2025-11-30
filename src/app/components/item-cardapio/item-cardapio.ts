@@ -148,8 +148,9 @@ export class ItemCardapio implements OnInit {
     const novoItem: ItemPedido = {
       produto: {
         idProduto: this.Produto.idProduto,
-        nmProduto: this.Produto.nmProduto
-      },
+        nmProduto: this.Produto.nmProduto,
+        restaurante: this.Produto.restaurante
+      } as any,
       qtQuantidade: this.quantidade,
       vlPrecoUnitario: this.Produto.vlPreco,
       vlSubtotal: this.calcularTotal(),

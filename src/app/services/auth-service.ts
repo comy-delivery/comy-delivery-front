@@ -82,10 +82,9 @@ export class AuthService {
   // ========== LOGOUT ==========
 
   logout(): void {
-    this.tokenService.clearTokens();
+    localStorage.clear();
     this.isAuthenticatedSubject.next(false);
     this.currentUserSubject.next(null);
-    localStorage.removeItem('comy_user'); // Importante limpar o user salvo
     this.router.navigate(['/login']);
     console.log('Logout realizado!');
   }
