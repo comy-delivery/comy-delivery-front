@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { EntregaDisponivel } from '../entrega-disponivel/entrega-disponivel';
 import { PainelEntregador } from '../painel-entregador/painel-entregador';
-import { Entregador } from '../../views/entregador/entregador';
+import { Entregador } from '../../Shared/models/Entregador';
 import { EntregadorService } from '../../services/entregador-service';
 import { EntregaService } from '../../services/entrega-service';
 import { AuthService } from '../../services/auth-service';

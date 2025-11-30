@@ -23,9 +23,7 @@ export class EntregaService {
     return this.http.get<any[]>(`${this.apiUrl}/realizadas`);//ta errada
   }
 
-  aceitarEntrega(id: number, body: any = {}): Observable<any> {
-    return this.http.patch<any>(`${this.apiUrl}/${id}`, body);
-  }
+
 
   obterDashboardEntregador(idEntregador: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/entregador/${idEntregador}/dashboard`);

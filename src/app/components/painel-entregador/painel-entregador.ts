@@ -15,7 +15,7 @@ export class PainelEntregador implements OnInit {
   private authService = inject(AuthService);
 
   entregasDisponiveis = 0;
-  totalPedidosRealizados = 0; // contador de pedidos que o entregador realizou
+ totalPedidosAtribuidos = 0; // contador de pedidos que o entregador realizou
   ganhoEstimado = 0; // soma do ganho/valor/pedido.total para entregas disponíveis
   formattedGanhoEstimado = '0.00';
 
@@ -26,7 +26,7 @@ export class PainelEntregador implements OnInit {
   carregarResumo() {
     const userId = this.authService.getUserId();
 
-    // 1. Carrega entregas disponíveis para calcular ganho estimado e contagem atual
+    // 1. Carrega entregas disponíveis (PENDENTE) para calcular ganho estimado
     this.entregaService.buscarEntregasDisponiveis().subscribe({
       next: (res) => {
         const entregas = res || [];
@@ -34,7 +34,8 @@ export class PainelEntregador implements OnInit {
 
         let somaGanho = 0;
         entregas.forEach((e: any) => {
-          const ganho = parseFloat((e.ganho ?? e.valor ?? e.pedido?.total ?? 0) as any) || 0;
+          // CORREÇÃO: Prioriza 'valorEntrega' conforme o JSON do backend
+          const ganho = parseFloat((e.valorEntrega ?? e.ganho ?? e.valor ?? 0) as any) || 0;
           somaGanho += ganho;
         });
 
@@ -48,19 +49,25 @@ export class PainelEntregador implements OnInit {
     if (userId) {
       this.entregaService.obterDashboardEntregador(userId).subscribe({
         next: (dashboard) => {
-          // Ajuste as propriedades conforme o retorno exato do seu backend
           if (dashboard) {
-             this.totalPedidosRealizados = dashboard.totalEntregas || dashboard.qtdEntregas || 0;
+             this.totalPedidosAtribuidos = dashboard.totalEntregas || dashboard.qtdEntregas || 0;
           }
         },
         error: (err) => {
            console.warn('Dashboard não disponível, usando fallback de lista realizada', err);
            // Fallback: conta manualmente se o endpoint de dashboard falhar
            this.entregaService.buscarEntregasRealizadas().subscribe({
-              next: (hist) => this.totalPedidosRealizados = hist ? hist.length : 0
+              next: (hist) => this.totalPedidosAtribuidos = hist ? hist.length : 0
            });
         }
       });
+    }
+  }
+
+  aoAceitarEntrega() {
+    this.totalPedidosAtribuidos++;
+    if (this.entregasDisponiveis > 0) {
+      this.entregasDisponiveis--;
     }
   }
 
