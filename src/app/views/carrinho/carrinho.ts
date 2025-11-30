@@ -45,6 +45,8 @@ export class Carrinho implements OnInit, OnDestroy {
   msgCupom: string = '';
   erroCupom: boolean = false;
   validandoCupom: boolean = false;
+  idCupomAplicado: number | null = null;
+
 
   isFinalizando: boolean = false;
 
@@ -52,7 +54,7 @@ export class Carrinho implements OnInit, OnDestroy {
     this.subscription = this.carrinhoService.itensCarrinho$.subscribe((itens) => {
       this.itemsCarrinho = itens;
       this.calcularFrete();
-      this.calcularFrete();
+
       
       // Se mudar os itens, remove o cupom para evitar inconsistências
       if (this.cupomAplicado) {
@@ -126,6 +128,7 @@ export class Carrinho implements OnInit, OnDestroy {
           this.erroCupom = true;
           this.msgCupom = 'Cupom inválido ou regras não atendidas.';
           this.valorDesconto = 0;
+          this.idCupomAplicado = null;
         }
       },
       error: (err) => {
@@ -142,6 +145,7 @@ export class Carrinho implements OnInit, OnDestroy {
       next: (cupom) => {
         if (cupom && cupom.idCupom) {
           // 3. Calcular Desconto
+          this.idCupomAplicado = cupom.idCupom;
           this.calcularValorDoDesconto(cupom.idCupom, valorPedido);
         } else {
           this.validandoCupom = false;
@@ -181,6 +185,7 @@ export class Carrinho implements OnInit, OnDestroy {
     this.codigoCupom = '';
     this.valorDesconto = 0;
     this.cupomAplicado = false;
+    this.idCupomAplicado = null;
     this.msgCupom = '';
     this.erroCupom = false;
   }
@@ -223,7 +228,9 @@ export class Carrinho implements OnInit, OnDestroy {
         enderecoOrigemId: enderecoOrigem.idEndereco,   // Ou .id
         itensPedido: this.itemsCarrinho.map(item => ({
           produtoId: item.produto.idProduto,
-          qtQuantidade: item.qtQuantidade
+          qtQuantidade: item.qtQuantidade,
+          dsObservacao: item.dsObservacao,
+          adicionais: item.adicionais?.map(ad => ad.idAdicional) || []
         })),
         formaPagamento: "CREDITO", // Fixo conforme solicitado ou bindado de um select
         dsObservacoes: "Entrega rápida" // Fixo conforme solicitado ou bindado de um textarea
@@ -235,11 +242,17 @@ export class Carrinho implements OnInit, OnDestroy {
       // Obs: O TypeScript pode reclamar que pedidoDTO não bate com a interface Pedido. 
       // Usamos 'as any' para forçar o envio desse formato específico solicitado.
       this.pedidoService.criarPedido(pedidoDTO as any).subscribe({
-        next: (res) => {
+        next: (pedidoCriado: any) => {
           alert('Pedido realizado com sucesso! 🍕');
           console.log(pedidoDTO)
-          this.carrinhoService.limpar();
-          this.router.navigate(['/perfil']); // Redireciona para área do cliente
+
+          if (this.cupomAplicado && this.idCupomAplicado) {
+             this.aplicarCupomNoPedido(pedidoCriado.idPedido);
+          } else {
+             this.sucessoFinalizacao();
+          }
+
+          
         },
         error: (err) => {
           console.log(pedidoDTO)
@@ -254,6 +267,31 @@ export class Carrinho implements OnInit, OnDestroy {
       alert('Erro de conexão ao preparar o pedido.');
       this.isFinalizando = false;
     }
+  }
+
+  private aplicarCupomNoPedido(idPedido: number) {
+    if (!this.idCupomAplicado) return;
+
+    console.log(`🎟️ Aplicando cupom ${this.idCupomAplicado} no pedido ${idPedido}...`);
+
+    this.pedidoService.aplicarCupom(idPedido, this.idCupomAplicado).subscribe({
+      next: () => {
+        console.log('✅ Cupom vinculado com sucesso!');
+        this.sucessoFinalizacao();
+      },
+      error: (err) => {
+        console.error('❌ Erro ao vincular cupom:', err);
+        alert('Pedido criado, mas houve um erro ao aplicar o desconto do cupom. Entre em contato com o suporte.');
+        this.sucessoFinalizacao();
+      }
+    });
+  }
+
+  private sucessoFinalizacao() {
+    alert('Pedido realizado com sucesso! 🍕');
+    this.carrinhoService.limpar();
+    this.isFinalizando = false;
+    this.router.navigate(['/perfil']);
   }
 
 

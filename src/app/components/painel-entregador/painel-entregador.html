@@ -33,8 +33,8 @@
           <div class="row">
             <div class="col-10">
               <div class="d-flex flex-column text-white">
-                <p class="card-text m-0 opacity-75">Total de pedidos realizados</p>
-                <h2 class="text-white m-0">{{ totalPedidosRealizados }}</h2>
+                <p class="card-text m-0 opacity-75">Total de pedidos atribuídos</p>
+                <h2 class="text-white m-0">{{ totalPedidosAtribuidos }}</h2>
               </div>
             </div>
             <div class="col align-content-center" style="color: greenyellow">
@@ -86,5 +86,5 @@
 </div>
 
 <div class="container mt-5">
-  <app-entrega-disponivel/>
+  <app-entrega-disponivel (entregaAceita)="aoAceitarEntrega()"/>
 </div>

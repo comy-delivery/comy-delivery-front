@@ -1,18 +1,21 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { EntregaDisponivel } from '../entrega-disponivel/entrega-disponivel';
 import { EntregaService } from '../../services/entrega-service';
+import { AuthService } from '../../services/auth-service';
 
 @Component({
   selector: 'app-painel-entregador',
+  standalone: true,
   imports: [EntregaDisponivel],
   templateUrl: './painel-entregador.html',
   styleUrl: './painel-entregador.scss',
 })
 export class PainelEntregador implements OnInit {
   private entregaService = inject(EntregaService);
+  private authService = inject(AuthService);
 
   entregasDisponiveis = 0;
-  totalPedidosRealizados = 0; // contador de pedidos que o entregador realizou
+ totalPedidosAtribuidos = 0; // contador de pedidos que o entregador realizou
   ganhoEstimado = 0; // soma do ganho/valor/pedido.total para entregas disponíveis
   formattedGanhoEstimado = '0.00';
 
@@ -21,36 +24,51 @@ export class PainelEntregador implements OnInit {
   }
 
   carregarResumo() {
+    const userId = this.authService.getUserId();
+
+    // 1. Carrega entregas disponíveis (PENDENTE) para calcular ganho estimado
     this.entregaService.buscarEntregasDisponiveis().subscribe({
       next: (res) => {
         const entregas = res || [];
         this.entregasDisponiveis = entregas.length;
 
-        // calcular soma dos ganhos estimados para entregas disponíveis
         let somaGanho = 0;
-
         entregas.forEach((e: any) => {
-          const ganho = parseFloat((e.ganho ?? e.valor ?? e.pedido?.total ?? 0) as any) || 0;
+          
+          const ganho = parseFloat((e.valorEntrega ?? e.ganho ?? e.valor ?? 0) as any) || 0;
           somaGanho += ganho;
         });
 
         this.ganhoEstimado = somaGanho;
         this.formattedGanhoEstimado = this.formatMoney(this.ganhoEstimado);
-
-        // Buscar quantidade total de entregas já realizadas pelo entregador (histórico)
-        this.entregaService.buscarEntregasRealizadas().subscribe({
-          next: (hist) => {
-            const historico = hist || [];
-            this.totalPedidosRealizados = historico.length;
-          },
-          error: (err) => {
-            console.warn('Não foi possível obter histórico de entregas do entregador:', err);
-            this.totalPedidosRealizados = 0;
-          },
-        });
       },
-      error: (err) => console.error('Erro ao buscar entregas para resumo:', err),
+      error: (err) => console.error('Erro ao buscar entregas disponíveis:', err),
     });
+
+    // 2. Tenta carregar estatísticas do Dashboard (Total realizado)
+    if (userId) {
+      this.entregaService.obterDashboardEntregador(userId).subscribe({
+        next: (dashboard) => {
+          if (dashboard) {
+             this.totalPedidosAtribuidos = dashboard.quantidadeTotalEntregas || 0;
+          }
+        },
+        error: (err) => {
+           console.warn('Dashboard não disponível, usando fallback de lista realizada', err);
+           // Fallback: conta manualmente se o endpoint de dashboard falhar
+           this.entregaService.buscarEntregasRealizadas().subscribe({
+              next: (hist) => this.totalPedidosAtribuidos = hist ? hist.length : 0
+           });
+        }
+      });
+    }
+  }
+
+  aoAceitarEntrega() {
+    this.totalPedidosAtribuidos++;
+    if (this.entregasDisponiveis > 0) {
+      this.entregasDisponiveis--;
+    }
   }
 
   private formatMoney(value: number): string {
