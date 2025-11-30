@@ -22,7 +22,7 @@ export class ItemCardapio implements OnInit {
   private produtoService = inject(ProdutoService);
   private adicionalService = inject(AdicionalService); 
   private carrinhoService = inject(CarrinhoService);
-  private authService = inject(AuthService); // <--- INJETAR
+  private authService = inject(AuthService);
   private router = inject(Router);
 
   @Input({ required: true }) Produto = {} as Produto;
@@ -54,7 +54,6 @@ export class ItemCardapio implements OnInit {
 
   // Lógica do Modal
   abrirModalAdicionais() {
-
     if (!this.authService.isLoggedIn()) {
         alert('Faça login para personalizar seu pedido!');
         this.router.navigate(['/login']);
@@ -66,7 +65,6 @@ export class ItemCardapio implements OnInit {
         alert('Apenas clientes podem realizar pedidos. Entre com uma conta de cliente.');
         return;
     }
-
 
     this.showModal = true;
     this.resetaFormulario();
@@ -84,7 +82,6 @@ export class ItemCardapio implements OnInit {
     this.adicionaisDisponiveis = []; 
   }
 
-
   carregarAdicionais() {
     this.isLoadingAdicionais = true;
 
@@ -100,7 +97,6 @@ export class ItemCardapio implements OnInit {
         this.isLoadingAdicionais = false;
       },
       error: (erro) => {
-        
         console.error('Erro ao buscar adicionais. Status:', erro.status, erro); 
         this.isLoadingAdicionais = false;
       },
@@ -140,9 +136,9 @@ export class ItemCardapio implements OnInit {
   calcularTotal(): number {
     let total = this.Produto.vlPreco;
 
- 
+    // CORRIGIDO: usar vlPrecoAdicional
     this.adicionaisSelecionados.forEach((adicional) => {
-      total += Number(adicional.vlAdicional);
+      total += Number(adicional.vlPrecoAdicional);
     });
 
     return total * this.quantidade;
@@ -150,7 +146,10 @@ export class ItemCardapio implements OnInit {
 
   adicionarAoCarrinho() {
     const novoItem: ItemPedido = {
-      produto: this.Produto,
+      produto: {
+        idProduto: this.Produto.idProduto,
+        nmProduto: this.Produto.nmProduto
+      },
       qtQuantidade: this.quantidade,
       vlPrecoUnitario: this.Produto.vlPreco,
       vlSubtotal: this.calcularTotal(),

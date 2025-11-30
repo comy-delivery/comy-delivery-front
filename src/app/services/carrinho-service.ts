@@ -26,7 +26,7 @@ export class CarrinhoService {
       if (item.produto.idProduto !== novoItem.produto.idProduto) return false;
       if ((item.dsObservacao || '').trim() !== (novoItem.dsObservacao || '').trim()) return false;
 
-      // CORRIGIDO: Adiciona verificação de undefined para adicionais
+      // Adiciona verificação de undefined para adicionais
       const idsAntigos = item.adicionais
         ?.map((a) => a.idAdicional)
         .sort()
