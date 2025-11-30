@@ -1,7 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { Categoria } from '../../components/categoria/categoria';
 import { CardRestaurante } from '../../components/card-restaurante/card-restaurante';
-
 import { Banner } from '../../components/banner/banner';
 import { Filtros } from '../../components/filtros/filtros';
 import { Restaurante } from '../../Shared/models/Restaurante';
@@ -11,11 +10,20 @@ import { BuscaService } from '../../services/busca-service';
 import { CommonModule } from '@angular/common';
 import { ClienteService } from '../../services/cliente-service';
 import { AuthService } from '../../services/auth-service';
+import { PainelEntregador } from '../../components/painel-entregador/painel-entregador';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [Categoria, CardRestaurante, Banner, Filtros, PerfilRestaurante, CommonModule],
+  imports: [
+    Categoria,
+    CardRestaurante,
+    Banner,
+    Filtros,
+    PerfilRestaurante,
+    CommonModule,
+    PainelEntregador,
+  ],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
@@ -58,6 +66,8 @@ export class Home implements OnInit {
       // Se for cliente logado, busca com distâncias e preços calculados
       this.tipo = 'Cliente';
       this.carregarRestaurantesProximos(this.userId);
+    } else if (this.userRole === 'ENTREGADOR') {
+      this.tipo = 'Entregador';
     } else {
       // Fallback para visitante (sem ID)
       this.tipo = 'Cliente';
@@ -77,6 +87,30 @@ export class Home implements OnInit {
     } catch (e) {
       console.warn('Erro ao inscrever restaurantesChanged$', e);
     }
+  }
+
+  // Método auxiliar para garantir que o ID exista e corrigir "undefined"
+  private corrigirIdRestaurante(data: any[]): any[] {
+    return data.map((item: any) => {
+      // Se o item for o objeto wrapper que contém "restaurante"
+      if (item.restaurante) {
+        // Garante que restaurante.id exista
+        if (!item.restaurante.id) {
+          // Tenta mapear de outros campos comuns que o backend pode enviar
+          item.restaurante.id =
+            item.restaurante.idRestaurante ||
+            item.restaurante.idUsuario ||
+            item.restaurante.id_restaurante;
+        }
+      }
+      // Se o item for diretamente o restaurante (caso do carregarRestaurantesPadrao às vezes)
+      else {
+        if (!item.id) {
+          item.id = item.idRestaurante || item.idUsuario || item.id_restaurante;
+        }
+      }
+      return item;
+    });
   }
 
   // Handler chamado quando um CardRestaurante emite que foi deletado
@@ -205,13 +239,16 @@ private carregarRestaurantesProximos(id: number) {
     this.restauranteService.buscarRestaurantes().subscribe({
       next: (response) => {
         // Normaliza estrutura para ficar igual à busca de próximos
-        const data = response.map((r) => ({
+        let data = response.map((r) => ({
           restaurante: r,
           distanciaKm: null,
           mediaPrecoProdutos: null,
           valorFreteEstimado: null,
           tempoEstimadoEntrega: r.tempoMediaEntrega,
         }));
+
+        // Aplica a correção de IDs para evitar "undefined"
+        data = this.corrigirIdRestaurante(data);
 
         this.todosRestaurantesData = data;
         this.restaurantesData = data;
@@ -220,6 +257,4 @@ private carregarRestaurantesProximos(id: number) {
       error: (err) => console.error('Erro ao buscar restaurantes:', err),
     });
   }
-
-  // (Removed local suppression helpers — frontend now reflects server state directly)
 }
