@@ -10,6 +10,7 @@ import { RestauranteService } from '../../services/restaurante-service';
 import { AuthService } from '../../services/auth-service';
 import { DashboardRestaurante, PedidoService } from '../../services/pedido-service';
 import { ProdutoService } from '../../services/produto-service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-perfil-restaurante',
@@ -24,7 +25,6 @@ export class PerfilRestaurante implements OnInit, OnChanges {
   private authService = inject(AuthService);
   private route = inject(ActivatedRoute);
   private produtoService = inject(ProdutoService);
-  private id_fixo = 2;
 
   @Input() Restaurante: Restaurante = {} as Restaurante;
   @Input() pedidosInput: Pedido[] = [];
@@ -35,6 +35,12 @@ export class PerfilRestaurante implements OnInit, OnChanges {
   produtos: any[] = [];
   pedidos: Pedido[] = [];
   dashboard: DashboardRestaurante | null = null;
+  dashboardStats = {
+    totalPedidosHistorico: 0,
+    faturamentoDiario: 0,
+    pedidosPendentes: 0,
+    pedidosAceitos: 0
+  };
   
   isLoading: boolean = true;
   errorMessage: string = '';
@@ -43,7 +49,6 @@ export class PerfilRestaurante implements OnInit, OnChanges {
   
   tabAtiva: 'pedidos' | 'produtos' = 'pedidos';
   mostrarModal = false;
-  modoEdicao = false;
   produtoAtual: any = {};
   adicionaisTemporarios: any[] = [];
 
@@ -97,6 +102,7 @@ export class PerfilRestaurante implements OnInit, OnChanges {
     this.pedidoService.listarPorRestaurante(id).subscribe({
       next: (pedidos) => {
         this.pedidos = pedidos;
+        this.calcularDashboardStats();
         this.isLoading = false;
       },
       error: (err) => {
@@ -106,10 +112,19 @@ export class PerfilRestaurante implements OnInit, OnChanges {
     });
 
     this.pedidoService.obterDashboard(id).subscribe({
-      next: (dashboard) => {
-        this.dashboard = dashboard;
+      next: (dashboard: any) => {
+        console.log('📊 Dashboard recebido:', dashboard);
+        
+        // O backend retorna um array, pega o primeiro item (hoje)
+        if (Array.isArray(dashboard) && dashboard.length > 0) {
+          this.dashboard = dashboard[0];
+          this.dashboardStats.faturamentoDiario = dashboard[0].faturamentoTotal || 0;
+        }
       },
-      error: (err) => console.error('Erro ao carregar dashboard:', err)
+      error: (err) => {
+        console.error('❌ Erro ao carregar dashboard:', err);
+        console.error('❌ URL chamada:', `${environment.apiUrl}/pedido/restaurante/${id}/dashboard`);
+      }
     });
 
     this.carregarLogo(id);
@@ -139,8 +154,9 @@ export class PerfilRestaurante implements OnInit, OnChanges {
   }
 
   abrirModalAdicionar() {
-    this.modoEdicao = false;
-    this.produtoAtual = {};
+    this.produtoAtual = {
+      disponivel: true // Define como disponível por padrão
+    };
     this.adicionaisTemporarios = [];
     this.mostrarModal = true;
   }
@@ -165,13 +181,15 @@ export class PerfilRestaurante implements OnInit, OnChanges {
   // ========== CRUD PRODUTOS ==========
 
   confirmRemover(prodId: number) {
-    if (confirm('Confirma remoção do produto?')) {
+    if (confirm('Tem certeza que deseja remover este produto?')) {
       this.removerProduto(prodId);
     }
   }
 
   fecharModal() {
     this.mostrarModal = false;
+    this.produtoAtual = {};
+    this.adicionaisTemporarios = [];
   }
 
   /**
@@ -192,10 +210,10 @@ export class PerfilRestaurante implements OnInit, OnChanges {
   }
 
   /**
-   * Salvar produto (criar ou atualizar)
+   * Salvar produto (apenas criar novo)
    */
   salvarProduto() {
-    const restauranteId = this.Restaurante?.id ?? Number(this.route.snapshot.paramMap.get('id'));
+    const restauranteId = this.restauranteId;
 
     if (!restauranteId) {
       console.error('Restaurante não definido para salvar produto');
@@ -209,8 +227,14 @@ export class PerfilRestaurante implements OnInit, OnChanges {
       return;
     }
 
-    // VALIDAR IMAGEM ao criar (obrigatória)
-    if (!this.modoEdicao && !this.produtoAtual.imagemFile) {
+    // Validar categoria (obrigatória no backend)
+    if (!this.produtoAtual.categoria || this.produtoAtual.categoria.trim() === '') {
+      this.errorMessage = 'A categoria do produto é obrigatória';
+      return;
+    }
+
+    // VALIDAR IMAGEM (obrigatória ao criar)
+    if (!this.produtoAtual.imagemFile) {
       this.errorMessage = 'A imagem do produto é obrigatória';
       return;
     }
@@ -224,60 +248,43 @@ export class PerfilRestaurante implements OnInit, OnChanges {
       nmProduto: this.produtoAtual.nome,
       descricao: this.produtoAtual.descricao || '',
       vlPreco: Number(this.produtoAtual.preco),
-      categoria: this.produtoAtual.categoria || '',
+      categoriaProduto: this.produtoAtual.categoria || 'Sem categoria', // Backend exige categoria
       disponivel: this.produtoAtual.disponivel !== undefined ? this.produtoAtual.disponivel : true,
-      idRestaurante: this.restauranteId
+      restauranteId: restauranteId // Backend espera 'restauranteId', não 'idRestaurante'
     };
 
     console.log('📤 Enviando produto:', produtoParaEnviar);
     console.log('📤 Com imagem:', this.produtoAtual.imagemFile);
 
-    if (this.modoEdicao && this.produtoAtual?.id) {
-      // ATUALIZAR PRODUTO EXISTENTE
-      this.restauranteService.atualizarProduto(
-        this.produtoAtual.id, 
-        produtoParaEnviar, 
-        this.produtoAtual.imagemFile
-      ).subscribe({
-        next: (updated) => {
-          console.log('✅ Produto atualizado:', updated);
-          const idx = this.produtos.findIndex((p) => p.id === updated.id);
-          if (idx >= 0) {
-            this.produtos[idx] = updated;
-          }
-          this.successMessage = 'Produto atualizado com sucesso!';
-          this.isSaving = false;
-          this.fecharModal();
-          this.clearMessages();
-        },
-        error: (err) => {
-          console.error('❌ Erro ao atualizar produto:', err);
-          this.errorMessage = `Erro ao atualizar produto: ${err.error?.detail || err.error?.message || err.message}`;
-          this.isSaving = false;
+    // CRIAR NOVO PRODUTO
+    this.restauranteService.criarProduto(
+      produtoParaEnviar, 
+      this.produtoAtual.imagemFile
+    ).subscribe({
+      next: (created) => {
+        console.log('✅ Produto criado:', created);
+        this.produtos.push(created);
+        this.successMessage = 'Produto criado com sucesso!';
+        this.isSaving = false;
+        this.fecharModal();
+        this.clearMessages();
+        
+        // Recarrega a lista de produtos para garantir sincronização
+        if (this.restauranteId) {
+          this.restauranteService.listarProdutosRestaurante(this.restauranteId).subscribe({
+            next: (prods) => {
+              this.produtos = prods;
+            }
+          });
         }
-      });
-    } else {
-      // CRIAR NOVO PRODUTO
-      this.restauranteService.criarProduto(
-        produtoParaEnviar, 
-        this.produtoAtual.imagemFile
-      ).subscribe({
-        next: (created) => {
-          console.log('✅ Produto criado:', created);
-          this.produtos.push(created);
-          this.successMessage = 'Produto criado com sucesso!';
-          this.isSaving = false;
-          this.fecharModal();
-          this.clearMessages();
-        },
-        error: (err) => {
-          console.error('❌ Erro ao criar produto:', err);
-          console.error('❌ Detalhes:', err.error);
-          this.errorMessage = `Erro ao criar produto: ${err.error?.detail || err.error?.message || err.message}`;
-          this.isSaving = false;
-        }
-      });
-    }
+      },
+      error: (err) => {
+        console.error('❌ Erro ao criar produto:', err);
+        console.error('❌ Detalhes:', err.error);
+        this.errorMessage = `Erro ao criar produto: ${err.error?.detail || err.error?.message || err.message}`;
+        this.isSaving = false;
+      }
+    });
   }
 
   adicionarNovoAdicionalAoProduto() {
@@ -288,11 +295,7 @@ export class PerfilRestaurante implements OnInit, OnChanges {
     this.adicionaisTemporarios.splice(index, 1);
   }
 
-  editarProduto(prod: any) {
-    this.modoEdicao = true;
-    this.produtoAtual = { ...prod };
-    this.mostrarModal = true;
-  }
+  // ❌ REMOVIDO: método editarProduto()
 
   /**
    * Remover produto
@@ -309,16 +312,23 @@ export class PerfilRestaurante implements OnInit, OnChanges {
       return;
     }
 
+    console.log('🗑️ Iniciando remoção do produto ID:', produtoId);
+    console.log('🗑️ URL que será chamada:', `${environment.apiUrl}/produto/${produtoId}`);
+
     this.restauranteService.deletarProduto(produtoId).subscribe({
       next: () => {
-        console.log('✅ Produto removido');
-        this.produtos = this.produtos.filter((p) => p.id !== produtoId);
+        console.log('✅ Produto removido do backend com sucesso, ID:', produtoId);
+        // Filtra usando idProduto (não 'id')
+        this.produtos = this.produtos.filter((p) => p.idProduto !== produtoId);
+        console.log('📦 Produtos restantes:', this.produtos.length);
         this.successMessage = 'Produto removido com sucesso!';
         this.clearMessages();
       },
       error: (err) => {
-        console.error('❌ Erro ao remover produto:', err);
-        this.errorMessage = 'Erro ao remover produto';
+        console.error('❌ Erro ao remover produto do backend:', err);
+        console.error('❌ Status:', err.status);
+        console.error('❌ Mensagem:', err.error);
+        this.errorMessage = `Erro ao remover produto: ${err.error?.message || err.message}`;
       }
     });
   }
@@ -328,5 +338,23 @@ export class PerfilRestaurante implements OnInit, OnChanges {
       this.successMessage = '';
       this.errorMessage = '';
     }, 3000);
+  }
+
+  /**
+   * Calcula estatísticas do dashboard baseado nos pedidos carregados
+   */
+  private calcularDashboardStats(): void {
+    if (!this.pedidos || this.pedidos.length === 0) {
+      return;
+    }
+
+    // Total de pedidos (histórico completo)
+    this.dashboardStats.totalPedidosHistorico = this.pedidos.length;
+
+    // Pedidos pendentes e aceitos
+    this.dashboardStats.pedidosPendentes = this.pedidos.filter(p => p.status === 'PENDENTE').length;
+    this.dashboardStats.pedidosAceitos = this.pedidos.filter(p => p.status === 'ACEITO').length;
+
+    console.log('📊 Dashboard Stats calculados:', this.dashboardStats);
   }
 }

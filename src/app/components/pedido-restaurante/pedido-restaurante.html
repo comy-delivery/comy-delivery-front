@@ -1,75 +1,152 @@
-<!-- Card resumido do pedido -->
-<div class="pedido-card" *ngIf="pedidoVisivel && !mostrarDetalhes && !pedidoPronto">
-
+<!-- ========== PEDIDO PENDENTE - Aguardando Aceitação ========== -->
+<div class="pedido-card" *ngIf="isPendente()" [class.processing]="isProcessing">
+  
   <div class="pedido-header">
     <div class="pedido-info">
-      <h3>Pedido #{{ pedido?.id }}</h3>
-      <span class="status">{{ pedido?.status }}</span>
+      <h3><i class="bi bi-receipt"></i> Pedido #{{ pedido.idPedido }}</h3>
+      <span class="status" [ngClass]="getStatusClass()">
+        <i class="bi bi-clock-history"></i> {{ getStatusTexto() }}
+      </span>
     </div>
     <div class="pedido-horario">
-      <span>{{ pedido?.hora }}</span>
+      <span><i class="bi bi-clock"></i> {{ formatarHora(pedido.dtCriacao) }}</span>
+      <small>{{ formatarData(pedido.dtCriacao) }}</small>
     </div>
   </div>
 
- 
   <div class="cliente-info">
-    <p><strong>Cliente:</strong> {{ pedido?.cliente }}</p>
-    <p><strong>Endereço:</strong> {{ pedido?.endereco }}</p>
-    <p><strong>Pagamento:</strong> {{ pedido?.pagamento }}</p>
+    <p><strong><i class="bi bi-person"></i> Cliente:</strong> {{ getNomeCliente() }}</p>
+    <p><strong><i class="bi bi-geo-alt"></i> Endereço:</strong> {{ getEnderecoFormatado() }}</p>
+    <p><strong><i class="bi bi-credit-card"></i> Pagamento:</strong> {{ getFormaPagamento() }}</p>
   </div>
 
-
   <div class="itens">
-    <h4>Itens:</h4>
+    <h4>Itens do Pedido:</h4>
     <ul>
-      <li *ngFor="let item of pedido?.itens">
-        <span>{{ item.nome }} (x{{ item.quantidade }})</span>
-        <span class="preco">R$ {{ item.preco }}</span>
+      <li *ngFor="let item of pedido.itensPedido">
+        <span class="item-nome">{{ getNomeProduto(item) }} (x{{ getQuantidadeItem(item) }})</span>
+        <span class="preco">R$ {{ getValorUnitarioItem(item) * getQuantidadeItem(item) | number:'1.2-2' }}</span>
       </li>
     </ul>
   </div>
 
   <div class="total">
-    <span>Total:</span>
-    <strong>R$ {{ pedido?.total }}</strong>
+    <div class="linha-total">
+      <span>Subtotal:</span>
+      <span>R$ {{ pedido.vlSubtotal | number:'1.2-2' }}</span>
+    </div>
+    <div class="linha-total">
+      <span>Taxa de Entrega:</span>
+      <span>R$ {{ pedido.vlEntrega | number:'1.2-2' }}</span>
+    </div>
+    <div class="linha-total destaque">
+      <strong>Total:</strong>
+      <strong>R$ {{ pedido.vlTotal | number:'1.2-2' }}</strong>
+    </div>
   </div>
 
- 
+  <div class="tempo-estimado mb-3">
+    <label for="tempo-{{ pedido.idPedido }}">
+      <i class="bi bi-alarm"></i> Tempo estimado (minutos):
+    </label>
+    <input 
+      type="number" 
+      id="tempo-{{ pedido.idPedido }}" 
+      class="form-control"
+      [(ngModel)]="tempoEstimado" 
+      min="10" 
+      max="120"
+      [disabled]="isProcessing">
+  </div>
+
   <div class="acoes">
-    <button class="aceitar" (click)="aceitarPedido()">Aceitar</button>
-    <button class="recusar" (click)="recusarPedido()">Recusar</button>
+    <button 
+      class="btn btn-success" 
+      (click)="aceitarPedido()"
+      [disabled]="isProcessing">
+      <i class="bi bi-check-circle"></i> 
+      {{ isProcessing ? 'Processando...' : 'Aceitar Pedido' }}
+    </button>
+    <button 
+      class="btn btn-danger" 
+      (click)="abrirModalRecusa()"
+      [disabled]="isProcessing">
+      <i class="bi bi-x-circle"></i> Recusar
+    </button>
   </div>
 
+  <div class="alert alert-danger mt-2" *ngIf="errorMessage">
+    <i class="bi bi-exclamation-triangle"></i> {{ errorMessage }}
+  </div>
 </div>
 
-<!-- Tela de detalhes expandida -->
-<div class="pedido-detalhes" *ngIf="mostrarDetalhes && !pedidoPronto">
+<!-- ========== PEDIDO CONFIRMADO - Aguardando Início do Preparo ========== -->
+<div class="pedido-card confirmado" *ngIf="isConfirmado()" [class.processing]="isProcessing">
   
   <div class="pedido-header">
     <div class="pedido-info">
-      <h3>Pedido #{{ pedido?.id }}</h3>
-      <span class="status preparando">Preparando</span>
+      <h3><i class="bi bi-receipt"></i> Pedido #{{ pedido.idPedido }}</h3>
+      <span class="status" [ngClass]="getStatusClass()">
+        <i class="bi bi-check-circle"></i> {{ getStatusTexto() }}
+      </span>
     </div>
     <div class="pedido-horario">
-      <span>{{ pedido?.hora }}</span>
+      <span><i class="bi bi-clock"></i> {{ formatarHora(pedido.dtCriacao) }}</span>
     </div>
   </div>
 
   <div class="cliente-info">
-    <p><strong>Cliente:</strong> {{ pedido?.cliente }}</p>
-    <p><strong>Endereço:</strong> {{ pedido?.endereco }}</p>
-    <p><strong>Pagamento:</strong> {{ pedido?.pagamento }}</p>
+    <p><strong><i class="bi bi-person"></i></strong> {{ getNomeCliente() }}</p>
+    <p><strong><i class="bi bi-geo-alt"></i></strong> {{ getEnderecoFormatado() }}</p>
+  </div>
+
+  <div class="itens-resumo">
+    <p><strong>{{ pedido.itensPedido.length }} item(ns)</strong> - R$ {{ pedido.vlTotal | number:'1.2-2' }}</p>
+  </div>
+
+  <div class="acoes">
+    <button 
+      class="btn btn-primary btn-lg w-100" 
+      (click)="iniciarPreparo()"
+      [disabled]="isProcessing">
+      <i class="bi bi-play-circle"></i> 
+      {{ isProcessing ? 'Processando...' : 'Iniciar Preparo' }}
+    </button>
+  </div>
+</div>
+
+<!-- ========== PEDIDO EM PREPARO - Detalhes Expandidos ========== -->
+<div class="pedido-card em-preparo" *ngIf="isEmPreparo()" [class.processing]="isProcessing">
+  
+  <div class="pedido-header">
+    <div class="pedido-info">
+      <h3><i class="bi bi-receipt"></i> Pedido #{{ pedido.idPedido }}</h3>
+      <span class="status" [ngClass]="getStatusClass()">
+        <i class="bi bi-egg-fried"></i> {{ getStatusTexto() }}
+      </span>
+    </div>
+    <div class="pedido-horario">
+      <span><i class="bi bi-clock"></i> {{ formatarHora(pedido.dtCriacao) }}</span>
+    </div>
+  </div>
+
+  <div class="cliente-info">
+    <p><strong><i class="bi bi-person"></i> Cliente:</strong> {{ getNomeCliente() }}</p>
+    <p><strong><i class="bi bi-geo-alt"></i> Endereço:</strong> {{ getEnderecoFormatado() }}</p>
+    <p><strong><i class="bi bi-credit-card"></i> Pagamento:</strong> {{ getFormaPagamento() }}</p>
   </div>
 
   <div class="itens">
-    <h4>Itens:</h4>
+    <h4>Itens do Pedido:</h4>
     <ul>
-      <li *ngFor="let item of pedido?.itens">
-        <img [src]="item.imagem" [alt]="item.nome" class="item-imagem">
-        <div class="item-info">
-          <span>{{ item.quantidade }}x {{ item.nome }}</span>
+      <li *ngFor="let item of pedido.itensPedido">
+        <div class="item-detalhes">
+          <div class="item-info">
+            <span class="item-quantidade">{{ getQuantidadeItem(item) }}x</span>
+            <span class="item-nome">{{ getNomeProduto(item) }}</span>
+          </div>
         </div>
-        <span class="preco">R$ {{ item.preco }}</span>
+        <span class="preco">R$ {{ getValorUnitarioItem(item) * getQuantidadeItem(item) | number:'1.2-2' }}</span>
       </li>
     </ul>
   </div>
@@ -77,65 +154,134 @@
   <div class="resumo-valores">
     <div class="linha-valor">
       <span>Subtotal</span>
-      <span>R$ {{ pedido?.subtotal }}</span>
+      <span>R$ {{ pedido.vlSubtotal | number:'1.2-2' }}</span>
     </div>
     <div class="linha-valor">
       <span>Taxa de Entrega</span>
-      <span>R$ {{ pedido?.taxaEntrega }}</span>
+      <span>R$ {{ pedido.vlEntrega | number:'1.2-2' }}</span>
     </div>
     <div class="linha-valor total">
       <span>Total</span>
-      <strong>R$ {{ pedido?.total }}</strong>
-    </div>
-    <div class="linha-valor">
-      <span>Pagamento: {{ pedido?.pagamento }}</span>
+      <strong>R$ {{ pedido.vlTotal | number:'1.2-2' }}</strong>
     </div>
   </div>
 
-  <button class="marcar-pronto" (click)="marcarComoPronto()">Marcar como Pronto</button>
-
+  <div class="acoes">
+    <button 
+      class="btn btn-success btn-lg w-100" 
+      (click)="marcarComoPronto()"
+      [disabled]="isProcessing">
+      <i class="bi bi-check-circle"></i> 
+      {{ isProcessing ? 'Processando...' : 'Marcar como Pronto' }}
+    </button>
+  </div>
 </div>
 
-<!-- Pedido pronto para entrega -->
-<div class="pedido-pronto" *ngIf="pedidoPronto">
+<!-- ========== PEDIDO PRONTO - Aguardando Entregador ========== -->
+<div class="pedido-card pronto" *ngIf="isPronto()">
   
   <div class="pedido-header">
     <div class="pedido-info">
-      <h3>Pedido #{{ pedido?.id }}</h3>
-      <span class="status pronto">Pronto</span>
+      <h3><i class="bi bi-receipt"></i> Pedido #{{ pedido.idPedido }}</h3>
+      <span class="status" [ngClass]="getStatusClass()">
+        <i class="bi bi-check-circle-fill"></i> {{ getStatusTexto() }}
+      </span>
     </div>
     <div class="pedido-horario">
-      <span>{{ pedido?.hora }}</span>
+      <span><i class="bi bi-clock"></i> {{ formatarHora(pedido.dtCriacao) }}</span>
     </div>
   </div>
 
   <div class="cliente-info">
-    <p><strong>{{ pedido?.cliente }}</strong></p>
-    <p>{{ pedido?.telefone }}</p>
-    <p>{{ pedido?.endereco }}</p>
+    <p><strong>{{ getNomeCliente() }}</strong></p>
+    <p>{{ getEnderecoFormatado() }}</p>
   </div>
 
   <div class="itens-resumo">
-    <img [src]="pedido?.itens[0]?.imagem" [alt]="pedido?.itens[0]?.nome" class="item-thumb">
-    <span class="quantidade-itens">{{ pedido?.itens?.length }}x {{ pedido?.itens[0]?.nome }}</span>
+    <span class="quantidade-itens">
+      {{ pedido.itensPedido.length }}x {{ getNomeProduto(pedido.itensPedido[0]) }}
+    </span>
   </div>
 
   <div class="valores-resumo">
     <div class="linha">
-      <span>Subtotal</span>
-      <span>R$ {{ pedido?.subtotal }}</span>
-    </div>
-    <div class="linha">
-      <span>Taxa de Entrega</span>
-      <span>R$ {{ pedido?.taxaEntrega }}</span>
-    </div>
-    <div class="linha total">
       <span>Total</span>
-      <strong>R$ {{ pedido?.total }}</strong>
+      <strong>R$ {{ pedido.vlTotal | number:'1.2-2' }}</strong>
     </div>
     <div class="linha pagamento">
-      <span>Pagamento: {{ pedido?.pagamento }}</span>
+      <span><i class="bi bi-credit-card"></i> {{ getFormaPagamento() }}</span>
     </div>
   </div>
 
+  <div class="alert alert-info">
+    <i class="bi bi-info-circle"></i> Aguardando entregador retirar o pedido
+  </div>
+</div>
+
+<!-- ========== PEDIDOS EM OUTROS ESTADOS (Visualização) ========== -->
+<div class="pedido-card" *ngIf="isSaiuParaEntrega() || isEntregue() || isCancelado()" [ngClass]="getStatusClass()">
+  
+  <div class="pedido-header">
+    <div class="pedido-info">
+      <h3><i class="bi bi-receipt"></i> Pedido #{{ pedido.idPedido }}</h3>
+      <span class="status" [ngClass]="getStatusClass()">
+        {{ getStatusTexto() }}
+      </span>
+    </div>
+    <div class="pedido-horario">
+      <span><i class="bi bi-clock"></i> {{ formatarHora(pedido.dtCriacao) }}</span>
+    </div>
+  </div>
+
+  <div class="cliente-info">
+    <p><strong>{{ getNomeCliente() }}</strong></p>
+    <p>{{ getEnderecoFormatado() }}</p>
+  </div>
+
+  <div class="valores-resumo">
+    <div class="linha">
+      <span>Total</span>
+      <strong>R$ {{ pedido.vlTotal | number:'1.2-2' }}</strong>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MODAL DE RECUSA ========== -->
+<div class="modal fade show d-block" *ngIf="mostrarModalRecusa" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-x-circle"></i> Recusar Pedido #{{ pedido.idPedido }}
+        </h5>
+        <button type="button" class="btn-close" (click)="fecharModalRecusa()"></button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Motivo da recusa <span class="text-danger">*</span></label>
+          <textarea 
+            class="form-control" 
+            rows="3" 
+            [(ngModel)]="motivoRecusa"
+            placeholder="Ex: Ingredientes em falta, horário de fechamento, etc."
+            [disabled]="isProcessing"></textarea>
+        </div>
+
+        <div class="alert alert-danger" *ngIf="errorMessage">
+          <i class="bi bi-exclamation-triangle"></i> {{ errorMessage }}
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="fecharModalRecusa()" [disabled]="isProcessing">
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-danger" (click)="confirmarRecusa()" [disabled]="isProcessing">
+          <i class="bi bi-x-circle"></i> 
+          {{ isProcessing ? 'Processando...' : 'Confirmar Recusa' }}
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

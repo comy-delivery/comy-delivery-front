@@ -142,7 +142,7 @@ export class ItemCardapio implements OnInit {
 
  
     this.adicionaisSelecionados.forEach((adicional) => {
-      total += Number(adicional.vlPrecoAdicional);
+      total += Number(adicional.vlAdicional);
     });
 
     return total * this.quantidade;

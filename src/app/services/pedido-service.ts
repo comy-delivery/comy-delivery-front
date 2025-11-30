@@ -6,8 +6,8 @@ import { Pedido } from '../Shared/models/Pedido';
 
 
 export interface DashboardRestaurante {
-  totalPedidosHistorico: number;
-  faturamentoDiario: number;
+  data: string;
+  faturamentoTotal: number;
 }
 
 @Injectable({
@@ -59,25 +59,37 @@ export class PedidoService {
 
   // ========== DASHBOARD ==========
 
-  obterDashboard(restauranteId: number): Observable<DashboardRestaurante> {
-    return this.http.get<DashboardRestaurante>(`${this.apiUrl}/restaurante/${restauranteId}/dashboard`);
+  obterDashboard(restauranteId: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/restaurante/${restauranteId}/dashboard`);
   }
 
   // ========== AÇÕES DO PEDIDO ==========
 
-  aceitarPedido(id: number, aceitar: boolean, tempoEstimado?: number): Observable<Pedido> {
+  /**
+   * Aceitar ou recusar pedido
+   * Backend espera: { aceito: boolean, tempoEstimado?: number }
+   */
+  aceitarPedido(id: number, aceito: boolean, tempoEstimado?: number): Observable<Pedido> {
     return this.http.patch<Pedido>(`${this.apiUrl}/${id}/aceitar`, {
-      aceito: aceitar,
+      aceito: aceito,
       tempoEstimado: tempoEstimado
     });
   }
 
+  /**
+   * Recusar pedido com motivo
+   * Backend espera: query param "motivo"
+   */
   recusarPedido(id: number, motivo: string): Observable<Pedido> {
     return this.http.patch<Pedido>(`${this.apiUrl}/${id}/recusar`, null, {
       params: { motivo }
     });
   }
 
+  /**
+   * Atualizar status do pedido
+   * Backend espera: query param "status" do tipo StatusPedido (enum)
+   */
   atualizarStatus(id: number, status: string): Observable<Pedido> {
     return this.http.patch<Pedido>(`${this.apiUrl}/${id}/status`, null, {
       params: { status }

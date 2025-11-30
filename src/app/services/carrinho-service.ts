@@ -26,14 +26,15 @@ export class CarrinhoService {
       if (item.produto.idProduto !== novoItem.produto.idProduto) return false;
       if ((item.dsObservacao || '').trim() !== (novoItem.dsObservacao || '').trim()) return false;
 
+      // CORRIGIDO: Adiciona verificação de undefined para adicionais
       const idsAntigos = item.adicionais
-        .map((a) => a.idAdicional)
+        ?.map((a) => a.idAdicional)
         .sort()
-        .toString();
+        .toString() || '';
       const idsNovos = novoItem.adicionais
-        .map((a) => a.idAdicional)
+        ?.map((a) => a.idAdicional)
         .sort()
-        .toString();
+        .toString() || '';
 
       return idsAntigos === idsNovos;
     });
@@ -80,7 +81,7 @@ export class CarrinhoService {
 
   // --- MÉTODOS PRIVADOS (AUXILIARES) ---
 
-  // Centraliza a atualização para garantir que memória e storage andem juntos
+  // Centraliza a atualização para garantir que memória e storage andam juntos
   private atualizarEstado(novaLista: ItemPedido[]) {
     this.itensSource.next(novaLista); // Avisa os componentes
     localStorage.setItem(this.storageKey, JSON.stringify(novaLista)); // Salva no navegador
