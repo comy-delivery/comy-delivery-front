@@ -34,7 +34,7 @@ export class PainelEntregador implements OnInit {
 
         let somaGanho = 0;
         entregas.forEach((e: any) => {
-          // CORREÇÃO: Prioriza 'valorEntrega' conforme o JSON do backend
+          
           const ganho = parseFloat((e.valorEntrega ?? e.ganho ?? e.valor ?? 0) as any) || 0;
           somaGanho += ganho;
         });
@@ -50,7 +50,7 @@ export class PainelEntregador implements OnInit {
       this.entregaService.obterDashboardEntregador(userId).subscribe({
         next: (dashboard) => {
           if (dashboard) {
-             this.totalPedidosAtribuidos = dashboard.totalEntregas || dashboard.qtdEntregas || 0;
+             this.totalPedidosAtribuidos = dashboard.quantidadeTotalEntregas || 0;
           }
         },
         error: (err) => {

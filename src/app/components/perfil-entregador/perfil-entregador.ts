@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-perfil-entregador',
-  imports: [EntregaDisponivel, PainelEntregador, FormsModule, CommonModule],
+  imports: [ FormsModule, CommonModule],
   templateUrl: './perfil-entregador.html',
   styleUrl: './perfil-entregador.scss',
 })
@@ -21,6 +21,11 @@ export class PerfilEntregador implements OnInit {
   private authService = inject(AuthService);
 
   entregador: Entregador | null = null;
+
+  // Controle de Edição
+  mostrarModalEdicao: boolean = false;
+  entregadorEdit: any = {};
+  isSaving: boolean = false;
   
   // Stats
   totalEntregas: number = 0;
@@ -43,6 +48,9 @@ export class PerfilEntregador implements OnInit {
       this.entregadorService.buscarPorId(userId).subscribe({
         next: (dados) => {
           this.entregador = dados;
+
+          this.entregadorEdit = { ...dados };
+
           if (dados.avaliacaoMediaEntregador) {
             this.avaliacaoMedia = dados.avaliacaoMediaEntregador;
           }
@@ -56,19 +64,63 @@ export class PerfilEntregador implements OnInit {
 
       // 2. Carregar estatísticas do dashboard
       this.entregaService.obterDashboardEntregador(userId).subscribe({
-        next: (dashboard) => {
+        next: (dashboard: any) => {
+          console.log('📊 Dashboard recebido:', dashboard);
           if (dashboard) {
-            this.totalEntregas = dashboard.totalEntregas || 0;
-            this.ganhosTotais = dashboard.ganhos || dashboard.faturamentoTotal || 0;
-            // Se o dashboard retornar avaliação, atualize aqui também
-            if (dashboard.avaliacaoMedia) {
-                this.avaliacaoMedia = dashboard.avaliacaoMedia;
-            }
+            // Mapeamento corrigido conforme o JSON fornecido
+            this.totalEntregas = dashboard.quantidadeTotalEntregas || 0;
+            this.ganhosTotais = dashboard.valorTotalRecebido || 0;
           }
         },
-        error: (err) => console.error('Erro ao carregar dashboard no perfil:', err)
-      });
+        error: (err) => {
+           console.warn('⚠️ Dashboard indisponível, calculando manualmente...', err);
+           // Fallback: Busca lista de entregas realizadas para somar
+           this.entregaService.buscarEntregasRealizadas().subscribe({
+             next: (lista: any[]) => {
+               if (lista) {
+                 this.totalEntregas = lista.length;
+                 this.ganhosTotais = lista.reduce((acc, curr) => acc + (curr.valorEntrega || curr.valor || 0), 0);
+               }
+             }
+           });}});
     }
+  }
+
+  // --- Edição ---
+
+  abrirModalEdicao() {
+    this.mostrarModalEdicao = true;
+    // Recarrega o objeto editável com os dados atuais para garantir
+    if (this.entregador) {
+      this.entregadorEdit = { ...this.entregador };
+    }
+  }
+
+  fecharModalEdicao() {
+    this.mostrarModalEdicao = false;
+  }
+
+  salvarEdicao() {
+    const userId = this.authService.getUserId();
+    if (!userId) return;
+
+    this.isSaving = true;
+
+    // Chama endpoint de atualização
+    this.entregadorService.atualizar(userId, this.entregadorEdit).subscribe({
+      next: (dadosAtualizados) => {
+        console.log('✅ Perfil atualizado:', dadosAtualizados);
+        this.entregador = dadosAtualizados; // Atualiza a view
+        this.isSaving = false;
+        this.fecharModalEdicao();
+        alert('Perfil atualizado com sucesso!');
+      },
+      error: (err) => {
+        console.error('❌ Erro ao atualizar perfil:', err);
+        this.isSaving = false;
+        alert('Erro ao atualizar perfil. Verifique os dados.');
+      }
+    });
   }
 
   logout() {

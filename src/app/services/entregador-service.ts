@@ -18,5 +18,9 @@ export class EntregadorService {
   atribuirEntrega(idEntregador: number, idEntrega: number): Observable<any> {
     return this.http.patch<any>(`${this.apiUrl}/${idEntregador}/atribuir/${idEntrega}`, {});
   }
+
+  atualizar(id: number, dados: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${id}`, dados);
+  }
   
 }

@@ -45,7 +45,7 @@
 
   <div class="container d-flex align-items-center justify-content-between py-3">
     Minhas informaçoes
-    <button class="btn btn-outline-primary d-flex align-items-center gap-2">
+    <button class="btn btn-outline-primary d-flex align-items-center gap-2" (click)="abrirModalEdicao()">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="18"
@@ -327,5 +327,61 @@
 
 
   }
+  @if(mostrarModalEdicao) {
+    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Editar Perfil</h5>
+            <button type="button" class="btn-close" (click)="fecharModalEdicao()"></button>
+          </div>
+          <div class="modal-body">
+            <form (ngSubmit)="salvarEdicao()">
+              
+              <div class="mb-3">
+                <label class="form-label">Nome Completo</label>
+                <input class="form-control" [(ngModel)]="entregadorEdit.nmEntregador" name="nmEntregador" required>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Telefone</label>
+                <input class="form-control" [(ngModel)]="entregadorEdit.telefoneEntregador" name="telefoneEntregador">
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">CPF (Não editável)</label>
+                <input class="form-control bg-light" [value]="entregadorEdit.cpfEntregador" readonly disabled>
+              </div>
+
+              <div class="row g-2">
+                <div class="col-6">
+                   <label class="form-label">Veículo</label>
+                   <select class="form-select" [(ngModel)]="entregadorEdit.veiculo" name="veiculo">
+                     <option value="MOTO">Moto</option>
+                     <option value="CARRO">Carro</option>
+                     <option value="BICICLETA">Bicicleta</option>
+                   </select>
+                </div>
+                <div class="col-6">
+                  <label class="form-label">Placa</label>
+                  <input class="form-control" [(ngModel)]="entregadorEdit.placa" name="placa">
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end gap-2 mt-4">
+                <button type="button" class="btn btn-secondary" (click)="fecharModalEdicao()">Cancelar</button>
+                <button type="submit" class="btn btn-primary" [disabled]="isSaving">
+                  @if(isSaving) { <span class="spinner-border spinner-border-sm me-2"></span> }
+                  Salvar
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
   </div>
   
