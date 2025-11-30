@@ -16,6 +16,9 @@
 	<div class="card p-3 shadow rounded-4">
 		<div class="d-flex justify-content-between align-items-center mb-3">
 			<h4 class="mb-0">Painel Admin — Cadastrar Restaurante</h4>
+			<button class="btn btn-outline-primary" routerLink="/admin/restaurantes">
+				<i class="bi bi-list-ul me-2"></i>Ver Restaurantes Cadastrados
+			</button>
 		</div>
 
 		<form (ngSubmit)="cadastrar()">
@@ -147,7 +150,11 @@
 
 				<div class="col-md-4">
 					<label class="form-label">Tipo de endereço</label>
-					<input class="form-control" [(ngModel)]="restaurante.enderecos[0].tipoEndereco" name="tipoEndereco" placeholder="RESIDENCIAL / COMERCIAL" />
+					<select class="form-select" [(ngModel)]="restaurante.enderecos[0].tipoEndereco" name="tipoEndereco" required>
+						<option value="">Selecione o tipo</option>
+						<option value="MATRIZ">Matriz</option>
+						<option value="FILIAL">Filial</option>
+					</select>
 				</div>
 
 				<div class="col-md-6">
@@ -172,4 +179,3 @@
 	</div>
 
 </div>
-

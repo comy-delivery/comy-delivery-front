@@ -148,6 +148,20 @@ export class RestauranteService {
     return this.http.patch<void>(`${this.apiUrl}/status/abrir-todos`, {});
   }
 
+    /**
+   * Lista todos os restaurantes ativos
+   */
+  listarAtivos(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/ativos`);
+  }
+
+  /**
+   * Exclui (inativa) um restaurante pelo ID
+   */
+  excluirRestaurante(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
   // ========== RECUPERAÇÃO DE SENHA ==========
 
   iniciarRecuperacaoSenha(email: string): Observable<any> {

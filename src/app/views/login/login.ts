@@ -97,6 +97,6 @@ export class Login {
   }
 
   loginWithGoogle(): void {
-    window.location.href = `${this.API_URL_BASE}/oauth2/authorization/google`;
-  }
+  window.location.href = 'http://localhost:8084/oauth2/authorization/google';
+}
 }

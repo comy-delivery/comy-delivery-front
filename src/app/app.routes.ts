@@ -17,6 +17,7 @@ import { HomeRestauranteComponent } from './components/home-restaurante/home-res
 import { PainelEntregador } from './components/painel-entregador/painel-entregador';
 import { PerfilEntregador } from './components/perfil-entregador/perfil-entregador';
 import { PerfilRestaurante } from './components/perfil-restaurante/perfil-restaurante';
+import { ListagemRestaurantesComponent } from './components/listagem-restaurantes/listagem-restaurantes';
 
 export const routes: Routes = [
   // ========== ROTAS PÚBLICAS ==========
@@ -101,6 +102,12 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: PainelAdmin,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['ADMIN'] },
+  },
+  {
+    path: 'admin/restaurantes',
+    component: ListagemRestaurantesComponent,
     canActivate: [authGuard, roleGuard],
     data: { roles: ['ADMIN'] },
   },
