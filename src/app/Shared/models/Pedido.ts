@@ -9,28 +9,28 @@ import { StatusPedido } from './StatusPedido';
 import { FormaPagamento } from './FormaPagamento';
 
 export interface Pedido {
-  idPedido?: number; // Opcional na criação
+  idPedido?: number;
 
   // Relacionamentos
   cliente: Cliente;
   restaurante: Restaurante;
   enderecoEntrega: Endereco;
   enderecoOrigem: Endereco;
-  cupom?: Cupom; // Pode ser nulo
+  cupom?: Cupom;
   itensPedido: ItemPedido[];
 
-  // Datas (LocalDateTime vira string no JSON)
+  // Datas
   dtCriacao?: string;
   dtAtualizacao?: string;
 
-  // Valores (BigDecimal vira number)
+  // Valores
   vlSubtotal: number;
   vlEntrega: number;
   vlDesconto: number;
   vlTotal: number;
 
   // Enums
-  status: StatusPedido | string; // string permite flexibilidade caso o enum mude
+  status: StatusPedido | string;
   formaPagamento: FormaPagamento | string;
 
   tempoEstimadoEntrega?: number;

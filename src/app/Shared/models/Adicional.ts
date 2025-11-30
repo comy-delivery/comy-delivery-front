@@ -1,11 +1,7 @@
-import { Produto } from './Produto';
-
 export interface Adicional {
   idAdicional: number;
   nmAdicional: string;
+  vlAdicional: number;
   dsAdicional?: string;
-  vlPrecoAdicional: number;
-  isDisponivel: boolean;
-
-  produto?: Produto;
+  isDisponivel?: boolean; 
 }

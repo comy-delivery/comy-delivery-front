@@ -69,7 +69,7 @@ export class Carrinho implements OnInit, OnDestroy {
     }
   }
 
-calcularFrete() {
+  calcularFrete() {
     // Se o carrinho estiver vazio, zera o frete
     if (this.itemsCarrinho.length === 0) {
       this.taxaEntrega = 0;
@@ -77,7 +77,8 @@ calcularFrete() {
     }
 
     const userId = this.authService.getUserId();
-    const restauranteId = this.itemsCarrinho[0].produto.restaurante?.id;
+    // CORRIGIDO: Cast para any para acessar restaurante
+    const restauranteId = (this.itemsCarrinho[0].produto as any).restaurante?.id;
 
     if (userId && restauranteId) {
       this.clienteService.listarRestaurantesProximos(userId).subscribe({
@@ -97,18 +98,12 @@ calcularFrete() {
     this.msgCupom = '';
     this.erroCupom = false;
 
-    if (!this.codigoCupom || this.codigoCupom.trim() === '') {
-      this.msgCupom = 'Digite um código de cupom.';
-      this.erroCupom = true;
-
-      const codigoLimpo = this.codigoCupom.trim();
+    const codigoLimpo = this.codigoCupom.trim();
 
     if (!codigoLimpo) {
       this.msgCupom = 'Digite um código de cupom.';
       this.erroCupom = true;
       return;
-    }
-     
     }
 
     const valorPedido = this.subtotal;
@@ -195,8 +190,8 @@ calcularFrete() {
     
     this.isFinalizando = true;
     const userId = this.authService.getUserId();
-    // Pega o ID do restaurante do primeiro item (assume que carrinho é de um único restaurante)
-    const restauranteId = this.itemsCarrinho[0].produto.restaurante?.id;
+    // CORRIGIDO: Cast para any para acessar restaurante
+    const restauranteId = (this.itemsCarrinho[0].produto as any).restaurante?.id;
 
     if (!userId || !restauranteId) {
       alert('Erro ao identificar usuário ou restaurante.');

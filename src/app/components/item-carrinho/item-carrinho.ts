@@ -58,12 +58,11 @@ export class ItemCarrinho implements OnInit {
   private recalcularTotal() {
     // Preço do Produto
     const precoProduto = Number(this.item.vlPrecoUnitario);
-
-    // Soma dos Adicionais
-    const precoAdicionais = this.item.adicionais.reduce(
-      (acc, ad) => acc + Number(ad.vlPrecoAdicional),
+    
+    const precoAdicionais = this.item.adicionais?.reduce(
+      (acc, ad) => acc + Number(ad.vlAdicional),
       0
-    );
+    ) || 0;
 
     // Atualiza o subtotal do item: (Produto + Adicionais) * Quantidade
     this.item.vlSubtotal = (precoProduto + precoAdicionais) * this.item.qtQuantidade;

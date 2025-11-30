@@ -1,7 +1,3 @@
-import { TipoEndereco } from './TipoEndereco';
-import { Cliente } from './Cliente';
-import { Restaurante } from './Restaurante';
-
 export interface Endereco {
   idEndereco?: number;
   logradouro: string;
@@ -11,14 +7,9 @@ export interface Endereco {
   cidade: string;
   cep: string;
   estado?: string;
-  tipoEndereco?: TipoEndereco;
+  tipoEndereco?: string;
   pontoDeReferencia?: string;
-  isPadrao: boolean;
+  isPadrao?: boolean;
   latitude?: number;
   longitude?: number;
-
-  // Relacionamentos
-
-  cliente?: Cliente;
-  restaurante?: Restaurante;
 }
