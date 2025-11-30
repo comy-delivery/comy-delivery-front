@@ -1,20 +1,18 @@
 import { Restaurante } from './Restaurante';
-import { Adicional } from './Adicional'; 
 
 export interface Produto {
   idProduto: number;
   nmProduto: string;
   dsProduto: string;
   vlPreco: number;
-  imagemProduto?: string; // byte[] no Java vira string Base64 no JSON
-
-  restaurante?: Restaurante; // Relacionamento
-
+  restauranteId: number; 
   categoriaProduto: string;
   tempoPreparacao?: number;
   isPromocao: boolean;
   vlPrecoPromocional?: number;
   isAtivo: boolean;
-  dataCadastroProduto?: string;
-   adicionais?: Adicional[];
+  dataCadastro?: string;
+  
+  restaurante?: { id: number }; // Para o carrinho
+  adicionais?: any[]; // Opcional - será buscado separadamente
 }

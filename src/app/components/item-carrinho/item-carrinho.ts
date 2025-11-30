@@ -60,7 +60,7 @@ export class ItemCarrinho implements OnInit {
     const precoProduto = Number(this.item.vlPrecoUnitario);
     
     const precoAdicionais = this.item.adicionais?.reduce(
-      (acc, ad) => acc + Number(ad.vlAdicional),
+      (acc, ad) => acc + Number(ad.vlPrecoAdicional),
       0
     ) || 0;
 

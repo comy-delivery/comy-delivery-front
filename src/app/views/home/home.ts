@@ -179,29 +179,28 @@ export class Home implements OnInit {
     this.restaurantesData = lista;
   }
 
-  private carregarRestaurantesProximos(id: number) {
+private carregarRestaurantesProximos(id: number) {
     this.clienteService.listarRestaurantesProximos(id).subscribe({
       next: (response) => {
-        // Normaliza cada item para a estrutura usada pelo restante do componente
-        const normalized = response.map((r: any) => ({
-          restaurante: r,
-          distanciaKm: r.distanciaKm ?? null,
-          mediaPrecoProdutos: r.mediaPrecoProdutos ?? null,
-          valorFreteEstimado: r.valorFreteEstimado ?? null,
-          tempoEstimadoEntrega: r.tempoEstimadoEntrega ?? r.tempoMediaEntrega ?? null,
-        }));
-
-        this.todosRestaurantesData = normalized; // Guarda backup
-        this.restaurantesData = normalized; // Mostra inicial
-        this.aplicarFiltros(); // Aplica filtros se já houver algum selecionado
+        console.log('📦 Response do backend:', response);
+        
+        // CORRIGIDO: O backend já retorna a estrutura correta:
+        // { restaurante: {...}, distanciaKm: ..., mediaPrecoProdutos: ..., etc }
+        // Não precisa normalizar nada!
+        this.todosRestaurantesData = response;
+        this.restaurantesData = response;
+        
+        console.log('🏪 Primeiro restaurante:', response[0]?.restaurante);
+        console.log('🏪 ID do primeiro:', response[0]?.restaurante?.id);
+        
+        this.aplicarFiltros();
       },
       error: (err) => {
-        console.error('Erro ao buscar restaurantes próximos:', err);
+        console.error('❌ Erro ao buscar restaurantes próximos:', err);
         this.carregarRestaurantesPadrao();
       },
     });
   }
-
   private carregarRestaurantesPadrao() {
     this.restauranteService.buscarRestaurantes().subscribe({
       next: (response) => {

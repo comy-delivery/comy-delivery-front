@@ -54,40 +54,53 @@ export class Cardapio implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     const idUrl = this.route.snapshot.paramMap.get('id');
+    
+    console.log('🔍 DEBUG - idUrl:', idUrl);
+    console.log('🔍 DEBUG - idRestaurante antes:', this.idRestaurante);
 
+    // CORRIGIDO: Subscribe ANTES de usar
     this.searchSubscription = this.searchService.search$.subscribe((termo) => {
-      this.termoBusca = termo; // Salva o termo
-      this.filtrarProdutos(termo); // Tenta filtrar (se já tiver produtos)
+      this.termoBusca = termo;
+      // Só filtra se JÁ tiver produtos carregados
+      if (this.todosProdutos && this.todosProdutos.length > 0) {
+        this.filtrarProdutos(termo);
+      }
     });
 
     if (idUrl) {
       this.idRestaurante = Number(idUrl);
+      console.log('✅ ID do restaurante definido:', this.idRestaurante);
 
-      // Carregar dados do restaurante
-        this.restauranteService.buscarRestaurantePorId(this.idRestaurante).subscribe({
+      // 1. Carregar dados do restaurante
+      this.restauranteService.buscarRestaurantePorId(this.idRestaurante).subscribe({
         next: (restaurante) => {
           this.Restaurante = restaurante;
           this.nota = restaurante.avaliacaoMediaRestaurante;
         },
-        error: (erro) => console.error(erro),
+        error: (erro) => console.error('❌ Erro ao carregar restaurante:', erro),
       });
 
-      // Carregar produtos do restaurante
-      this.produtoService.buscarProdutos(this.idRestaurante).subscribe({
+      // 2. Carregar produtos do restaurante
+      this.produtoService.listarPorRestaurante(this.idRestaurante).subscribe({
         next: (response) => {
+          console.log('✅ Produtos recebidos do backend:', response);
+          
           this.todosProdutos = response.map(prod => {
-        
+            // Garante que o produto tenha o restaurante setado (para o carrinho)
             if (!prod.restaurante) {
               prod.restaurante = { id: this.idRestaurante } as any; 
-            
             }
             return prod;
           });
-          // ---------------------
 
+          console.log('📦 Total de produtos carregados:', this.todosProdutos.length);
+          
+          // AGORA SIM filtra e organiza o cardápio
           this.filtrarProdutos(this.termoBusca);    
         },
-        error: (erro) => console.error(erro),
+        error: (erro) => {
+          console.error('❌ Erro ao carregar produtos:', erro);
+        },
       });
 
       // 3. Carrega dados calculados (Distância, Frete, Tempo real)
@@ -106,13 +119,18 @@ export class Cardapio implements OnInit, OnDestroy {
   }
 
   filtrarProdutos(termo: string) {
-    if (!this.todosProdutos || this.todosProdutos.length === 0) return;
+    // CORRIGIDO: Verifica primeiro se tem produtos
+    if (!this.todosProdutos || this.todosProdutos.length === 0) {
+      console.log('⚠️ Nenhum produto para filtrar ainda');
+      return;
+    }
 
-    if (!termo) {
-      
+    if (!termo || termo.trim() === '') {
+      // Sem termo de busca = mostra todos
       this.produtos = [...this.todosProdutos];
+      console.log('📋 Mostrando todos os produtos:', this.produtos.length);
     } else {
-    
+      // Com termo de busca = filtra
       const t = termo.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, "");
       
       this.produtos = this.todosProdutos.filter(p => {
@@ -121,7 +139,10 @@ export class Cardapio implements OnInit, OnDestroy {
         
         return nome.includes(t) || desc.includes(t);
       });
+      
+      console.log(`🔍 Produtos filtrados por "${termo}":`, this.produtos.length);
     }
+    
     // Reorganiza a visualização com os produtos filtrados
     this.organizarCardapio();
   }
@@ -148,7 +169,7 @@ export class Cardapio implements OnInit, OnDestroy {
             }
           }
         },
-        error: (err) => console.error('Erro ao buscar dados calculados:', err)
+        error: (err) => console.error('⚠️ Erro ao buscar dados calculados:', err)
       });
     }
   }
@@ -159,7 +180,7 @@ export class Cardapio implements OnInit, OnDestroy {
       next: (blob) => {
         this.logoUrl = URL.createObjectURL(blob);
       },
-      error: (erro) => console.error(erro),
+      error: (erro) => console.error('⚠️ Erro ao carregar logo:', erro),
     });
   }
 
@@ -168,7 +189,7 @@ export class Cardapio implements OnInit, OnDestroy {
       next: (blob) => {
         this.bannerUrl = URL.createObjectURL(blob);
       },
-      error: (erro) => console.error(erro),
+      error: (erro) => console.error('⚠️ Erro ao carregar banner:', erro),
     });
   }
 
@@ -188,5 +209,7 @@ export class Cardapio implements OnInit, OnDestroy {
       nome,
       items: grupos[nome],
     }));
+    
+    console.log('📋 Cardápio organizado:', this.cardapioAgrupado.length, 'categorias');
   }
 }

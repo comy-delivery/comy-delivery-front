@@ -10,7 +10,8 @@
 <div class="container">
   <p class="text-secondary mb-0 mt-4">Restaurantes</p>
   <div class="row">
-   @for (item of restaurantesData; track item.restaurante.id){
+   <!-- CORRIGIDO: track com verificação e fallback para index -->
+   @for (item of restaurantesData; track item?.restaurante?.id || $index){
 
     <div class="col-12 col-lg-4 col-md-6 col-sm-12">
       <app-card-restaurante 

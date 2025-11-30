@@ -26,27 +26,34 @@ export class CardRestaurante implements OnInit {
 
 
   ngOnInit(): void {
-    this.carregarLogo(this.Restaurante.id!);
-    this.carregarBanner(this.Restaurante.id!);
+    console.log('🏪 Card Restaurante - ID:', this.Restaurante.id);
+    console.log('🏪 Card Restaurante - Nome:', this.Restaurante.nmRestaurante);
+    
+    if (this.Restaurante.id) {
+      this.carregarLogo(this.Restaurante.id);
+      this.carregarBanner(this.Restaurante.id);
+    } else {
+      console.error('❌ Restaurante sem ID!', this.Restaurante);
+    }
   }
   
 
 
   carregarLogo(id: number) {
-    this.restauranteService.restauranteLogo(this.Restaurante.id!).subscribe({
+    this.restauranteService.restauranteLogo(id).subscribe({
       next: (blob) => {
         this.logoUrl = URL.createObjectURL(blob);
       },
-      error: (erro) => console.error(erro),
+      error: (erro) => console.error('❌ Erro ao carregar logo:', erro),
     });
   }
 
   carregarBanner(id: number) {
-    this.restauranteService.restauranteBanner(this.Restaurante.id!).subscribe({
+    this.restauranteService.restauranteBanner(id).subscribe({
       next: (blob) => {
         this.bannerUrl = URL.createObjectURL(blob);
       },
-      error: (erro) => console.error(erro),
+      error: (erro) => console.error('❌ Erro ao carregar banner:', erro),
     });
   }
 

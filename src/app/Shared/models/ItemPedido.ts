@@ -1,3 +1,5 @@
+import { Adicional } from './Adicional';
+
 export interface ItemPedido {
   idItemPedido?: number;
   produto: {
@@ -8,5 +10,5 @@ export interface ItemPedido {
   vlPrecoUnitario: number;
   vlSubtotal: number;
   dsObservacao?: string;
-  adicionais?: any[];
+  adicionais?: Adicional[];
 }

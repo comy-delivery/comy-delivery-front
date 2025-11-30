@@ -1,7 +1,7 @@
 export interface Adicional {
   idAdicional: number;
   nmAdicional: string;
-  vlAdicional: number;
   dsAdicional?: string;
-  isDisponivel?: boolean; 
+  vlPrecoAdicional: number; 
+  isDisponivel: boolean;
 }
