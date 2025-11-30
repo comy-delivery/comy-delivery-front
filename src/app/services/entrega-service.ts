@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 })
 export class EntregaService {
   private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/entrega/entregador`;
+  private apiUrl = `${environment.apiUrl}/entrega`;
 
   buscarPorPedido(idPedido: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/pedido/${idPedido}`);
