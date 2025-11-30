@@ -1,5 +1,12 @@
 <div class="min-vh-100 pb-5">
-  <div class="bg-primary text-white">
+  @if (isLoading) {
+    <div class="text-center p-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Carregando...</span>
+      </div>
+    </div>
+  } @else {
+    <div class="bg-primary text-white">
     <div class="container py-4">
       <div class="d-flex align-items-center gap-3">
         <div
@@ -10,7 +17,7 @@
         </div>
 
         <div>
-          <h1 class="h5 mb-0">João da Silva</h1>
+          <h1 class="h5 mb-0">{{ entregador?.nmEntregador || 'Entregador' }}</h1>
           <p class="mb-1 text-white-50">Entregador Comy</p>
 
           <div class="mt-2 d-flex gap-2 align-items-center">
@@ -27,9 +34,9 @@
                   d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"
                 />
               </svg>
-              4.8
+             {{ avaliacaoMedia | number:'1.1-1' }}
             </span>
-            <span class="badge bg-white bg-opacity-25">234 entregas </span>
+            <span class="badge bg-white bg-opacity-25">>{{ totalEntregas }} entregas </span>
           </div>
         </div>
       </div>
@@ -65,7 +72,7 @@
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <small class="text-muted">Total de Entregas</small>
-              <div class="h4 mb-0">234</div>
+              <div class="h4 mb-0">{{totalEntregas }}</div>
             </div>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -88,7 +95,7 @@
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <small class="text-muted">Avaliação</small>
-              <div class="h4 mb-0">4.8</div>
+              <div class="h4 mb-0">{{ avaliacaoMedia | number:'1.1-1' }}</div>
             </div>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -111,7 +118,7 @@
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <small class="text-muted">Ganhos Totais</small>
-              <div class="h4 mb-0">R$ 4.280,50</div>
+              <div class="h4 mb-0">R$ {{ ganhosTotais | number:'1.2-2' }}</div>
             </div>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -156,22 +163,22 @@
       <div class="row g-3">
         <div class="col-md-6">
           <label class="form-label">Nome Completo</label>
-          <input class="form-control" value="João da Silva" readonly />
+          <input class="form-control" [value]="entregador?.nmEntregador || ''" readonly/>
         </div>
 
         <div class="col-md-6">
           <label class="form-label">CPF</label>
-          <input class="form-control" value="123.456.789-00" readonly />
+          <input class="form-control" [value]="entregador?.cpfEntregador || ''" readonly />
         </div>
 
         <div class="col-md-6">
           <label class="form-label">Telefone</label>
-          <input class="form-control" value="(11) 98765-4321" readonly />
+          <input class="form-control" [value]="entregador?.telefoneEntregador || '-'" readonly />
         </div>
 
         <div class="col-md-6">
           <label class="form-label">E-mail</label>
-          <input class="form-control" value="joao@email.com" readonly />
+          <input class="form-control" [value]="entregador?.emailEntregador || ''" readonly />
         </div>
       </div>
     </div>
@@ -201,17 +208,17 @@
       <div class="row g-3">
         <div class="col-md-4">
           <label class="form-label">Tipo de Veículo</label>
-          <input class="form-control" value="Moto" readonly />
+          <input class="form-control" [value]="entregador?.veiculo || '-'" readonly/>
         </div>
 
         <div class="col-md-4">
           <label class="form-label">Placa</label>
-          <input class="form-control" value="ABC-1234" readonly />
+          <input class="form-control" [value]="entregador?.placa || '-'" readonly />
         </div>
 
         <div class="col-md-4">
-          <label class="form-label">Modelo</label>
-          <input class="form-control" value="Honda CG 160" readonly />
+          <label class="form-label">Status</label>
+          <input class="form-control" [value]="entregador?.isDisponivel ? 'Disponível' : 'Indisponível'" readonly />
         </div>
       </div>
     </div>
@@ -265,19 +272,14 @@
       <div class="row g-3">
         <div class="col-md-6">
           <small class="text-muted">Contato</small>
-          <div>(11) 98765-4321</div>
-          <div>joao@email.com</div>
+          <div>{{ entregador?.telefoneEntregador || '-' }}</div>
+          <div>{{ entregador?.emailEntregador }}</div>
         </div>
 
         <div class="col-md-6">
           <small class="text-muted">Veículo</small>
           <div>
-            Moto - ABC-1234
-            <!-- tipo + placa -->
-          </div>
-          <div>
-            Honda CG 160
-            <!-- modelo -->
+            {{ entregador?.veiculo }} - {{ entregador?.placa || 'Sem placa' }}
           </div>
         </div>
       </div>
@@ -299,7 +301,7 @@
           <small class="text-muted">Encerrar a sessão atual</small>
         </div>
         <div class="">
-          <button class="btn btn-danger d-flex align-items-center gap-2">
+          <button class="btn btn-danger d-flex align-items-center gap-2" (click)="logout()">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="20"
@@ -322,4 +324,8 @@
       </div>
     </div>
   </div>
-</div>
+
+
+  }
+  </div>
+  
