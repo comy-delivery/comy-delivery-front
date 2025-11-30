@@ -10,6 +10,7 @@ import { RestauranteService } from '../../services/restaurante-service';
 import { AuthService } from '../../services/auth-service';
 import { DashboardRestaurante, PedidoService } from '../../services/pedido-service';
 import { ProdutoService } from '../../services/produto-service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-perfil-restaurante',
@@ -34,6 +35,12 @@ export class PerfilRestaurante implements OnInit, OnChanges {
   produtos: any[] = [];
   pedidos: Pedido[] = [];
   dashboard: DashboardRestaurante | null = null;
+  dashboardStats = {
+    totalPedidosHistorico: 0,
+    faturamentoDiario: 0,
+    pedidosPendentes: 0,
+    pedidosAceitos: 0
+  };
   
   isLoading: boolean = true;
   errorMessage: string = '';
@@ -95,6 +102,7 @@ export class PerfilRestaurante implements OnInit, OnChanges {
     this.pedidoService.listarPorRestaurante(id).subscribe({
       next: (pedidos) => {
         this.pedidos = pedidos;
+        this.calcularDashboardStats();
         this.isLoading = false;
       },
       error: (err) => {
@@ -104,10 +112,19 @@ export class PerfilRestaurante implements OnInit, OnChanges {
     });
 
     this.pedidoService.obterDashboard(id).subscribe({
-      next: (dashboard) => {
-        this.dashboard = dashboard;
+      next: (dashboard: any) => {
+        console.log('📊 Dashboard recebido:', dashboard);
+        
+        // O backend retorna um array, pega o primeiro item (hoje)
+        if (Array.isArray(dashboard) && dashboard.length > 0) {
+          this.dashboard = dashboard[0];
+          this.dashboardStats.faturamentoDiario = dashboard[0].faturamentoTotal || 0;
+        }
       },
-      error: (err) => console.error('Erro ao carregar dashboard:', err)
+      error: (err) => {
+        console.error('❌ Erro ao carregar dashboard:', err);
+        console.error('❌ URL chamada:', `${environment.apiUrl}/pedido/restaurante/${id}/dashboard`);
+      }
     });
 
     this.carregarLogo(id);
@@ -295,9 +312,12 @@ export class PerfilRestaurante implements OnInit, OnChanges {
       return;
     }
 
+    console.log('🗑️ Iniciando remoção do produto ID:', produtoId);
+    console.log('🗑️ URL que será chamada:', `${environment.apiUrl}/produto/${produtoId}`);
+
     this.restauranteService.deletarProduto(produtoId).subscribe({
       next: () => {
-        console.log('✅ Produto removido do backend, ID:', produtoId);
+        console.log('✅ Produto removido do backend com sucesso, ID:', produtoId);
         // Filtra usando idProduto (não 'id')
         this.produtos = this.produtos.filter((p) => p.idProduto !== produtoId);
         console.log('📦 Produtos restantes:', this.produtos.length);
@@ -305,8 +325,10 @@ export class PerfilRestaurante implements OnInit, OnChanges {
         this.clearMessages();
       },
       error: (err) => {
-        console.error('❌ Erro ao remover produto:', err);
-        this.errorMessage = 'Erro ao remover produto';
+        console.error('❌ Erro ao remover produto do backend:', err);
+        console.error('❌ Status:', err.status);
+        console.error('❌ Mensagem:', err.error);
+        this.errorMessage = `Erro ao remover produto: ${err.error?.message || err.message}`;
       }
     });
   }
@@ -316,5 +338,23 @@ export class PerfilRestaurante implements OnInit, OnChanges {
       this.successMessage = '';
       this.errorMessage = '';
     }, 3000);
+  }
+
+  /**
+   * Calcula estatísticas do dashboard baseado nos pedidos carregados
+   */
+  private calcularDashboardStats(): void {
+    if (!this.pedidos || this.pedidos.length === 0) {
+      return;
+    }
+
+    // Total de pedidos (histórico completo)
+    this.dashboardStats.totalPedidosHistorico = this.pedidos.length;
+
+    // Pedidos pendentes e aceitos
+    this.dashboardStats.pedidosPendentes = this.pedidos.filter(p => p.status === 'PENDENTE').length;
+    this.dashboardStats.pedidosAceitos = this.pedidos.filter(p => p.status === 'ACEITO').length;
+
+    console.log('📊 Dashboard Stats calculados:', this.dashboardStats);
   }
 }

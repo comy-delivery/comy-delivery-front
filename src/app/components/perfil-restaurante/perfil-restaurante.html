@@ -69,49 +69,47 @@
     </div>
 
     <!-- ========== DASHBOARD CARDS ========== -->
-    @if(dashboard) {
-      <div class="row g-3 mb-4">
-        <div class="col-md-3">
-          <div class="card shadow-sm">
-            <div class="card-body text-center">
-              <i class="bi bi-box-seam text-primary" style="font-size: 2.5rem;"></i>
-              <h6 class="mt-2 text-muted">Total de Pedidos</h6>
-              <h3 class="mb-0">{{ dashboard.totalPedidosHistorico }}</h3>
-            </div>
-          </div>
-        </div>
-        
-        <div class="col-md-3">
-          <div class="card shadow-sm">
-            <div class="card-body text-center">
-              <i class="bi bi-currency-dollar text-success" style="font-size: 2.5rem;"></i>
-              <h6 class="mt-2 text-muted">Faturamento Hoje</h6>
-              <h3 class="mb-0">R$ {{ dashboard.faturamentoDiario | number:'1.2-2' }}</h3>
-            </div>
-          </div>
-        </div>
-        
-        <div class="col-md-3">
-          <div class="card shadow-sm">
-            <div class="card-body text-center">
-              <i class="bi bi-hourglass-split text-warning" style="font-size: 2.5rem;"></i>
-              <h6 class="mt-2 text-muted">Pedidos Pendentes</h6>
-              <h3 class="mb-0">{{ getCountByStatus('PENDENTE') }}</h3>
-            </div>
-          </div>
-        </div>
-        
-        <div class="col-md-3">
-          <div class="card shadow-sm">
-            <div class="card-body text-center">
-              <i class="bi bi-check-circle text-info" style="font-size: 2.5rem;"></i>
-              <h6 class="mt-2 text-muted">Pedidos Aceitos</h6>
-              <h3 class="mb-0">{{ getCountByStatus('ACEITO') }}</h3>
-            </div>
+    <div class="row g-3 mb-4">
+      <div class="col-md-3">
+        <div class="card shadow-sm">
+          <div class="card-body text-center">
+            <i class="bi bi-box-seam text-primary" style="font-size: 2.5rem;"></i>
+            <h6 class="mt-2 text-muted">Total de Pedidos</h6>
+            <h3 class="mb-0">{{ dashboardStats.totalPedidosHistorico }}</h3>
           </div>
         </div>
       </div>
-    }
+      
+      <div class="col-md-3">
+        <div class="card shadow-sm">
+          <div class="card-body text-center">
+            <i class="bi bi-currency-dollar text-success" style="font-size: 2.5rem;"></i>
+            <h6 class="mt-2 text-muted">Faturamento Hoje</h6>
+            <h3 class="mb-0">R$ {{ dashboardStats.faturamentoDiario | number:'1.2-2' }}</h3>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="card shadow-sm">
+          <div class="card-body text-center">
+            <i class="bi bi-hourglass-split text-warning" style="font-size: 2.5rem;"></i>
+            <h6 class="mt-2 text-muted">Pedidos Pendentes</h6>
+            <h3 class="mb-0">{{ dashboardStats.pedidosPendentes }}</h3>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-md-3">
+        <div class="card shadow-sm">
+          <div class="card-body text-center">
+            <i class="bi bi-check-circle text-info" style="font-size: 2.5rem;"></i>
+            <h6 class="mt-2 text-muted">Pedidos Aceitos</h6>
+            <h3 class="mb-0">{{ dashboardStats.pedidosAceitos }}</h3>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <!-- ========== TABS DE NAVEGAÇÃO ========== -->
     <ul class="nav nav-tabs mb-4">
@@ -170,7 +168,7 @@
           </div>
         } @else {
           <div class="row g-3">
-            @for(produto of produtos; track produto.id) {
+            @for(produto of produtos; track produto.idProduto) {
               <div class="col-md-6 col-lg-4">
                 <app-produto-restaurante 
                   [produto]="produto"
