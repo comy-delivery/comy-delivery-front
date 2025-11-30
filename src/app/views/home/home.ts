@@ -10,11 +10,20 @@ import { BuscaService } from '../../services/busca-service';
 import { CommonModule } from '@angular/common';
 import { ClienteService } from '../../services/cliente-service';
 import { AuthService } from '../../services/auth-service';
+import { PainelEntregador } from '../../components/painel-entregador/painel-entregador';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [Categoria, CardRestaurante, Banner, Filtros, PerfilRestaurante, CommonModule],
+  imports: [
+    Categoria,
+    CardRestaurante,
+    Banner,
+    Filtros,
+    PerfilRestaurante,
+    CommonModule,
+    PainelEntregador,
+  ],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
@@ -57,6 +66,8 @@ export class Home implements OnInit {
       // Se for cliente logado, busca com distâncias e preços calculados
       this.tipo = 'Cliente';
       this.carregarRestaurantesProximos(this.userId);
+    } else if (this.userRole === 'ENTREGADOR') {
+      this.tipo = 'Entregador';
     } else {
       // Fallback para visitante (sem ID)
       this.tipo = 'Cliente';
@@ -86,9 +97,12 @@ export class Home implements OnInit {
         // Garante que restaurante.id exista
         if (!item.restaurante.id) {
           // Tenta mapear de outros campos comuns que o backend pode enviar
-          item.restaurante.id = item.restaurante.idRestaurante || item.restaurante.idUsuario || item.restaurante.id_restaurante;
+          item.restaurante.id =
+            item.restaurante.idRestaurante ||
+            item.restaurante.idUsuario ||
+            item.restaurante.id_restaurante;
         }
-      } 
+      }
       // Se o item for diretamente o restaurante (caso do carregarRestaurantesPadrao às vezes)
       else {
         if (!item.id) {

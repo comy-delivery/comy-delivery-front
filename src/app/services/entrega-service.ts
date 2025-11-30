@@ -14,5 +14,13 @@ export class EntregaService {
   buscarPorPedido(idPedido: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/pedido/${idPedido}`);
   }
+
+  buscarEntregasDisponiveis(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}`);
+  }
+
+  aceitarEntrega(id: number, body: any = {}): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/${id}`, body);
+  }
   
 }
