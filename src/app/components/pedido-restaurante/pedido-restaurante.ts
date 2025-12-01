@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Pedido } from '../../Shared/models/Pedido';
 import { PedidoService } from '../../services/pedido-service';
 import { ProdutoService } from '../../services/produto-service';
+import { ClienteService } from '../../services/cliente-service'; // 🆕 ADICIONAR
 
 @Component({
   selector: 'app-pedido-restaurante',
@@ -20,6 +21,7 @@ export class PedidoRestauranteComponent implements OnInit {
 
   private pedidoService = inject(PedidoService);
   private produtoService = inject(ProdutoService);
+  private clienteService = inject(ClienteService); // 🆕 ADICIONAR
 
   // Estados do pedido
   StatusPedido = {
@@ -42,8 +44,39 @@ export class PedidoRestauranteComponent implements OnInit {
   // Imagens dos itens (carregadas dinamicamente)
   imagensItens: Map<number, string> = new Map();
 
+  // 🆕 ADICIONAR - Armazena nome do cliente
+  nomeCliente: string = 'Carregando...';
+
   ngOnInit(): void {
     //this.carregarImagensItens();
+    this.carregarDadosCliente(); // 🆕 ADICIONAR
+  }
+
+  // 🆕 ADICIONAR - Método para carregar dados do cliente
+  carregarDadosCliente(): void {
+    // Verifica se já tem o nome do cliente no objeto
+    if (this.pedido.cliente && (this.pedido.cliente as any).nmCliente) {
+      this.nomeCliente = (this.pedido.cliente as any).nmCliente;
+      return;
+    }
+
+    // Busca o ID do cliente
+    const clienteId = (this.pedido.cliente as any)?.id || (this.pedido as any).clienteId;
+    
+    if (clienteId) {
+      this.clienteService.buscarClientePorId(clienteId).subscribe({
+        next: (cliente) => {
+          this.nomeCliente = cliente.nmCliente || cliente.usuario?.username || 'Cliente';
+          console.log('✅ Nome do cliente carregado:', this.nomeCliente);
+        },
+        error: (err) => {
+          console.error('❌ Erro ao buscar cliente:', err);
+          this.nomeCliente = 'Cliente não encontrado';
+        }
+      });
+    } else {
+      this.nomeCliente = 'Cliente não informado';
+    }
   }
 
   /**
@@ -147,7 +180,7 @@ export class PedidoRestauranteComponent implements OnInit {
 
     console.log(`✅ Aceitando pedido #${this.pedido.idPedido} com tempo estimado: ${this.tempoEstimado} min`);
 
-    this.pedidoService.aceitarPedido(this.pedido.idPedido, true, this.tempoEstimado).subscribe({
+    this.pedidoService.aceitarPedido(this.pedido.idPedido!, this.tempoEstimado).subscribe({
       next: (pedidoAtualizado) => {
         console.log('✅ Pedido aceito com sucesso:', pedidoAtualizado);
         this.pedido = pedidoAtualizado;
@@ -252,9 +285,10 @@ export class PedidoRestauranteComponent implements OnInit {
 
   /**
    * Retorna o nome do cliente de forma segura
+   * 🆕 MODIFICADO - Agora usa a variável nomeCliente
    */
   getNomeCliente(): string {
-    return this.pedido?.cliente?.nmCliente || 'Cliente não informado';
+    return this.nomeCliente;
   }
 
   /**

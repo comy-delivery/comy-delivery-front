@@ -66,13 +66,14 @@ export class PedidoService {
   // ========== AÇÕES DO PEDIDO ==========
 
   /**
-   * Aceitar ou recusar pedido
-   * Backend espera: { aceito: boolean, tempoEstimado?: number }
+   * Aceitar pedido
+   * Backend espera: { aceitar: boolean, tempoEstimado?: number, motivoRecusa?: string }
    */
-  aceitarPedido(id: number, aceito: boolean, tempoEstimado?: number): Observable<Pedido> {
+  aceitarPedido(id: number, tempoEstimado: number): Observable<Pedido> {
     return this.http.patch<Pedido>(`${this.apiUrl}/${id}/aceitar`, {
-      aceito: aceito,
-      tempoEstimado: tempoEstimado
+      aceitar: true, 
+      tempoEstimado: tempoEstimado,
+      motivoRecusa: null
     });
   }
 
