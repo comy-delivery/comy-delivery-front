@@ -69,7 +69,7 @@ export class AuthService {
 
   // ========== LOGIN COM OAUTH2 (GOOGLE) 🆕 ==========
 
-  handleOAuth2Tokens(accessToken: string, refreshToken: string): void {
+  handleOAuth2Tokens(accessToken: string, refreshToken: string, userId: any): void {
     // 1. Salvar tokens
     this.tokenService.setTokens(accessToken, refreshToken);
 

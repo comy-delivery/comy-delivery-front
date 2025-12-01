@@ -29,20 +29,40 @@ export class OAuth2Callback implements OnInit {
             const refreshToken = params['refresh_token'];
             const userId = params['user_id'];
 
-            console.log('TOKENS RECEBIDOS:', { accessToken, refreshToken, userId });
+            console.log('🔍 TOKENS RECEBIDOS:', { accessToken, refreshToken, userId });
 
             if (accessToken && refreshToken && userId) {
-                // Salva no localStorage
-                localStorage.setItem('accessToken', accessToken);
-                localStorage.setItem('refreshToken', refreshToken);
-                localStorage.setItem('userId', userId);
+                // 🆕 USA O MÉTODO DO AUTH SERVICE (importante!)
+                this.authService.handleOAuth2Tokens(accessToken, refreshToken, userId);
 
-                console.log('TOKENS SALVOS! Redirecionando para home...');
+                console.log('✅ TOKENS PROCESSADOS! Redirecionando...');
 
-                // Vai pra home
-                this.router.navigate(['/']);
+                // Aguarda um pouco para garantir que tudo foi salvo
+                setTimeout(() => {
+                    const role = this.authService.getUserRole();
+                    console.log('🔀 Redirecionando para role:', role);
+                    
+                    // Redireciona baseado na role
+                    switch(role) {
+                        case 'CLIENTE':
+                            this.router.navigate(['/']);
+                            break;
+                        case 'RESTAURANTE':
+                            this.router.navigate(['/restaurante-perfil']);
+                            break;
+                        case 'ENTREGADOR':
+                            this.router.navigate(['/entregador']);
+                            break;
+                        case 'ADMIN':
+                            this.router.navigate(['/admin']);
+                            break;
+                        default:
+                            this.router.navigate(['/']);
+                    }
+                }, 500);
+                
             } else {
-                console.error('ERRO: Tokens não vieram!');
+                console.error('❌ ERRO: Tokens não vieram!');
                 this.router.navigate(['/login']);
             }
         });

@@ -5,8 +5,8 @@ import { environment } from '../../environments/environment';
   providedIn: 'root'
 })
 export class TokenService {
-  private readonly ACCESS_TOKEN_KEY = environment.tokenKey;
-  private readonly REFRESH_TOKEN_KEY = environment.refreshTokenKey;
+  private readonly ACCESS_TOKEN_KEY = 'comy_access_token';
+  private readonly REFRESH_TOKEN_KEY = 'comy_refresh_token';
 
   constructor() {}
 
