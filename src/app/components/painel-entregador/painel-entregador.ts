@@ -2,11 +2,13 @@ import { Component, OnInit, inject } from '@angular/core';
 import { EntregaDisponivel } from '../entrega-disponivel/entrega-disponivel';
 import { EntregaService } from '../../services/entrega-service';
 import { AuthService } from '../../services/auth-service';
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-painel-entregador',
   standalone: true,
-  imports: [EntregaDisponivel],
+  imports: [EntregaDisponivel, CommonModule, RouterLink],
   templateUrl: './painel-entregador.html',
   styleUrl: './painel-entregador.scss',
 })

@@ -18,6 +18,7 @@ import { PainelEntregador } from './components/painel-entregador/painel-entregad
 import { PerfilEntregador } from './components/perfil-entregador/perfil-entregador';
 import { PerfilRestaurante } from './components/perfil-restaurante/perfil-restaurante';
 import { ListagemRestaurantesComponent } from './components/listagem-restaurantes/listagem-restaurantes';
+import { EntregasEntregadorComponent } from './views/entregas-entregador/entregas-entregador';
 
 export const routes: Routes = [
   // ========== ROTAS PÚBLICAS ==========
@@ -96,6 +97,11 @@ export const routes: Routes = [
     component: Entrega,
     canActivate: [authGuard, roleGuard],
     data: { roles: ['ENTREGADOR'] },
+  },
+  {
+    path: 'entregador/entregas',
+    component: EntregasEntregadorComponent,
+    canActivate: [authGuard]
   },
 
   // ========== ADMIN ==========

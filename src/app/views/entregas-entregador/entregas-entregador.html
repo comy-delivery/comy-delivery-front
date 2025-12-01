@@ -1,0 +1,177 @@
+<div class="container py-4">
+  
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="mb-1">
+        <i class="bi bi-box-seam text-primary me-2"></i>
+        Minhas Entregas
+      </h2>
+      <p class="text-muted">Gerencie suas entregas atribuídas</p>
+    </div>
+    <button class="btn btn-outline-primary" (click)="voltarParaPainel()">
+      <i class="bi bi-arrow-left me-2"></i>
+      Voltar ao Painel
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Carregando...</span>
+    </div>
+    <p class="mt-3">Carregando entregas...</p>
+  </div>
+
+  <!-- Lista de Entregas -->
+  <div *ngIf="!isLoading">
+    
+    <div *ngFor="let entrega of entregasAtribuidas" class="card mb-3 shadow-sm border-start border-4">
+      <div class="card-body">
+        
+        <!-- Header do Card -->
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div>
+            <h5 class="mb-2">
+              <span class="badge text-bg-secondary me-2">#{{ entrega.id }}</span>
+              Pedido #{{ entrega.pedidoId }}
+            </h5>
+            <span class="badge mb-2" [ngClass]="getStatusBadgeClass(entrega.statusEntrega)">
+              <i [class]="getStatusIcon(entrega.statusEntrega)" class="me-1"></i>
+              {{ getStatusTexto(entrega.statusEntrega) }}
+            </span>
+            <p class="text-muted small mb-0">
+              <i class="bi bi-info-circle me-1"></i>
+              {{ getStatusDescricao(entrega.statusEntrega) }}
+            </p>
+          </div>
+          <div class="text-end">
+            <h3 class="text-success mb-0">R$ {{ entrega.valorEntrega | number:'1.2-2' }}</h3>
+            <small class="text-muted">Ganho</small>
+          </div>
+        </div>
+
+        <!-- Endereços -->
+        <div class="row mb-3">
+          <div class="col-md-6 mb-3 mb-md-0">
+            <div class="d-flex gap-2 align-items-start">
+              <i class="bi bi-shop text-warning fs-4"></i>
+              <div>
+                <small class="text-muted d-block mb-1"><strong>Retirar em</strong></small>
+                <p class="mb-1 fw-bold">
+                  {{ entrega.pedidoFull?.enderecoOrigem?.logradouro || 'Carregando...' }}, 
+                  {{ entrega.pedidoFull?.enderecoOrigem?.numero }}
+                </p>
+                <small class="text-muted">
+                  {{ entrega.pedidoFull?.enderecoOrigem?.bairro }} - 
+                  {{ entrega.pedidoFull?.enderecoOrigem?.cidade }}
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="d-flex gap-2 align-items-start">
+              <i class="bi bi-person text-primary fs-4"></i>
+              <div>
+                <small class="text-muted d-block mb-1"><strong>Entregar para</strong></small>
+                <p class="mb-1 fw-bold">
+                  {{ entrega.pedidoFull?.enderecoEntrega?.logradouro || 'Carregando...' }}, 
+                  {{ entrega.pedidoFull?.enderecoEntrega?.numero }}
+                </p>
+                <small class="text-muted">
+                  {{ entrega.pedidoFull?.enderecoEntrega?.bairro }} - 
+                  {{ entrega.pedidoFull?.enderecoEntrega?.cidade }}
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Informações -->
+        <div class="row text-center bg-light rounded p-3 mb-3">
+          <div class="col-4">
+            <i class="bi bi-geo-alt text-secondary fs-5"></i>
+            <p class="mb-0 small text-muted mt-1">Distância</p>
+            <strong class="text-dark">
+              {{ entrega.distanciaCalculada ? (entrega.distanciaCalculada | number:'1.1-1') + ' km' : 'Calculando...' }}
+            </strong>
+          </div>
+          <div class="col-4">
+            <i class="bi bi-clock text-secondary fs-5"></i>
+            <p class="mb-0 small text-muted mt-1">Tempo Est.</p>
+            <strong class="text-dark">{{ entrega.tempoEstimadoMinutos || '--' }} min</strong>
+          </div>
+          <div class="col-4">
+            <i class="bi bi-credit-card text-secondary fs-5"></i>
+            <p class="mb-0 small text-muted mt-1">Pagamento</p>
+            <strong class="text-dark">{{ entrega.pedidoFull?.formaPagamento || 'Carregando...' }}</strong>
+          </div>
+        </div>
+
+        <!-- AÇÕES BASEADAS NO STATUS -->
+        <div class="d-grid gap-2">
+          
+          <!-- Status: PENDENTE - Botão para iniciar rota -->
+          <div *ngIf="entrega.statusEntrega === 'PENDENTE'">
+            <button class="btn btn-primary btn-lg w-100" (click)="iniciarRota(entrega)">
+              <i class="bi bi-geo-alt-fill me-2"></i>
+              Iniciar Rota
+            </button>
+            <small class="text-center text-muted d-block mt-2">
+              <i class="bi bi-info-circle me-1"></i>
+              Clique para ir buscar o pedido no restaurante
+            </small>
+          </div>
+
+          <!-- Status: EM_ROTA - Botão para concluir entrega -->
+          <div *ngIf="entrega.statusEntrega === 'EM_ROTA'">
+            <button class="btn btn-success btn-lg w-100" (click)="concluirEntrega(entrega)">
+              <i class="bi bi-check-circle-fill me-2"></i>
+              Concluir Entrega
+            </button>
+            <small class="text-center text-muted d-block mt-2">
+              <i class="bi bi-check-circle me-1"></i>
+              Clique quando entregar o pedido ao cliente
+            </small>
+          </div>
+
+          <!-- Status: CONCLUIDA - Apenas informativo -->
+          <div *ngIf="entrega.statusEntrega === 'CONCLUIDA'">
+            <div class="alert alert-success mb-0">
+              <i class="bi bi-check-circle-fill me-2"></i>
+              <strong>Entrega concluída com sucesso!</strong>
+              <br>
+              <small>Você recebeu R$ {{ entrega.valorEntrega | number:'1.2-2' }} por esta entrega.</small>
+            </div>
+          </div>
+
+          <!-- Status: CANCELADA - Informativo -->
+          <div *ngIf="entrega.statusEntrega === 'CANCELADA'">
+            <div class="alert alert-danger mb-0">
+              <i class="bi bi-x-circle-fill me-2"></i>
+              <strong>Entrega cancelada</strong>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Nenhuma entrega -->
+    <div *ngIf="entregasAtribuidas.length === 0" class="card shadow-sm">
+      <div class="card-body text-center py-5">
+        <i class="bi bi-inbox fs-1 text-muted mb-3 d-block"></i>
+        <h5 class="text-muted">Nenhuma entrega atribuída</h5>
+        <p class="text-muted">Você não tem entregas no momento.</p>
+        <button class="btn btn-primary mt-3" (click)="voltarParaPainel()">
+          <i class="bi bi-search me-2"></i>
+          Ver Entregas Disponíveis
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
