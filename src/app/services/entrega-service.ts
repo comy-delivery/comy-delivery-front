@@ -28,8 +28,6 @@ export class EntregaService {
     return this.http.get<any>(`${this.apiUrl}/entregador/${idEntregador}/dashboard`);
   }
 
-  // ========== 🆕 NOVOS MÉTODOS ADICIONADOS ==========
-
   /**
    * Busca entregas atribuídas a um entregador específico
    */
@@ -42,18 +40,17 @@ export class EntregaService {
    */
   iniciarRota(entregaId: number, entregadorId: number): Observable<any> {
     return this.http.patch(`${this.apiUrl}/${entregaId}`, {
-      StatusEntrega: 'EM_ROTA',
-      entregadorId: entregadorId
+      statusEntrega: 'EM_ROTA',
+      entregadorId: entregadorId,
     });
   }
 
   /**
    * Concluir entrega (EM_ROTA -> CONCLUIDA)
-   * Backend espera: PATCH /api/entrega/{id} com body { status: "CONCLUIDA" }
    */
   concluirEntrega(entregaId: number): Observable<any> {
     return this.http.patch(`${this.apiUrl}/${entregaId}`, {
-      StatusEntrega: 'CONCLUIDA'
+      statusEntrega: 'CONCLUIDA',
     });
   }
   /**
