@@ -11,11 +11,12 @@ import { AuthService } from '../../services/auth-service';
 import { DashboardRestaurante, PedidoService } from '../../services/pedido-service';
 import { ProdutoService } from '../../services/produto-service';
 import { environment } from '../../../environments/environment';
+import { PedidosRestauranteComponent } from "../pedidos-restaurante/pedidos-restaurante";
 
 @Component({
   selector: 'app-perfil-restaurante',
   standalone: true,
-  imports: [CommonModule, FormsModule, PedidoRestauranteComponent, ProdutoRestaurante],
+  imports: [CommonModule, FormsModule, ProdutoRestaurante, PedidosRestauranteComponent, PedidosRestauranteComponent],
   templateUrl: './perfil-restaurante.html',
   styleUrls: ['./perfil-restaurante.scss'],
 })

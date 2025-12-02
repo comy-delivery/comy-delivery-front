@@ -8,7 +8,6 @@ import { Login } from './views/login/login';
 import { Cadastro } from './views/cadastro/cadastro';
 import { Entrega } from './views/entrega/entrega';
 import { RecuperarSenha } from './views/recuperar-senha/recuperar-senha';
-import { Restaurante } from './views/restaurante/restaurante';
 import { Entregador } from './views/entregador/entregador';
 import { PainelAdmin } from './views/painel-admin/painel-admin';
 import { authGuard, publicGuard, roleGuard } from './guards/auth-guard';
@@ -19,6 +18,7 @@ import { PerfilEntregador } from './components/perfil-entregador/perfil-entregad
 import { PerfilRestaurante } from './components/perfil-restaurante/perfil-restaurante';
 import { ListagemRestaurantesComponent } from './components/listagem-restaurantes/listagem-restaurantes';
 import { EntregasEntregadorComponent } from './views/entregas-entregador/entregas-entregador';
+import { PedidosRestauranteComponent } from './components/pedidos-restaurante/pedidos-restaurante';
 
 export const routes: Routes = [
   // ========== ROTAS PÚBLICAS ==========
@@ -74,6 +74,13 @@ export const routes: Routes = [
   {
     path: 'restaurante',
     component: HomeRestauranteComponent,
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['RESTAURANTE'] },
+  },
+  
+  {
+    path: 'restaurante/pedidos',
+    component: PedidosRestauranteComponent,
     canActivate: [authGuard, roleGuard],
     data: { roles: ['RESTAURANTE'] },
   },

@@ -3,7 +3,6 @@ import { PerfilRestaurante } from '../../components/perfil-restaurante/perfil-re
 import { CommonModule } from '@angular/common';
 import { PerfilEntregador } from '../../components/perfil-entregador/perfil-entregador';
 import { PerfilCliente } from '../../components/perfil-cliente/perfil-cliente';
-import { Restaurante } from '../restaurante/restaurante';
 import { HomeRestauranteComponent } from '../../components/home-restaurante/home-restaurante';
 
 @Component({

@@ -1,14 +1,16 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth-service';
 import { RestauranteService } from '../../services/restaurante-service';
+import { PedidoRestauranteComponent } from '../pedido-restaurante/pedido-restaurante';
+import { PedidosRestauranteComponent } from "../pedidos-restaurante/pedidos-restaurante";
 
 @Component({
   selector: 'app-home-restaurante',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PedidosRestauranteComponent],
   templateUrl: './home-restaurante.html',
   styleUrls: ['./home-restaurante.scss']
 })

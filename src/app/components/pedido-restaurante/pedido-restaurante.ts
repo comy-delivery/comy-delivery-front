@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Pedido } from '../../Shared/models/Pedido';
 import { PedidoService } from '../../services/pedido-service';
 import { ProdutoService } from '../../services/produto-service';
-import { ClienteService } from '../../services/cliente-service'; // 🆕 ADICIONAR
+import { ClienteService } from '../../services/cliente-service';
 
 @Component({
   selector: 'app-pedido-restaurante',
@@ -21,7 +21,7 @@ export class PedidoRestauranteComponent implements OnInit {
 
   private pedidoService = inject(PedidoService);
   private produtoService = inject(ProdutoService);
-  private clienteService = inject(ClienteService); // 🆕 ADICIONAR
+  private clienteService = inject(ClienteService);
 
   // Estados do pedido
   StatusPedido = {
